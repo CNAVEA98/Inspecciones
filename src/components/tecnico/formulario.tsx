@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
 import { SignatureField } from "@/components/shared/signature-field";
@@ -33,8 +33,23 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+const sinSuscripcion = () => () => {};
+
+/**
+ * El id real sale de la URL: sin red, el service worker entrega una copia de esta página guardada con
+ * otro id (todas las inspecciones comparten la misma), y el contenido sale de Dexie, no del servidor.
+ */
+function useIdDeUrl(idInicial: string): string {
+  return useSyncExternalStore(
+    sinSuscripcion,
+    () => window.location.pathname.split("/").filter(Boolean).pop() ?? idInicial,
+    () => idInicial,
+  );
+}
+
 /** Formulario de inspección: una sección por pantalla, guardado automático en el equipo. */
-export function Formulario({ id }: { id: string }) {
+export function Formulario({ id: idInicial }: { id: string }) {
+  const id = useIdDeUrl(idInicial);
   const router = useRouter();
   const { db, userId, catalog, sync } = useTecnico();
   const [draft, setDraft] = useState<DraftRecord | null | undefined>(undefined);

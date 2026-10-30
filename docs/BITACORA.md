@@ -31,7 +31,7 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 | Auth, proxy por rol (admin, supervisor, planificador, técnico), turnos A/B y firma doble en BD | Hecho; probado en SQL; **login y pantallas por rol sin probar en navegador** |
 | Núcleo offline (Dexie, cola, reintentos, compresión) | Hecho, con tests |
 | Flujo del técnico (Área → Equipo → Modo → formulario → envío) | Hecho; **sin probar contra Supabase** |
-| Service worker / PWA instalable | Pendiente |
+| Service worker / PWA instalable | Hecho (2026-10-30, rama `feat/pwa-offline`): probado en Chrome con el servidor apagado; **sin probar con corte total de red, envío sin red ni instalación en teléfono** |
 | Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app; firma del supervisor probada en navegador (2026-10-30), **firma del planificador y rechazo sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
 | Verificación a 375px y 1440px, prueba con red apagada | Parcial (formularios a 375px con datos simulados) |
@@ -44,7 +44,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 2. ~~Aplicar migraciones y seed~~ — hecho 2026-10-30 (sin errores).
 3. ~~Escribir y correr `supabase/tests/rls.test.sql` (pgTAP)~~ — hecho 2026-10-30 (30/30). Falta ampliarlo a Storage y a las tablas hijas.
 4. Probar en el navegador el login y el cambio de rol/turno con los usuarios del seed (`admin@bbosch.cl`, `supervisor.a@bbosch.cl`, `planificador.a@bbosch.cl`, `tecnico.a@bbosch.cl` y los de turno B; contraseñas en `supabase/seed.sql`). Falta una pantalla para crear cuentas (solo el administrador).
-5. Service worker con Serwist + manifest + iconos. Requiere instalar `serwist` (par obligatorio de `@serwist/next`); **pendiente de OK explícito** y de usar `next build --webpack`.
+5. ~~Service worker con Serwist + manifest + iconos~~ — hecho 2026-10-30 con `@serwist/turbopack` (ver Decisiones). Falta probar la instalación en teléfono y el envío sin red.
 6. Bandejas de supervisor y planificador (y vista de solo lectura del admin): filtros, detalle, aprobar/rechazar con comentario, firma dibujada. La BD ya soporta las dos etapas de firma.
 7. PDF con `@react-pdf/renderer` reproduciendo el diseño Cobre, con logo BBOSCH, guardado en Storage privado y URL firmada.
 8. Vista de solo lectura de inspecciones ya enviadas en `/tecnico`.
@@ -54,6 +54,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 
 ## Decisiones
 
+- **PWA con `@serwist/turbopack` (2026-10-30):** no se usa `@serwist/next` porque exige webpack y con webpack el CSS de Tailwind no se genera (el loader es solo de Turbopack). El service worker se sirve desde una ruta (`/serwist/sw.js`) y solo se registra en producción. Solo el área del técnico funciona sin red.
 - **Roles y firma doble (2026-10-30):** admin, supervisor, planificador y técnico, cada uno con turno A/B (el admin sin turno). El turno es solo etiqueta. Firma en dos etapas: supervisor y luego planificador. Solo el admin cambia rol y turno. Cuentas nuevas parten como técnico y no hay autoregistro.
 - **Diseño «Cobre»** (grafito + cobre, bordes redondeados, números tipo instrumento), aprobado por el usuario. Nació de la familia SAP de awesome-design-md; IBM Carbon descartado. Detalle en `docs/DESIGN.md`.
 - **Sin geo-referencia:** se evaluó y el usuario la descartó; no hay columnas geo en el esquema.
@@ -82,6 +83,15 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · PWA instalable y uso sin servidor (service worker con Serwist)
+- **Autor:** CNAVEA98 con Claude (rama `feat/pwa-offline`, creada sobre `feat/roles-turnos-firma-doble`)
+- **Qué se hizo:** la app se instala y el área del técnico abre sin red. Service worker (`src/app/sw.ts`) servido en `/serwist/sw.js`: precachea los 28 archivos del build (JS, CSS, fuentes, logo) y guarda las páginas `/tecnico`, `/tecnico/nueva` y el formulario (red primero, con espera máxima de 4 s y copia local si falla). Manifest e íconos (`src/app/manifest.ts`, `public/icons/`). Las páginas se guardan al abrir la app con red y al volver la conexión (`src/lib/offline/paginas.ts`); al cerrar sesión se borran, porque llevan el nombre del técnico. El formulario ahora toma el `id` de la URL (todas las inspecciones comparten una sola página guardada; los datos salen de Dexie), para poder abrir una inspección creada sin red. El service worker solo se registra en producción.
+- **Decisión de herramienta:** se usó `@serwist/turbopack` en vez de `@serwist/next`. Este último obliga a compilar con webpack y, con webpack, el CSS de Tailwind sale sin estilos (se comprobó en el build: falta `bg-graf`), porque el loader está configurado solo para Turbopack. Dependencias nuevas (autorizadas por el usuario): `serwist`, `@serwist/turbopack`, `esbuild`, `esbuild-wasm` (este último es dependencia obligatoria de `@serwist/turbopack`). pnpm avisa que ignora los scripts de instalación de `esbuild` y `@swc/core`; no se aprobaron y `esbuild` funciona igual. El build sigue siendo el normal (`next build`, sin `--webpack`).
+- **Archivos:** `src/app/sw.ts`, `src/app/serwist/[path]/route.ts`, `src/app/manifest.ts`, `src/app/layout.tsx`, `next.config.ts`, `src/proxy.ts`, `src/lib/offline/paginas.ts`, `src/components/tecnico/{formulario,nueva-inspeccion,tecnico-provider}.tsx`, `src/components/shared/sign-out-button.tsx`, `public/icons/*`, `tsconfig.json`, `tsconfig.sw.json`, `package.json`, `pnpm-lock.yaml`.
+- **Verificación:** `pnpm lint` sin errores · `pnpm typecheck` sin errores (ahora revisa también el service worker con `tsconfig.sw.json`; el worker queda fuera del `tsconfig.json` porque su tipado de `webworker` rompe los tipos del DOM del resto) · `pnpm test` 69/69 · `pnpm build` correcto con 28 entradas precacheadas. **Prueba real en Chrome** con `next start` en el puerto 3100 y Supabase local: tras entrar como `tecnico.a@bbosch.cl` el service worker queda activo y controlando la página, con el precaché y las 3 páginas en `mlp-paginas`. Se apagó el servidor de la app y: `/tecnico` abre desde la copia local; «Nueva inspección» → Área → Equipo → Modo crea el borrador y abre el formulario con un `id` que el servidor nunca vio; recargar esa URL también abre el formulario con el borrador. Con el servidor de nuevo arriba, «Salir» borra `mlp-paginas`.
+- **No verificado:** (1) **corte total de red**: en la prueba solo se apagó el servidor de la app; Supabase local seguía disponible, así que el envío y la sincronización con la red caída no se probaron de punta a punta (esa lógica sí tiene tests unitarios en `outbox.test.ts`). (2) Completar y enviar una inspección sin red, y verla después en la bandeja del supervisor (prueba de aceptación, pendiente 9). (3) La instalación en un teléfono real (Android e iOS) y el aspecto de los íconos; en iOS el manifest se usa de forma limitada. (4) Actualización del service worker cuando hay una versión nueva con la app abierta (`skipWaiting` y `clientsClaim` activados). (5) El funcionamiento en `next dev` (el worker está desactivado ahí).
+- **Pendiente / riesgos:** (1) un técnico que nunca abrió la app con red no puede usarla sin red (hace falta una primera carga con conexión, que además baja el catálogo). (2) Los íconos son el logo sobre fondo claro, hechos a mano; conviene que diseño los revise. (3) Si cambia el contenido de las páginas del técnico, la copia local se actualiza sola al abrir la app con red. (4) Las áreas de supervisor, planificador y administrador siguen necesitando conexión (decisión de alcance).
 
 ### 2026-10-30 · Test RLS en pgTAP (cierra el Checkpoint 1)
 - **Autor:** CNAVEA98 con Claude (rama `feat/roles-turnos-firma-doble`)

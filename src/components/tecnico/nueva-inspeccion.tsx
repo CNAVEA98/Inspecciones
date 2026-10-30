@@ -76,6 +76,7 @@ export function NuevaInspeccion() {
     });
     draft.header = { fecha: hoyIso() };
     await db.drafts.add(draft);
+    // Sin red, Next hace una navegación completa y el service worker entrega la página guardada.
     router.push(`/tecnico/inspeccion/${draft.id}`);
   };
 

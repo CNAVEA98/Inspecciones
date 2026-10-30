@@ -1,8 +1,12 @@
+"use client";
+
 import { cerrarSesion } from "@/app/login/actions";
+import { borrarPaginas } from "@/lib/offline/paginas";
 
 export function SignOutButton({ className = "" }: { className?: string }) {
   return (
-    <form action={cerrarSesion}>
+    // Las páginas guardadas para uso sin red llevan el nombre del técnico: se borran al salir.
+    <form action={cerrarSesion} onSubmit={() => void borrarPaginas()}>
       <button
         type="submit"
         className={

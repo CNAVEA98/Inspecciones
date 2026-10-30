@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
 import { SignatureField } from "@/components/shared/signature-field";
@@ -33,8 +33,23 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+const sinSuscripcion = () => () => {};
+
+/**
+ * El id real sale de la URL: sin red, el service worker entrega una copia de esta página guardada con
+ * otro id (todas las inspecciones comparten la misma), y el contenido sale de Dexie, no del servidor.
+ */
+function useIdDeUrl(idInicial: string): string {
+  return useSyncExternalStore(
+    sinSuscripcion,
+    () => window.location.pathname.split("/").filter(Boolean).pop() ?? idInicial,
+    () => idInicial,
+  );
+}
+
 /** Formulario de inspección: una sección por pantalla, guardado automático en el equipo. */
-export function Formulario({ id }: { id: string }) {
+export function Formulario({ id: idInicial }: { id: string }) {
+  const id = useIdDeUrl(idInicial);
   const router = useRouter();
   const { db, userId, catalog, sync } = useTecnico();
   const [draft, setDraft] = useState<DraftRecord | null | undefined>(undefined);
@@ -180,6 +195,15 @@ export function Formulario({ id }: { id: string }) {
         </div>
         <h1 className="mt-4 text-3xl font-bold leading-tight tracking-tight">{titulo}</h1>
         {template.note ? <p className="mt-1 text-sm text-sub">{template.note}</p> : null}
+        {draft.correccion ? (
+          <div className="mt-3 rounded-xl border border-[#e8b4b4] bg-[#fbe4e4] p-3" role="note">
+            <p className="text-sm font-semibold text-[#8a0000]">Corrección de {draft.correccion.folio}</p>
+            <p className="mt-1 text-base">Motivo del rechazo: {draft.correccion.motivo || "sin comentario"}</p>
+            <p className="mt-1 text-sm text-sub">
+              Se copiaron los datos y respuestas. Las fotos y la firma del participante hay que tomarlas de nuevo.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <fieldset disabled={bloqueado} className="contents">

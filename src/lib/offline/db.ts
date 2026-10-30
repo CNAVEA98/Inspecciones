@@ -59,6 +59,8 @@ export interface DraftRecord {
   /** draft = editable; queued = en la cola; sent = confirmado por el servidor */
   state: "draft" | "queued" | "sent";
   folio?: string;
+  /** Si este borrador corrige una inspección rechazada: su id, folio y el motivo del rechazo. */
+  correccion?: { de: string; folio: string; motivo: string };
 }
 
 export type OutboxStatus = "pending" | "sending" | "failed";

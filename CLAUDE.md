@@ -36,7 +36,7 @@ Trazabilidad: **la entrada de la bitácora viaja en el mismo commit que el cambi
 - Next 16: el middleware se llama `src/proxy.ts`. Lea `node_modules/next/dist/docs/` antes de usar APIs de Next (ver `AGENTS.md`).
 - Toda la UI en español (Chile); fechas en `America/Santiago`. Sin modo oscuro, analytics ni notificaciones push.
 - Diseño: seguir `docs/DESIGN.md` (sistema «Cobre»). El logo está en `public/brand/bbosch-logo.png`.
-- Dependencias permitidas: dexie, zod, react-hook-form, signature_pad, @react-pdf/renderer, @serwist/next y las ya instaladas.
+- Dependencias permitidas: dexie, zod, react-hook-form, signature_pad, @react-pdf/renderer, serwist, @serwist/turbopack (con esbuild y esbuild-wasm) y las ya instaladas.
   Cualquier otra: preguntar antes.
 - No tocar archivos `.env*`. No ejecutar migraciones contra un Supabase remoto: solo Supabase CLI local y archivos SQL.
   No modificar migraciones ya aplicadas (crear una nueva).

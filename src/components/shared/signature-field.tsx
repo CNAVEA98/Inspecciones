@@ -2,13 +2,15 @@
 
 import { useEffect, useRef } from "react";
 
-/** Firma dibujada con el dedo. Entrega el PNG y una vista previa; "Limpiar" la borra. */
+/** Firma dibujada con el dedo o el mouse. Entrega el PNG y una vista previa; "Limpiar" la borra. */
 export function SignatureField({
   initialDataUrl,
   onChange,
+  ayuda = "Firme con el dedo",
 }: {
   initialDataUrl?: string;
   onChange: (png: Blob | null, dataUrl: string | null) => void;
+  ayuda?: string;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const cb = useRef(onChange);
@@ -92,7 +94,7 @@ export function SignatureField({
         className="block h-44 w-full touch-none rounded-2xl border-[1.5px] border-dashed border-[#6f695f] bg-white"
       />
       <div className="mt-2 flex items-center justify-between text-sm text-sub">
-        <span>Firme con el dedo</span>
+        <span>{ayuda}</span>
         <button type="button" onClick={limpiar} className="min-h-12 rounded-xl border-[1.5px] border-graf px-4 font-semibold text-graf">
           Limpiar
         </button>

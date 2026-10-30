@@ -323,7 +323,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'transformador_piso' and wm.code = 'plan_matriz';
 
 -- ---------- Usuarios de desarrollo (solo local) ----------
--- El trigger de alta crea ambos perfiles como 'technician'; el supervisor se promueve por SQL.
+-- El trigger de alta crea los perfiles como 'technician'; rol y turno se asignan aquí por SQL.
 do $$
 declare
   u record;
@@ -331,10 +331,18 @@ declare
 begin
   for u in
     select * from (values
-      ('supervisor@mlp.local', 'dev-supervisor-123', 'Supervisora Demo', 'supervisor'),
-      ('supervisor@bbosch.cl', '1234', 'Supervisor BBOSCH', 'supervisor'),
-      ('tecnico@mlp.local', 'dev-tecnico-123', 'Técnico Demo', 'technician')
-    ) as t(email, pass, full_name, role)
+      ('admin@bbosch.cl', 'CLAVE-ELIMINADA', 'Administrador BBOSCH', 'admin', null),
+      ('supervisor.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno A', 'supervisor', 'A'),
+      ('supervisor.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno B', 'supervisor', 'B'),
+      ('planificador.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno A', 'planner', 'A'),
+      ('planificador.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno B', 'planner', 'B'),
+      ('tecnico.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno A', 'technician', 'A'),
+      ('tecnico.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno B', 'technician', 'B'),
+      -- Usuarios anteriores (se conservan para no romper accesos ya usados).
+      ('supervisor@mlp.local', '78787878', 'Supervisora Demo', 'supervisor', 'A'),
+      ('supervisor@bbosch.cl', '56565656', 'Supervisor BBOSCH', 'supervisor', 'A'),
+      ('tecnico@mlp.local', '90909090', 'Técnico Demo', 'technician', 'A')
+    ) as t(email, pass, full_name, role, shift)
   loop
     v_id := gen_random_uuid();
     insert into auth.users (
@@ -352,6 +360,6 @@ begin
     values (gen_random_uuid(), v_id::text, v_id,
             jsonb_build_object('sub', v_id::text, 'email', u.email, 'email_verified', true),
             'email', now(), now(), now());
-    update public.profiles set role = u.role where id = v_id;
+    update public.profiles set role = u.role, shift = u.shift where id = v_id;
   end loop;
 end $$;

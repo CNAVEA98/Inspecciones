@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { safeNext } from "@/lib/auth/roles";
 
@@ -33,7 +34,15 @@ export default async function LoginPage({
         <div aria-hidden className="h-[3px] w-24 rounded-full bg-cu lg:hidden" />
       </section>
 
-      <section className="flex items-center justify-center px-6 py-12 sm:px-10">
+      <section className="flex flex-col items-center justify-center gap-10 px-6 py-12 sm:px-10">
+        <Image
+          src="/brand/bbosch-logo.png"
+          alt="BBOSCH, Infraestructura para el futuro"
+          width={1115}
+          height={391}
+          priority
+          className="h-auto w-48 sm:w-56"
+        />
         <LoginForm next={safeNext(next) ?? undefined} />
       </section>
     </main>

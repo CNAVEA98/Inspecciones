@@ -16,12 +16,17 @@ export function formatFechaHora(ms: number | string | Date): string {
   return `${p.day}-${p.month}-${p.year} ${p.hour}:${p.minute}`;
 }
 
-/** Fecha de hoy (Chile) en formato ISO yyyy-mm-dd, para inputs type="date". */
-export function hoyIso(): string {
+/** Día (Chile) de un instante, en formato ISO yyyy-mm-dd. */
+export function fechaIso(ms: number | string | Date): string {
   const p = Object.fromEntries(
     new Intl.DateTimeFormat("en-CA", { timeZone: ZONA, year: "numeric", month: "2-digit", day: "2-digit" })
-      .formatToParts(new Date())
+      .formatToParts(new Date(ms))
       .map((x) => [x.type, x.value]),
   );
   return `${p.year}-${p.month}-${p.day}`;
+}
+
+/** Fecha de hoy (Chile) en formato ISO yyyy-mm-dd, para inputs type="date". */
+export function hoyIso(): string {
+  return fechaIso(new Date());
 }

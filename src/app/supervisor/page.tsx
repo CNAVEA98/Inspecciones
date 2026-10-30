@@ -1,8 +1,22 @@
-export default function BandejaPage() {
+import { Bandeja } from "@/components/revision/bandeja";
+import { parseConsulta } from "@/lib/revision/consulta";
+import { parseFiltro } from "@/lib/revision/estado";
+
+export const metadata = { title: "Bandeja del supervisor · Inspecciones MLP" };
+
+export default async function BandejaPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
   return (
-    <section className="rounded-2xl border border-hair bg-white p-6">
-      <h1 className="text-xl font-bold tracking-tight">Bandeja de inspecciones</h1>
-      <p className="mt-1 text-sub">Aquí se listarán las inspecciones enviadas, con filtros por área, equipo, estado y fecha.</p>
-    </section>
+    <Bandeja
+      base="/supervisor"
+      rol="supervisor"
+      filtro={parseFiltro(sp.estado)}
+      consulta={parseConsulta(sp)}
+      titulo="Bandeja de inspecciones"
+    />
   );
 }

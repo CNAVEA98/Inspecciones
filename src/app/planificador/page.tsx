@@ -2,7 +2,7 @@ import { Bandeja } from "@/components/revision/bandeja";
 import { parseConsulta } from "@/lib/revision/consulta";
 import { parseFiltro } from "@/lib/revision/estado";
 
-export const metadata = { title: "Bandeja del planificador · Inspecciones MLP" };
+export const metadata = { title: "Bandeja del programador · Inspecciones MLP" };
 
 export default async function BandejaPlanificadorPage({
   searchParams,

@@ -43,7 +43,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 1. ~~Instalar WSL2 y Docker~~ — hecho 2026-10-30. Cada persona debe abrir Docker Desktop y correr `corepack pnpm supabase start` en su equipo.
 2. ~~Aplicar migraciones y seed~~ — hecho 2026-10-30 (sin errores).
 3. ~~Escribir y correr `supabase/tests/rls.test.sql` (pgTAP)~~ — hecho 2026-10-30 (30/30). Falta ampliarlo a Storage y a las tablas hijas.
-4. Probar en el navegador el login y el cambio de rol/turno con los usuarios del seed (`admin@bbosch.cl`, `supervisor.a@bbosch.cl`, `planificador.a@bbosch.cl`, `tecnico.a@bbosch.cl` y los de turno B; contraseñas en `supabase/seed.sql`). Las cuentas no se crean desde la app: las genera el equipo de desarrollo (decisión 2026-10-30).
+4. ~~Probar en el navegador el login por rol~~ — hecho 2026-10-30 con los usuarios genéricos nuevos (ver «Cuentas genéricas por usuario»).
 5. ~~Service worker con Serwist + manifest + iconos~~ — hecho 2026-10-30 con `@serwist/turbopack` (ver Decisiones). Falta probar la instalación en teléfono y el envío sin red.
 6. Bandejas de supervisor y planificador (y vista de solo lectura del admin): filtros, detalle, aprobar/rechazar con comentario, firma dibujada. La BD ya soporta las dos etapas de firma.
 7. PDF con `@react-pdf/renderer` reproduciendo el diseño Cobre, con logo BBOSCH, guardado en Storage privado y URL firmada.
@@ -55,6 +55,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 
 ## Decisiones
 
+- **Cuentas genéricas por usuario, sin correo (2026-10-30):** no se crean cuentas por persona (la gente olvida contraseñas). Hay 7 cuentas compartidas que se ingresan con **usuario**: `ADMINISTRADOR`, `SUPERVISOR_A`, `SUPERVISOR_B`, `PROGRAMADOR_A`, `PROGRAMADOR_B`, `TECNICO_A`, `TECNICO_B` (no distingue mayúsculas). Supabase Auth exige correo, así que se usa uno interno `usuario@mlp.local` que nunca se muestra y no parece un correo real. El rol «planificador» se muestra como «Programador» (la ruta y el código siguen en `planner`/`/planificador`). La trazabilidad por persona la da el campo «quién realizó la inspección». Las contraseñas del seed son de prueba: **hay que cambiarlas antes de producción**.
 - **Formatos en código, TAG desde el Maestro (2026-10-30):** el catálogo de 60 formatos vive en `src/lib/formatos/catalogo.ts` (fuente única; habilitar uno = cambiar su estado y cargar su plantilla). Valle es una quinta área. Los TAG vienen de `src/data/maestro-tags.json`, generado con `scripts/export-maestro.py` (Python + openpyxl solo para el script). Los TAG provisionales (propuesto/reasignado) se pueden elegir y se marcan en el registro para revisión; no se bloquea al técnico por no tener el TAG oficial.
 - **Cuentas creadas por el equipo, no por la app (2026-10-30):** no habrá pantalla de alta de usuarios; las cuentas las genera el equipo de desarrollo para que solo las use personal de la empresa. No hay autoregistro.
 - **PWA con `@serwist/turbopack` (2026-10-30):** no se usa `@serwist/next` porque exige webpack y con webpack el CSS de Tailwind no se genera (el loader es solo de Turbopack). El service worker se sirve desde una ruta (`/serwist/sw.js`) y solo se registra en producción. Solo el área del técnico funciona sin red.
@@ -86,6 +87,14 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · Cuentas genéricas con usuario (sin correo) y prueba de extremo a extremo
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** el login pide **Usuario** en lugar de correo (`TECNICO_A`, `SUPERVISOR_B`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); internamente se convierte en `usuario@mlp.local`. El seed y el test RLS usan las 7 cuentas nuevas (se quitaron los usuarios demo antiguos del seed). «Planificador» pasa a mostrarse «Programador» en la interfaz. Tras un error de login se conserva el usuario escrito. No hay script de alta de cuentas (decisión del usuario).
+- **Archivos:** `src/lib/auth/usuario.ts` (+ test), `src/app/login/{actions.ts,login-form.tsx}`, `src/lib/auth/roles.ts`, `src/lib/revision/estado.ts`, `src/components/revision/{panel-revision,detalle}.tsx`, `src/app/planificador/page.tsx`, `supabase/seed.sql`, `supabase/tests/rls.test.sql`.
+- **Base local:** las cuentas existentes se renombraron en el lugar con SQL (sin `db reset`, para no perder las inspecciones de prueba). Las cuentas demo antiguas (`supervisor@mlp.local`, `supervisor@bbosch.cl`, `tecnico@mlp.local`) siguen en esa base local pero ya no están en el seed.
+- **Verificación:** lint y typecheck sin errores · tests 101/101 · pgTAP 30/30 · las 7 cuentas inician sesión contra el Auth local (HTTP 200). **Navegador (Chrome, `next dev`):** clave incorrecta muestra «Usuario o contraseña incorrectos» y conserva el usuario; `tecnico_a` (en minúsculas) entra a `/tecnico`; se envió INSP-12 en Mina con TAG provisional `160-XF-243` (29 ítems en Bueno, firma del participante) → `INS-2026-000031` con `tag_estado = propuesto`; `SUPERVISOR_A` ve «TAG provisional» en el detalle y descarga el PDF (175 KB), firma y confirma; `PROGRAMADOR_A` firma y la deja **Aprobada**; PDF final de 178 KB.
+- **Pendiente / riesgos:** no se probó el login de `ADMINISTRADOR`, `SUPERVISOR_B`, `PROGRAMADOR_B` ni `TECNICO_B` en el navegador (sí contra la API de auth). Con cuentas compartidas, la trazabilidad depende de que el técnico escriba su nombre al inicio de la inspección. Las contraseñas del seed son de prueba y están en el repositorio: cambiarlas antes de producción. Quedan inspecciones y borradores de prueba en la base local (`INS-2026-000023`, `000024`, `000031`).
 
 ### 2026-10-30 · El técnico puede eliminar una inspección en curso (deslizar a la derecha)
 - **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`

@@ -32,7 +32,7 @@ export function safeNext(next: string | null | undefined): string | null {
 export const ROLE_LABEL: Record<Role, string> = {
   admin: "Administrador",
   supervisor: "Supervisor",
-  planner: "Planificador",
+  planner: "Programador",
   technician: "Técnico",
 };
 

@@ -237,7 +237,7 @@ export function Detalle({
             {d.firmas.map((f) => (
               <li key={f.stage}>
                 <span className="font-semibold">
-                  {f.stage === "supervisor" ? "Supervisor" : "Planificador"} · {f.decision === "approved" ? "aprobó" : "rechazó"}
+                  {f.stage === "supervisor" ? "Supervisor" : "Programador"} · {f.decision === "approved" ? "aprobó" : "rechazó"}
                 </span>{" "}
                 <span className="text-sub">
                   {f.firmante} · {formatFechaHora(f.signedAt)}

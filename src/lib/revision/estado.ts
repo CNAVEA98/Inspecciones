@@ -3,7 +3,7 @@ export type InspectionStatus = "draft" | "submitted" | "supervisor_signed" | "ap
 export const STATUS_LABEL: Record<InspectionStatus, string> = {
   draft: "Borrador",
   submitted: "Enviada · por firmar supervisor",
-  supervisor_signed: "Firmada por supervisor · por firmar planificador",
+  supervisor_signed: "Firmada por supervisor · por firmar programador",
   approved: "Aprobada",
   rejected: "Rechazada",
 };
@@ -12,7 +12,7 @@ export const STATUS_LABEL: Record<InspectionStatus, string> = {
 export const STATUS_SHORT: Record<InspectionStatus, string> = {
   draft: "Borrador",
   submitted: "Por firmar (supervisor)",
-  supervisor_signed: "Por firmar (planificador)",
+  supervisor_signed: "Por firmar (programador)",
   approved: "Aprobada",
   rejected: "Rechazada",
 };

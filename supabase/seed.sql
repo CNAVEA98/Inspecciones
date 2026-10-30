@@ -325,6 +325,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'transformador_piso' and wm.code = 'plan_matriz';
 
 -- ---------- Usuarios de desarrollo (solo local) ----------
+-- Se entra con el usuario (TECNICO_A, SUPERVISOR_B…); el correo @mlp.local es interno y no se muestra.
 -- El trigger de alta crea los perfiles como 'technician'; rol y turno se asignan aquí por SQL.
 do $$
 declare
@@ -333,17 +334,13 @@ declare
 begin
   for u in
     select * from (values
-      ('admin@bbosch.cl', 'CLAVE-ELIMINADA', 'Administrador BBOSCH', 'admin', null),
-      ('supervisor.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno A', 'supervisor', 'A'),
-      ('supervisor.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno B', 'supervisor', 'B'),
-      ('planificador.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno A', 'planner', 'A'),
-      ('planificador.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno B', 'planner', 'B'),
-      ('tecnico.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno A', 'technician', 'A'),
-      ('tecnico.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno B', 'technician', 'B'),
-      -- Usuarios anteriores (se conservan para no romper accesos ya usados).
-      ('supervisor@mlp.local', '78787878', 'Supervisora Demo', 'supervisor', 'A'),
-      ('supervisor@bbosch.cl', '56565656', 'Supervisor BBOSCH', 'supervisor', 'A'),
-      ('tecnico@mlp.local', '90909090', 'Técnico Demo', 'technician', 'A')
+      ('administrador@mlp.local', 'CLAVE-ELIMINADA', 'Administrador', 'admin', null),
+      ('supervisor_a@mlp.local', 'CLAVE-ELIMINADA', 'Supervisor A', 'supervisor', 'A'),
+      ('supervisor_b@mlp.local', 'CLAVE-ELIMINADA', 'Supervisor B', 'supervisor', 'B'),
+      ('programador_a@mlp.local', 'CLAVE-ELIMINADA', 'Programador A', 'planner', 'A'),
+      ('programador_b@mlp.local', 'CLAVE-ELIMINADA', 'Programador B', 'planner', 'B'),
+      ('tecnico_a@mlp.local', 'CLAVE-ELIMINADA', 'Técnico A', 'technician', 'A'),
+      ('tecnico_b@mlp.local', 'CLAVE-ELIMINADA', 'Técnico B', 'technician', 'B')
     ) as t(email, pass, full_name, role, shift)
   loop
     v_id := gen_random_uuid();

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
-import { SignatureField } from "./signature-field";
+import { SignatureField } from "@/components/shared/signature-field";
 import { enqueueSubmission } from "@/lib/offline/outbox";
 import type { DraftRecord } from "@/lib/offline/db";
 import type { FormTemplateSchema } from "@/lib/templates/schema";
@@ -13,6 +13,7 @@ import {
   META,
   allItems,
   buildSubmission,
+  getEjecutor,
   validateDraft,
   type Diagnostico,
   type Participantes,
@@ -184,6 +185,14 @@ export function Formulario({ id }: { id: string }) {
       <fieldset disabled={bloqueado} className="contents">
         {paso === 0 && (
           <div className="grid gap-4">
+            <Campo label="Nombre de quien realiza la inspección">
+              <input
+                value={getEjecutor(draft.answers)}
+                onChange={(e) => setAnswer(META.ejecutor, e.target.value)}
+                className={campo}
+                autoComplete="name"
+              />
+            </Campo>
             {template.header.map((h) => (
               <Campo key={h.key} label={`${h.label}${h.required ? "" : " (opcional)"}`}>
                 <input

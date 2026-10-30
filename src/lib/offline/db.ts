@@ -22,6 +22,8 @@ export interface SubmitPayload {
     template_id: string;
     equipment_tag: string;
     started_at: string;
+    /** Nombre de quien realizó la inspección (la cuenta de técnico puede ser compartida). */
+    performed_by: string;
   };
   answers: { item_key: string; value: unknown }[];
   findings: {

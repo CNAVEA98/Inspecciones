@@ -19,6 +19,7 @@ function completo(): DraftRecord {
   d.header = Object.fromEntries(template.header.map((h) => [h.key, "x"]));
   d.header.tag = "740XF001";
   for (const item of allItems(template)) d.answers[item.id] = { estado: "BN" };
+  d.answers[META.ejecutor] = "Pedro Soto";
   d.answers[META.participantes] = { nombres: "Manuel Aguilar", firmaId: FIRMA, firmaDataUrl: "data:image/png;base64,AA" };
   return d;
 }
@@ -61,6 +62,13 @@ describe("validateDraft", () => {
     expect(validateDraft(d, template)).toEqual([]);
   });
 
+  it("exige el nombre de quien realiza la inspección", () => {
+    const d = completo();
+    d.answers[META.ejecutor] = "   ";
+    const msgs = validateDraft(d, template).map((i) => i.message);
+    expect(msgs).toContain("Falta el nombre de quien realiza la inspección");
+  });
+
   it("exige firma y nombre del participante", () => {
     const d = completo();
     d.answers[META.participantes] = { nombres: "" };
@@ -80,6 +88,8 @@ describe("buildSubmission", () => {
 
     expect(payload.inspection.id).toBe(d.id);
     expect(payload.inspection.equipment_tag).toBe("740XF001");
+    expect(payload.inspection.performed_by).toBe("Pedro Soto");
+    expect(payload.answers.find((a) => a.item_key === META.ejecutor)?.value).toBe("Pedro Soto");
     expect(payload.findings).toEqual([
       {
         id: "55555555-5555-4555-8555-555555555555",

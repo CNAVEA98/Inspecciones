@@ -1,13 +1,14 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { homeFor, type Role } from "./roles";
+import { homeFor, type Role, type Shift } from "./roles";
 
 export interface SessionProfile {
   id: string;
   email: string;
   fullName: string;
   role: Role;
+  shift: Shift | null;
 }
 
 /** Usuario verificado + perfil (el rol viene de la tabla profiles, nunca del cliente). */
@@ -19,7 +20,7 @@ export const getSession = cache(async (): Promise<SessionProfile | null> => {
   if (!user) return null;
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("full_name, role, shift")
     .eq("id", user.id)
     .single();
   if (!profile) return null;
@@ -28,6 +29,7 @@ export const getSession = cache(async (): Promise<SessionProfile | null> => {
     email: user.email ?? "",
     fullName: profile.full_name || user.email || "Usuario",
     role: profile.role as Role,
+    shift: (profile.shift as Shift | null) ?? null,
   };
 });
 

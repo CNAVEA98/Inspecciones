@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/proxy";
-import { homeFor, type Role } from "@/lib/auth/roles";
+import { homeFor, roleOfPath, type Role } from "@/lib/auth/roles";
 
 /**
  * Chequeo optimista de acceso por rol. La seguridad real está en RLS (Postgres) y en
@@ -20,7 +20,8 @@ export async function proxy(request: NextRequest) {
     return res;
   };
 
-  const protegida = pathname.startsWith("/tecnico") || pathname.startsWith("/supervisor");
+  const areaDe = roleOfPath(pathname);
+  const protegida = areaDe !== null;
 
   if (!user) {
     return protegida ? redirectTo("/login", { next: pathname }) : getResponse();
@@ -31,8 +32,7 @@ export async function proxy(request: NextRequest) {
   if (!role) return protegida ? redirectTo("/login") : getResponse();
 
   if (pathname === "/login") return redirectTo(homeFor(role));
-  if (pathname.startsWith("/supervisor") && role !== "supervisor") return redirectTo(homeFor(role));
-  if (pathname.startsWith("/tecnico") && role === "supervisor") return redirectTo(homeFor(role));
+  if (areaDe && areaDe !== role) return redirectTo(homeFor(role));
 
   return getResponse();
 }

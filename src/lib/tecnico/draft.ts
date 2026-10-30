@@ -8,7 +8,14 @@ export const META = {
   participantes: "_participantes",
   diagnostico: "_diagnostico",
   roles: "_roles",
+  ejecutor: "_ejecutor",
 } as const;
+
+/** Nombre de quien realizó la inspección, escrito en el formulario. */
+export const getEjecutor = (answers: Record<string, unknown>): string => {
+  const v = answers[META.ejecutor];
+  return typeof v === "string" ? v : "";
+};
 
 export interface Participantes {
   nombres: string;
@@ -77,6 +84,10 @@ export interface Issue {
 export function validateDraft(draft: DraftRecord, template: FormTemplateSchema): Issue[] {
   const issues: Issue[] = [];
 
+  if (!getEjecutor(draft.answers).trim()) {
+    issues.push({ section: null, area: "header", message: "Falta el nombre de quien realiza la inspección" });
+  }
+
   for (const h of template.header) {
     if (h.required && !(draft.header[h.key] ?? "").trim()) {
       issues.push({ section: null, area: "header", message: `Falta ${h.label}` });
@@ -138,6 +149,7 @@ export function buildSubmission(
   }
 
   answers.push({ item_key: META.header, value: draft.header });
+  answers.push({ item_key: META.ejecutor, value: getEjecutor(draft.answers).trim() });
   const part = draft.answers[META.participantes] as Participantes | undefined;
   if (part) {
     answers.push({ item_key: META.participantes, value: { nombres: part.nombres, firmaId: part.firmaId } });
@@ -164,6 +176,7 @@ export function buildSubmission(
         template_id: draft.templateId,
         equipment_tag: (draft.header.tag ?? "").trim(),
         started_at: draft.startedAt,
+        performed_by: getEjecutor(draft.answers).trim(),
       },
       answers,
       findings,

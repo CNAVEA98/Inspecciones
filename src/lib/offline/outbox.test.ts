@@ -28,6 +28,7 @@ function payload(id = INSPECTION): SubmitPayload {
       template_id: "t",
       equipment_tag: "740XF001",
       started_at: "2026-10-17T12:45:00Z",
+      performed_by: "Manuel Aguilar",
     },
     answers: [{ item_key: "item_01", value: { estado: "BN" } }],
     findings: [],

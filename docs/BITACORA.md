@@ -25,14 +25,14 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 |---|---|
 | Scaffold Next 16 + Tailwind + TypeScript estricto | Hecho y verificado |
 | Migraciones SQL (esquema, RLS, RPC) y seed | Migraciones 0001–0010 aplicadas sin errores en Supabase local (2026-10-30); roles, firma y eliminación probados en SQL y en la app |
-| Test RLS (técnico A no lee lo del técnico B) | **Sin escribir ni correr** (ya se puede: hay Supabase local) |
+| Test RLS (técnico A no lee lo del técnico B, firma doble, catálogo, auditoría, eliminación) | Hecho: `supabase/tests/rls.test.sql`, 30/30 con `supabase test db` (no cubre Storage ni tablas hijas) |
 | Validador de plantillas (Zod) | Hecho, con tests |
 | Plantilla real Transformador de piso × Plan Matriz (29 ítems) | Hecha en el seed |
 | Auth, proxy por rol (admin, supervisor, planificador, técnico), turnos A/B y firma doble en BD | Hecho; probado en SQL; **login y pantallas por rol sin probar en navegador** |
 | Núcleo offline (Dexie, cola, reintentos, compresión) | Hecho, con tests |
 | Flujo del técnico (Área → Equipo → Modo → formulario → envío) | Hecho; **sin probar contra Supabase** |
 | Service worker / PWA instalable | Pendiente |
-| Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app, **interacción del panel de firma sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
+| Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app; firma del supervisor probada en navegador (2026-10-30), **firma del planificador y rechazo sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
 | Verificación a 375px y 1440px, prueba con red apagada | Parcial (formularios a 375px con datos simulados) |
 
@@ -42,7 +42,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 
 1. ~~Instalar WSL2 y Docker~~ — hecho 2026-10-30. Cada persona debe abrir Docker Desktop y correr `corepack pnpm supabase start` en su equipo.
 2. ~~Aplicar migraciones y seed~~ — hecho 2026-10-30 (sin errores).
-3. Escribir y correr `supabase/tests/rls.test.sql` (pgTAP) y cerrar el Checkpoint 1.
+3. ~~Escribir y correr `supabase/tests/rls.test.sql` (pgTAP)~~ — hecho 2026-10-30 (30/30). Falta ampliarlo a Storage y a las tablas hijas.
 4. Probar en el navegador el login y el cambio de rol/turno con los usuarios del seed (`admin@bbosch.cl`, `supervisor.a@bbosch.cl`, `planificador.a@bbosch.cl`, `tecnico.a@bbosch.cl` y los de turno B; contraseñas en `supabase/seed.sql`). Falta una pantalla para crear cuentas (solo el administrador).
 5. Service worker con Serwist + manifest + iconos. Requiere instalar `serwist` (par obligatorio de `@serwist/next`); **pendiente de OK explícito** y de usar `next build --webpack`.
 6. Bandejas de supervisor y planificador (y vista de solo lectura del admin): filtros, detalle, aprobar/rechazar con comentario, firma dibujada. La BD ya soporta las dos etapas de firma.
@@ -82,6 +82,22 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · Test RLS en pgTAP (cierra el Checkpoint 1)
+- **Autor:** CNAVEA98 con Claude (rama `feat/roles-turnos-firma-doble`)
+- **Qué se hizo:** `supabase/tests/rls.test.sql` con 30 pruebas pgTAP sobre los usuarios del seed, dentro de una transacción que se revierte (no deja datos; solo consume números del folio). Cubre: (1) visibilidad: cada técnico ve solo lo suyo y supervisor, planificador y administrador ven ambos turnos; (2) perfiles: el técnico no se asciende ni cambia su turno, el supervisor no cambia el rol de otro, el administrador sí cambia el turno; (3) catálogo: solo el administrador escribe; (4) `audit_log` solo lo lee el administrador; (5) firma doble: técnico y administrador no firman, el planificador no firma antes del supervisor, comentario obligatorio, el supervisor no firma dos veces, flujo `submitted` → `supervisor_signed` → `approved`, una aprobada no la modifica el técnico, rechazo del supervisor deja la inspección en `rejected`; (6) eliminación: el supervisor no puede, el DELETE directo (también del administrador) no borra y la función `delete_inspections` sí, con auditoría. Se corre con `corepack pnpm supabase test db` (descarga la imagen `pg_prove` la primera vez; requiere Docker y el seed aplicado).
+- **Archivos:** `supabase/tests/rls.test.sql` (nuevo), `docs/BITACORA.md`.
+- **Verificación:** `supabase test db` → `All tests successful`, 30/30. La primera corrida mostró 2 fallos que eran de mi expectativa (un UPDATE o DELETE filtrado por RLS afecta 0 filas y no lanza error); se cambiaron para comprobar el efecto real. No se tocó código de la app, así que no se repitieron lint, tsc, tests ni build.
+- **Pendiente / riesgos:** el test no cubre las políticas de Storage ni las tablas hijas (`answers`, `findings`, `attachments`: escritura solo del técnico dueño en borrador), ni la RPC `submit_inspection` ni la lectura por lado del cliente (PostgREST); depende de los correos y turnos del seed y falla si se cambian. Los turnos A/B no restringen nada (es una decisión), por eso no hay prueba de «no ver otro turno».
+
+### 2026-10-30 · Prueba en navegador del login por rol y del panel de firma del supervisor
+- **Autor:** CNAVEA98 con Claude (rama `feat/roles-turnos-firma-doble`)
+- **Qué se hizo:** prueba manual en Chrome contra la app y Supabase locales. Solo se probó, no se cambió código.
+- **Verificación:** (1) el administrador ya tenía sesión y vio la bandeja con sus 4 inspecciones. (2) Se cerró sesión y se entró con `supervisor.b@bbosch.cl`: redirige a `/supervisor` y la bandeja muestra «Por firmar» con 3 inspecciones y el enlace «Revisar y firmar». (3) En el detalle de `INS-2026-000007`, «Firmar» sin datos muestra los 3 mensajes (elegir decisión, comentario obligatorio, falta la firma). (4) Elegir Aprobar, escribir el comentario y dibujar la firma con el mouse funciona. (5) Aparece el cuadro de confirmación propio («Va a APROBAR la inspección… es definitiva») y deja los campos bloqueados. (6) «Confirmar y firmar» guarda: en «Firmas de revisión» aparece «Supervisor · aprobó · Supervisor Turno B · 30-10-2026 16:10», con el comentario y la imagen de la firma. Sin errores en la consola del navegador. Esto cierra el «no verificado» de la entrada del panel de firma, salvo lo indicado abajo.
+- **Segunda etapa (misma sesión):** con `planificador.a@bbosch.cl` la bandeja lista 2 inspecciones por firmar y el detalle muestra la firma del supervisor y el panel del planificador. Se aprobó `INS-2026-000007`: quedó con las dos firmas (supervisor 16:10, planificador 16:44), comentario e imagen de cada una. El rechazo se probó solo hasta el cuadro de confirmación («Va a RECHAZAR… es definitiva», decisión en rojo, comentario obligatorio) y se canceló con «Volver» sobre `INS-2026-000009`, que sigue por firmar; no se confirmó para no cerrar una inspección con firma manuscrita de pruebas anteriores. Sin errores en la consola.
+- **Efecto sobre los datos:** `INS-2026-000007` quedó en «Aprobada» (dato de prueba local).
+- **No verificado:** que «Confirmar y firmar» de un rechazo guarde el estado «Rechazada» desde la interfaz (sí se probó en SQL), la firma con lápiz táctil y el uso en teléfono.
+- **Pendiente / riesgos:** el pull request no se abrió desde aquí porque la CLI `gh` no está instalada; se abre con el enlace `https://github.com/CNAVEA98/Inspecciones_BBOSCH/pull/new/feat/roles-turnos-firma-doble`.
 
 ### 2026-10-30 · Buscador y consulta en la bandeja; eliminación por el administrador
 - **Autor:** CNAVEA98 con Claude (rama `feat/roles-turnos-firma-doble`)

@@ -7,9 +7,9 @@ const item = (over: Record<string, unknown> = {}) => ({ id: "a", type: "verifica
 const minimal = { title: "T", sections: [{ id: "s1", title: "S", items: [item()] }] };
 
 function seedTemplate(): unknown {
-  const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed.sql"), "utf8");
+  const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed_catalogo.sql"), "utf8");
   const match = sql.match(/\$tpl\$([\s\S]*?)\$tpl\$/);
-  if (!match) throw new Error("No se encontró la plantilla en seed.sql");
+  if (!match) throw new Error("No se encontró la plantilla en seed_catalogo.sql");
   return JSON.parse(match[1]);
 }
 

@@ -51,6 +51,8 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 9. Prueba de aceptación con red apagada: crear, completar, reconectar y ver en la bandeja del supervisor.
 10. Documentos: `docs/DECISIONES.md` y `docs/COMO_AGREGAR_AREA_EQUIPO.md`.
 12. Revisar con el usuario: sectores dudosos (`docs/MAPEO_ZONA_AREA.md`), áreas de MANT-02/08/17, regla piso/aéreo de transformadores (el Maestro no alcanza) y probar envío completo con TAG provisional.
+13. **Exportar a Excel desde la bandeja** (pedido 2026-10-30, sin hacer): botón «Descargar Excel» para supervisor, programador y administrador, que respete los filtros de la bandeja (TAG, turno, fechas, estado) y exija rango de fechas. Hojas: Inspecciones (una fila por inspección: folio, fecha, área, TAG y su estado, técnico, turno, estado de revisión, firmas); Respuestas (una fila por ítem: lo marcado BN/ML/NT/NA/NR, valor medido con unidad, observación); Hallazgos; y Mediciones por formato (una fila por inspección y una columna por ítem, para ver la evolución de un TAG). Sin fotos ni firmas, solo su cantidad. **Bloqueado por una decisión:** un `.xlsx` con varias hojas requiere una dependencia nueva (se propuso `exceljs`; `CLAUDE.md` exige preguntar antes); la alternativa sin librería es CSV, un archivo por hoja. Falta autorización del usuario y confirmar si quiere la hoja 4.
+14. **Probar en Vercel + Supabase remoto:** guía actualizada en `docs/DEPLOY_VERCEL.md`. Falta que el usuario cree el proyecto de prueba, aplique las migraciones y el catálogo, cree las 7 cuentas y configure las variables en Vercel (conectar a un Supabase remoto y desplegar requieren su confirmación).
 11. Plantillas para los otros 4 equipos y el modo Mantenimiento programado (hoy solo existen en el catálogo, sin plantilla).
 
 ## Decisiones
@@ -87,6 +89,13 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · Guía para probar en Vercel + Supabase, seed separado y pendiente de Excel
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** (1) `supabase/seed.sql` se separó en `seed_catalogo.sql` (áreas, equipos, modos y plantilla; seguro para un Supabase remoto) y `seed_usuarios_dev.sql` (cuentas de prueba, solo local); `config.toml` los carga en ese orden, así que `db reset` local queda igual. (2) `docs/DEPLOY_VERCEL.md` reescrito: migraciones 0001–0011 (CLI o a mano), catálogo, registro de usuarios desactivado, creación de las 7 cuentas y SQL de roles/turnos, variables de Vercel y lista de pruebas. (3) Se dejó como pendiente la exportación a Excel (punto 13 de «Pendientes»).
+- **Archivos:** `supabase/seed_catalogo.sql`, `supabase/seed_usuarios_dev.sql`, `supabase/config.toml`, `docs/DEPLOY_VERCEL.md`, `CLAUDE.md`, 4 tests que leen la plantilla del seed.
+- **Verificación:** la unión de los dos archivos nuevos es byte a byte idéntica al `seed.sql` anterior (comprobado por script) · tests 101/101. **No verificado:** un `db reset` local con los dos archivos (borraría las inspecciones de prueba) ni nada contra un Supabase remoto.
+- **Pendiente / riesgos:** nada se ejecutó en un Supabase remoto ni se desplegó. El SQL de roles asume que `profiles.role` acepta `planner` y `admin` (lo hace desde la migración 0007). La clave `service_role` no se usa.
 
 ### 2026-10-30 · Cuentas genéricas con usuario (sin correo) y prueba de extremo a extremo
 - **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`

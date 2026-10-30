@@ -195,6 +195,15 @@ export function Formulario({ id: idInicial }: { id: string }) {
         </div>
         <h1 className="mt-4 text-3xl font-bold leading-tight tracking-tight">{titulo}</h1>
         {template.note ? <p className="mt-1 text-sm text-sub">{template.note}</p> : null}
+        {draft.correccion ? (
+          <div className="mt-3 rounded-xl border border-[#e8b4b4] bg-[#fbe4e4] p-3" role="note">
+            <p className="text-sm font-semibold text-[#8a0000]">Corrección de {draft.correccion.folio}</p>
+            <p className="mt-1 text-base">Motivo del rechazo: {draft.correccion.motivo || "sin comentario"}</p>
+            <p className="mt-1 text-sm text-sub">
+              Se copiaron los datos y respuestas. Las fotos y la firma del participante hay que tomarlas de nuevo.
+            </p>
+          </div>
+        ) : null}
       </div>
 
       <fieldset disabled={bloqueado} className="contents">

@@ -43,17 +43,18 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 1. ~~Instalar WSL2 y Docker~~ — hecho 2026-10-30. Cada persona debe abrir Docker Desktop y correr `corepack pnpm supabase start` en su equipo.
 2. ~~Aplicar migraciones y seed~~ — hecho 2026-10-30 (sin errores).
 3. ~~Escribir y correr `supabase/tests/rls.test.sql` (pgTAP)~~ — hecho 2026-10-30 (30/30). Falta ampliarlo a Storage y a las tablas hijas.
-4. Probar en el navegador el login y el cambio de rol/turno con los usuarios del seed (`admin@bbosch.cl`, `supervisor.a@bbosch.cl`, `planificador.a@bbosch.cl`, `tecnico.a@bbosch.cl` y los de turno B; contraseñas en `supabase/seed.sql`). Falta una pantalla para crear cuentas (solo el administrador).
+4. Probar en el navegador el login y el cambio de rol/turno con los usuarios del seed (`admin@bbosch.cl`, `supervisor.a@bbosch.cl`, `planificador.a@bbosch.cl`, `tecnico.a@bbosch.cl` y los de turno B; contraseñas en `supabase/seed.sql`). Las cuentas no se crean desde la app: las genera el equipo de desarrollo (decisión 2026-10-30).
 5. ~~Service worker con Serwist + manifest + iconos~~ — hecho 2026-10-30 con `@serwist/turbopack` (ver Decisiones). Falta probar la instalación en teléfono y el envío sin red.
 6. Bandejas de supervisor y planificador (y vista de solo lectura del admin): filtros, detalle, aprobar/rechazar con comentario, firma dibujada. La BD ya soporta las dos etapas de firma.
 7. PDF con `@react-pdf/renderer` reproduciendo el diseño Cobre, con logo BBOSCH, guardado en Storage privado y URL firmada.
-8. Vista de solo lectura de inspecciones ya enviadas en `/tecnico`.
+8. ~~Vista de inspecciones ya enviadas en `/tecnico`~~ — hecha 2026-10-30, con corrección de las rechazadas.
 9. Prueba de aceptación con red apagada: crear, completar, reconectar y ver en la bandeja del supervisor.
 10. Documentos: `docs/DECISIONES.md` y `docs/COMO_AGREGAR_AREA_EQUIPO.md`.
 11. Plantillas para los otros 4 equipos y el modo Mantenimiento programado (hoy solo existen en el catálogo, sin plantilla).
 
 ## Decisiones
 
+- **Cuentas creadas por el equipo, no por la app (2026-10-30):** no habrá pantalla de alta de usuarios; las cuentas las genera el equipo de desarrollo para que solo las use personal de la empresa. No hay autoregistro.
 - **PWA con `@serwist/turbopack` (2026-10-30):** no se usa `@serwist/next` porque exige webpack y con webpack el CSS de Tailwind no se genera (el loader es solo de Turbopack). El service worker se sirve desde una ruta (`/serwist/sw.js`) y solo se registra en producción. Solo el área del técnico funciona sin red.
 - **Roles y firma doble (2026-10-30):** admin, supervisor, planificador y técnico, cada uno con turno A/B (el admin sin turno). El turno es solo etiqueta. Firma en dos etapas: supervisor y luego planificador. Solo el admin cambia rol y turno. Cuentas nuevas parten como técnico y no hay autoregistro.
 - **Diseño «Cobre»** (grafito + cobre, bordes redondeados, números tipo instrumento), aprobado por el usuario. Nació de la familia SAP de awesome-design-md; IBM Carbon descartado. Detalle en `docs/DESIGN.md`.
@@ -83,6 +84,16 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · El técnico ve sus inspecciones enviadas y corrige las rechazadas
+- **Autor:** CNAVEA98 con Claude (rama `feat/pwa-offline`)
+- **Qué se hizo:** en `/tecnico`, además de los borradores, aparece la sección «Enviadas» con las últimas 50 inspecciones del técnico: TAG, folio, fecha y estado (Enviada · en revisión, Revisada por supervisor, Aprobada, Rechazada). Las rechazadas muestran el motivo del supervisor o planificador y el botón «Corregir y reenviar»: crea un borrador nuevo con la cabecera, respuestas, observaciones y participantes copiados; la corrección sale como inspección nueva con otro folio (la rechazada es definitiva y no se toca). El formulario muestra un aviso con el folio rechazado y el motivo. Tras enviarla, la tarjeta dice «Ya envió su corrección (folio)». La lista se guarda en el equipo (Dexie) para verla sin red; corregir exige red porque lee las respuestas del servidor.
+- **Qué NO se copia:** las fotos y la firma del participante (viven en el servidor, no en el equipo); hay que tomarlas de nuevo. Las respuestas ML quedan con su observación y un hallazgo nuevo de severidad «media» (la severidad original no se conserva).
+- **Archivos:** `src/lib/tecnico/enviadas.ts` (+ `enviadas.test.ts`, 6 tests), `src/components/tecnico/inicio-tecnico.tsx`, `src/components/tecnico/formulario.tsx`, `src/lib/offline/db.ts` (campo opcional `correccion` del borrador; sin cambio de esquema de Dexie ni de Postgres).
+- **Verificación:** `pnpm lint` y `pnpm typecheck` sin errores · `pnpm test` 75/75 · `pnpm build` correcto. **Navegador (Chrome, `next dev`, Supabase local):** con `tecnico.a@bbosch.cl` la sección muestra las inspecciones con su estado; en la rechazada `INS-2026-000023` aparece el motivo; «Corregir y reenviar» abre el formulario con el aviso y los datos copiados (TAG, OT, ejecutor, observaciones, consideraciones, participantes); al llegar al cierre la única falta era la firma; se firmó, se envió y entró como `INS-2026-000024` («Enviada · en revisión»); la tarjeta rechazada pasó a «Ya envió su corrección». Sin errores en la consola.
+- **Datos de prueba que quedaron en la base local:** `INS-2026-000023` (rechazada, creada por SQL copiando respuestas de la 000006, TAG `PRUEBA-CORR-01`) y `INS-2026-000024` (su corrección). Se pueden borrar desde la bandeja del administrador.
+- **No verificado:** corregir con fotos en los ítems (la copia las descarta; probado solo en tests), la lista de enviadas sin red real (probada en tests con la copia local), una inspección rechazada por el planificador (mismo flujo; el estado `rejected` es el mismo) y el uso en teléfono.
+- **Pendiente / riesgos:** (1) la severidad del hallazgo no se conserva al corregir; (2) un técnico con cuenta compartida ve las enviadas de la cuenta, no solo las suyas (la cuenta puede ser compartida; el nombre de quien realizó va en cada inspección pero la lista no lo muestra); (3) no hay límite de correcciones por inspección rechazada, solo se ofrece una a la vez.
 
 ### 2026-10-30 · PWA instalable y uso sin servidor (service worker con Serwist)
 - **Autor:** CNAVEA98 con Claude (rama `feat/pwa-offline`, creada sobre `feat/roles-turnos-firma-doble`)

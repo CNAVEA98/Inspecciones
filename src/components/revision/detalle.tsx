@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatFechaHora } from "@/lib/fecha";
 import { STATUS_LABEL } from "@/lib/revision/estado";
+import { ETIQUETA_ESTADO, extrasDe, seleccionDeCabecera } from "@/lib/formatos/tags";
 import type { Adjunto, DetalleInspeccion } from "@/lib/revision/queries";
 import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
 
@@ -94,6 +95,9 @@ export function Detalle({
 }) {
   const adjuntos = new Map(d.adjuntos.map((a) => [a.id, a]));
   const header = (d.respuestas._header ?? {}) as Record<string, string>;
+  const seleccion = seleccionDeCabecera(header);
+  const avisoTag = seleccion ? ETIQUETA_ESTADO[seleccion.estado] : null;
+  const extras = extrasDe(header);
   const participantes = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diagnostico = d.respuestas._diagnostico as { observaciones?: string; consideraciones?: string } | undefined;
   const firmaParticipante = participantes?.firmaId ? adjuntos.get(participantes.firmaId) : undefined;
@@ -127,6 +131,20 @@ export function Detalle({
         <dl className="mt-3 grid gap-x-8 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-3">
           <div><dt className="inline text-sub">Área: </dt><dd className="inline">{d.area}</dd></div>
           <div><dt className="inline text-sub">TAG: </dt><dd className="inline font-mono">{d.equipmentTag || "—"}</dd></div>
+          {avisoTag ? (
+            <div className="sm:col-span-2 lg:col-span-3" role="note">
+              <dd className="inline rounded-md bg-cu-soft px-2 py-0.5 font-semibold text-[#7a3d12]">{avisoTag}</dd>
+              {seleccion?.tagOriginal ? <span className="text-sub"> · TAG original: <span className="font-mono">{seleccion.tagOriginal}</span></span> : null}
+            </div>
+          ) : null}
+          {extras.length > 0 ? (
+            <div className="sm:col-span-2 lg:col-span-3">
+              <dt className="inline text-sub">Otros equipos: </dt>
+              <dd className="inline font-mono">
+                {extras.map((x) => `${x.tag}${ETIQUETA_ESTADO[x.estado] ? ` (${ETIQUETA_ESTADO[x.estado]})` : ""}`).join(" · ")}
+              </dd>
+            </div>
+          ) : null}
           <div><dt className="inline text-sub">Técnico (realizó): </dt><dd className="inline font-semibold">{d.realizadoPor}</dd></div>
           <div>
             <dt className="inline text-sub">Cuenta de envío: </dt>
@@ -219,7 +237,7 @@ export function Detalle({
             {d.firmas.map((f) => (
               <li key={f.stage}>
                 <span className="font-semibold">
-                  {f.stage === "supervisor" ? "Supervisor" : "Planificador"} · {f.decision === "approved" ? "aprobó" : "rechazó"}
+                  {f.stage === "supervisor" ? "Supervisor" : "Programador"} · {f.decision === "approved" ? "aprobó" : "rechazó"}
                 </span>{" "}
                 <span className="text-sub">
                   {f.firmante} · {formatFechaHora(f.signedAt)}

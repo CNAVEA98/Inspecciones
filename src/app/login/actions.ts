@@ -4,24 +4,30 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { homeFor, safeNext, type Role } from "@/lib/auth/roles";
+import { usuarioAEmail } from "@/lib/auth/usuario";
 
-export type FormState = { error?: string } | undefined;
+/** `usuario` se devuelve para no obligar a escribirlo de nuevo tras un error. */
+export type FormState = { error?: string; usuario?: string } | undefined;
 
 const credenciales = z.object({
-  email: z.string().trim().email("Ingrese un correo válido"),
+  usuario: z.string().trim().min(1, "Ingrese su usuario"),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
 export async function iniciarSesion(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = credenciales.safeParse({
-    email: formData.get("email"),
+    usuario: formData.get("usuario"),
     password: formData.get("password"),
   });
-  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const usuario = String(formData.get("usuario") ?? "").trim();
+  if (!parsed.success) return { error: parsed.error.issues[0].message, usuario };
+
+  const email = usuarioAEmail(parsed.data.usuario);
+  if (!email) return { error: "Usuario o contraseña incorrectos", usuario };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error || !data.user) return { error: "Correo o contraseña incorrectos" };
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: parsed.data.password });
+  if (error || !data.user) return { error: "Usuario o contraseña incorrectos", usuario };
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
   const role = (profile?.role ?? "technician") as Role;

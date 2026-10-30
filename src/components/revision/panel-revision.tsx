@@ -11,10 +11,10 @@ type Decision = "approved" | "rejected";
 const TEXTO = {
   supervisor: {
     titulo: "Revisión del supervisor",
-    aprobar: "Al aprobar, la inspección pasa al planificador para su firma final.",
+    aprobar: "Al aprobar, la inspección pasa al programador para su firma final.",
   },
   planner: {
-    titulo: "Revisión del planificador",
+    titulo: "Revisión del programador",
     aprobar: "Al aprobar, la inspección queda cerrada con la firma de ambos.",
   },
 } as const;

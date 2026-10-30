@@ -27,10 +27,22 @@ export function LoginForm({ next }: { next?: string }) {
       {next ? <input type="hidden" name="next" value={next} /> : null}
 
       <div className="flex flex-col gap-2">
-        <label htmlFor="email" className="text-sm font-semibold text-graf">
-          Correo electrónico
+        <label htmlFor="usuario" className="text-sm font-semibold text-graf">
+          Usuario
         </label>
-        <input id="email" name="email" type="email" autoComplete="email" inputMode="email" required className={campo} />
+        <input
+          id="usuario"
+          name="usuario"
+          type="text"
+          defaultValue={state?.usuario ?? ""}
+          autoComplete="username"
+          autoCapitalize="characters"
+          autoCorrect="off"
+          spellCheck={false}
+          placeholder="Ej.: TECNICO_A"
+          required
+          className={campo}
+        />
       </div>
 
       <div className="flex flex-col gap-2">

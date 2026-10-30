@@ -1,11 +1,14 @@
--- Seed de desarrollo local. NO usar contra un proyecto remoto.
+-- Catálogo y plantilla. Es seguro ejecutarlo también en un proyecto Supabase remoto (no crea usuarios).
+-- Las cuentas de prueba están en seed_usuarios_dev.sql (solo local).
 
 -- ---------- Catálogo ----------
 insert into public.areas (code, name, sort) values
   ('chacay', 'Chacay', 1),
   ('mina', 'Mina', 2),
   ('mauro', 'Mauro', 3),
-  ('puerto', 'Puerto', 4);
+  ('puerto', 'Puerto', 4),
+  ('valle', 'Valle', 5)
+on conflict (code) do nothing; -- Valle también lo agrega la migración 0011
 
 insert into public.equipment_types (code, name, sort) values
   ('transformador_piso', 'Transformador de piso', 1),
@@ -322,44 +325,3 @@ $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm
 where et.code = 'transformador_piso' and wm.code = 'plan_matriz';
 
--- ---------- Usuarios de desarrollo (solo local) ----------
--- El trigger de alta crea los perfiles como 'technician'; rol y turno se asignan aquí por SQL.
-do $$
-declare
-  u record;
-  v_id uuid;
-begin
-  for u in
-    select * from (values
-      ('admin@bbosch.cl', 'CLAVE-ELIMINADA', 'Administrador BBOSCH', 'admin', null),
-      ('supervisor.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno A', 'supervisor', 'A'),
-      ('supervisor.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Supervisor Turno B', 'supervisor', 'B'),
-      ('planificador.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno A', 'planner', 'A'),
-      ('planificador.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Planificador Turno B', 'planner', 'B'),
-      ('tecnico.a@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno A', 'technician', 'A'),
-      ('tecnico.b@bbosch.cl', 'CLAVE-ELIMINADA', 'Técnico Turno B', 'technician', 'B'),
-      -- Usuarios anteriores (se conservan para no romper accesos ya usados).
-      ('supervisor@mlp.local', '78787878', 'Supervisora Demo', 'supervisor', 'A'),
-      ('supervisor@bbosch.cl', '56565656', 'Supervisor BBOSCH', 'supervisor', 'A'),
-      ('tecnico@mlp.local', '90909090', 'Técnico Demo', 'technician', 'A')
-    ) as t(email, pass, full_name, role, shift)
-  loop
-    v_id := gen_random_uuid();
-    insert into auth.users (
-      instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-      raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-      confirmation_token, recovery_token, email_change, email_change_token_new,
-      email_change_token_current, reauthentication_token
-    ) values (
-      '00000000-0000-0000-0000-000000000000', v_id, 'authenticated', 'authenticated',
-      u.email, extensions.crypt(u.pass, extensions.gen_salt('bf')), now(),
-      '{"provider":"email","providers":["email"]}', jsonb_build_object('full_name', u.full_name),
-      now(), now(), '', '', '', '', '', ''
-    );
-    insert into auth.identities (id, provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
-    values (gen_random_uuid(), v_id::text, v_id,
-            jsonb_build_object('sub', v_id::text, 'email', u.email, 'email_verified', true),
-            'email', now(), now(), now());
-    update public.profiles set role = u.role, shift = u.shift where id = v_id;
-  end loop;
-end $$;

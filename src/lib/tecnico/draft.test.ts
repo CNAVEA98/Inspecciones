@@ -5,7 +5,7 @@ import type { DraftRecord, PhotoRecord } from "@/lib/offline/db";
 import { validateTemplate } from "@/lib/templates/validate";
 import { META, allItems, buildSubmission, newDraft, photoPath, validateDraft } from "./draft";
 
-const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed.sql"), "utf8");
+const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed_catalogo.sql"), "utf8");
 const parsed = validateTemplate(JSON.parse(sql.match(/\$tpl\$([\s\S]*?)\$tpl\$/)![1]));
 if (!parsed.ok) throw new Error("seed inválido");
 const template = parsed.template;

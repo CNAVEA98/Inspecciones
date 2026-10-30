@@ -62,5 +62,7 @@ Un paso se considera terminado solo con lint, tsc, tests y build en verde, y la 
 - `src/lib/templates`: esquema Zod y validación de plantillas y respuestas.
 - `src/lib/offline`: Dexie, cola de envío, sincronización, compresión de fotos.
 - `src/lib/tecnico`, `src/components/tecnico`, `src/app/tecnico`: flujo del técnico.
+- `src/lib/formatos`: catálogo de los 60 formatos (fuente única del flujo de 4 pasos) y filtro del selector de TAG.
+- `src/data/maestro-tags.json`: Maestro de TAG, generado con `python scripts/export-maestro.py` (ver `docs/EXPORT_MAESTRO.md`; no editar a mano).
 - `src/app/supervisor`: área del supervisor.
 - `docs/muestras`: HTML de referencia del formato y del formulario.

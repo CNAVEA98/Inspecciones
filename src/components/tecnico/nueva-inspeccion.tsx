@@ -7,12 +7,24 @@ import { useTecnico } from "./tecnico-provider";
 import { templateFor, type CatalogEntry } from "@/lib/tecnico/catalog";
 import { newDraft } from "@/lib/tecnico/draft";
 import { hoyIso } from "@/lib/fecha";
+import {
+  FAMILIAS,
+  TRABAJOS,
+  familiasVisibles,
+  formatosVisibles,
+  type CodigoArea,
+  type CodigoFamilia,
+  type Formato,
+  type TipoTrabajo,
+} from "@/lib/formatos/catalogo";
 
-type Paso = "area" | "equipo" | "modo";
+type Paso = "area" | "trabajo" | "familia" | "formato";
+const PASOS: Paso[] = ["area", "trabajo", "familia", "formato"];
 const TITULO: Record<Paso, string> = {
   area: "¿En qué área está?",
-  equipo: "¿Qué equipo va a inspeccionar?",
-  modo: "¿Qué tipo de trabajo es?",
+  trabajo: "¿Qué tipo de trabajo es?",
+  familia: "¿Qué familia de equipo?",
+  formato: "¿Qué formato va a llenar?",
 };
 
 function Opcion({
@@ -39,13 +51,14 @@ function Opcion({
   );
 }
 
-/** Flujo de selección: una pantalla por decisión (Área, Equipo, Modo), todo desde el catálogo. */
+/** Flujo de selección en 4 pasos: Área → Trabajo → Familia → Formato. Los formatos salen de `lib/formatos/catalogo`. */
 export function NuevaInspeccion() {
   const router = useRouter();
   const { catalog, db, userId } = useTecnico();
   const [paso, setPaso] = useState<Paso>("area");
   const [area, setArea] = useState<CatalogEntry | null>(null);
-  const [equipo, setEquipo] = useState<CatalogEntry | null>(null);
+  const [trabajo, setTrabajo] = useState<TipoTrabajo | null>(null);
+  const [familia, setFamilia] = useState<CodigoFamilia | null>(null);
   const [creando, setCreando] = useState(false);
 
   if (catalog.status === "loading") {
@@ -60,30 +73,41 @@ export function NuevaInspeccion() {
   }
   const cat = catalog.catalog;
 
-  const tieneFormulario = (equipmentTypeId: string) => cat.workModes.some((m) => templateFor(cat, equipmentTypeId, m.id));
+  /** Plantilla de la base que abre un formato "disponible"; sin ella el formato se muestra como próximamente. */
+  const plantillaDe = (formato: Formato) => {
+    if (formato.estado !== "disponible" || !formato.plantilla) return null;
+    const tipo = cat.equipmentTypes.find((e) => e.code === formato.plantilla!.tipoEquipo);
+    const modo = cat.workModes.find((m) => m.code === formato.plantilla!.modo);
+    if (!tipo || !modo) return null;
+    const template = templateFor(cat, tipo.id, modo.id);
+    return template ? { template, tipo, modo } : null;
+  };
 
-  const iniciar = async (modoId: string) => {
-    if (!area || !equipo || creando) return;
-    const tpl = templateFor(cat, equipo.id, modoId);
-    if (!tpl) return;
+  const iniciar = async (formato: Formato) => {
+    const plantilla = plantillaDe(formato);
+    if (!area || !plantilla || creando) return;
     setCreando(true);
     const draft = newDraft({
       userId,
       areaId: area.id,
-      equipmentTypeId: equipo.id,
-      workModeId: modoId,
-      templateId: tpl.id,
+      equipmentTypeId: plantilla.tipo.id,
+      workModeId: plantilla.modo.id,
+      templateId: plantilla.template.id,
     });
-    draft.header = { fecha: hoyIso() };
+    draft.header = { fecha: hoyIso(), formato: formato.id };
     await db.drafts.add(draft);
     // Sin red, Next hace una navegación completa y el service worker entrega la página guardada.
     router.push(`/tecnico/inspeccion/${draft.id}`);
   };
 
   const atras = () => {
-    if (paso === "modo") setPaso("equipo");
-    else if (paso === "equipo") setPaso("area");
+    const i = PASOS.indexOf(paso);
+    if (i > 0) setPaso(PASOS[i - 1]);
   };
+
+  const codigoArea = area?.code as CodigoArea | undefined;
+  const familias = codigoArea && trabajo ? familiasVisibles(codigoArea, trabajo) : [];
+  const formatos = codigoArea && trabajo && familia ? formatosVisibles(codigoArea, trabajo, familia) : [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -97,9 +121,7 @@ export function NuevaInspeccion() {
             Atrás
           </button>
         )}
-        <p className="font-mono text-sm text-sub">
-          Paso {paso === "area" ? 1 : paso === "equipo" ? 2 : 3} de 3
-        </p>
+        <p className="font-mono text-sm text-sub">Paso {PASOS.indexOf(paso) + 1} de 4</p>
       </div>
 
       <h1 className="text-3xl font-bold leading-tight tracking-tight">{TITULO[paso]}</h1>
@@ -117,39 +139,49 @@ export function NuevaInspeccion() {
               etiqueta={a.name}
               onClick={() => {
                 setArea(a);
-                setPaso("equipo");
+                setPaso("trabajo");
               }}
             />
           ))}
 
-        {paso === "equipo" &&
-          cat.equipmentTypes.map((e) => {
-            const ok = tieneFormulario(e.id);
-            return (
+        {paso === "trabajo" &&
+          (Object.keys(TRABAJOS) as TipoTrabajo[]).map((t) => (
+            <Opcion
+              key={t}
+              etiqueta={TRABAJOS[t]}
+              onClick={() => {
+                setTrabajo(t);
+                setPaso("familia");
+              }}
+            />
+          ))}
+
+        {paso === "familia" &&
+          (familias.length === 0 ? (
+            <p className="text-lg text-sub">No hay formatos para esta área y este tipo de trabajo.</p>
+          ) : (
+            familias.map((fam) => (
               <Opcion
-                key={e.id}
-                etiqueta={e.name}
-                detalle={ok ? undefined : "Sin formulario todavía"}
-                deshabilitada={!ok}
+                key={fam}
+                etiqueta={FAMILIAS[fam]}
                 onClick={() => {
-                  setEquipo(e);
-                  setPaso("modo");
+                  setFamilia(fam);
+                  setPaso("formato");
                 }}
               />
-            );
-          })}
+            ))
+          ))}
 
-        {paso === "modo" &&
-          equipo &&
-          cat.workModes.map((m) => {
-            const ok = Boolean(templateFor(cat, equipo.id, m.id));
+        {paso === "formato" &&
+          formatos.map((x) => {
+            const ok = plantillaDe(x) !== null;
             return (
               <Opcion
-                key={m.id}
-                etiqueta={m.name}
-                detalle={ok ? undefined : "Sin formulario todavía"}
+                key={x.id}
+                etiqueta={x.titulo}
+                detalle={ok ? x.id : `${x.id} · Próximamente`}
                 deshabilitada={!ok || creando}
-                onClick={() => void iniciar(m.id)}
+                onClick={() => void iniciar(x)}
               />
             );
           })}

@@ -30,7 +30,7 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 | Plantilla real Transformador de piso × Plan Matriz (29 ítems) | Hecha en el seed |
 | Auth, proxy por rol (admin, supervisor, planificador, técnico), turnos A/B y firma doble en BD | Hecho; probado en SQL; **login y pantallas por rol sin probar en navegador** |
 | Núcleo offline (Dexie, cola, reintentos, compresión) | Hecho, con tests |
-| Flujo del técnico (Área → Equipo → Modo → formulario → envío) | Hecho; **sin probar contra Supabase** |
+| Flujo del técnico (Área → Trabajo → Familia → Formato → formulario con selector de TAG → envío) | Hecho (2026-10-30, rama `feat/flujo-4-pasos-tag`); solo INSP-12 disponible; probado en navegador hasta el selector de TAG |
 | Service worker / PWA instalable | Hecho (2026-10-30, rama `feat/pwa-offline`): probado en Chrome con el servidor apagado; **sin probar con corte total de red, envío sin red ni instalación en teléfono** |
 | Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app; firma del supervisor probada en navegador (2026-10-30), **firma del planificador y rechazo sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
@@ -50,10 +50,12 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 8. ~~Vista de inspecciones ya enviadas en `/tecnico`~~ — hecha 2026-10-30, con corrección de las rechazadas.
 9. Prueba de aceptación con red apagada: crear, completar, reconectar y ver en la bandeja del supervisor.
 10. Documentos: `docs/DECISIONES.md` y `docs/COMO_AGREGAR_AREA_EQUIPO.md`.
+12. Revisar con el usuario: sectores dudosos (`docs/MAPEO_ZONA_AREA.md`), áreas de MANT-02/08/17, regla piso/aéreo de transformadores (el Maestro no alcanza) y probar envío completo con TAG provisional.
 11. Plantillas para los otros 4 equipos y el modo Mantenimiento programado (hoy solo existen en el catálogo, sin plantilla).
 
 ## Decisiones
 
+- **Formatos en código, TAG desde el Maestro (2026-10-30):** el catálogo de 60 formatos vive en `src/lib/formatos/catalogo.ts` (fuente única; habilitar uno = cambiar su estado y cargar su plantilla). Valle es una quinta área. Los TAG vienen de `src/data/maestro-tags.json`, generado con `scripts/export-maestro.py` (Python + openpyxl solo para el script). Los TAG provisionales (propuesto/reasignado) se pueden elegir y se marcan en el registro para revisión; no se bloquea al técnico por no tener el TAG oficial.
 - **Cuentas creadas por el equipo, no por la app (2026-10-30):** no habrá pantalla de alta de usuarios; las cuentas las genera el equipo de desarrollo para que solo las use personal de la empresa. No hay autoregistro.
 - **PWA con `@serwist/turbopack` (2026-10-30):** no se usa `@serwist/next` porque exige webpack y con webpack el CSS de Tailwind no se genera (el loader es solo de Turbopack). El service worker se sirve desde una ruta (`/serwist/sw.js`) y solo se registra en producción. Solo el área del técnico funciona sin red.
 - **Roles y firma doble (2026-10-30):** admin, supervisor, planificador y técnico, cada uno con turno A/B (el admin sin turno). El turno es solo etiqueta. Firma en dos etapas: supervisor y luego planificador. Solo el admin cambia rol y turno. Cuentas nuevas parten como técnico y no hay autoregistro.
@@ -84,6 +86,28 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · El técnico puede eliminar una inspección en curso (deslizar a la derecha)
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** en «Mis inspecciones», cada inspección en curso se desliza a la derecha para mostrar «Eliminar»; pide confirmación («Sí, eliminar» / «Cancelar») y borra el borrador con sus fotos y firmas del equipo. Además hay un botón «Eliminar» visible bajo la tarjeta para quien no deslice (mouse, teclado, guantes). Solo aplica a borradores: una inspección en cola o enviada no se puede eliminar desde aquí. Un deslizamiento no abre la inspección.
+- **Archivos:** `src/lib/tecnico/eliminar.ts` (+ test), `src/components/tecnico/tarjeta-borrador.tsx`, `src/components/tecnico/inicio-tecnico.tsx`.
+- **Verificación:** lint y typecheck sin errores · test nuevo de `eliminarBorrador` 3/3 · prueba en Chrome con el ratón: se creó un borrador de prueba, se deslizó, apareció «Eliminar», la confirmación lo borró de la lista y de Dexie sin tocar los demás borradores.
+- **Pendiente / riesgos:** el deslizamiento se probó con el ratón, **no con el dedo en un teléfono** (usa eventos de puntero y `touch-action: pan-y`). Es una eliminación local: un borrador no existe en el servidor hasta enviarse. Al eliminar una corrección en curso, la rechazada vuelve a mostrar «Corregir y reenviar».
+
+### 2026-10-30 · TAG normalizados con guiones y nombres del Maestro más limpios
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** el export normaliza los TAG con guiones (`740XF001` → `740-XF-001`; 889 de 1.073 con el formato `999-AA-999`, 732 reescritos) y quita de nombre e instalación los paréntesis que no son parte del nombre: aclaraciones como «SOLO MUESTRAS DE ACEITE» (41 equipos → campo `nota`) y datos de placa como kVA/MVA/N.° de serie (330 → campo `datos`, que el selector muestra como línea secundaria). El TAG del Maestro se conserva en `tagFuente` y la búsqueda encuentra ambas formas. El `.xlsx` no se modificó.
+- **Archivos:** `scripts/export-maestro.py`, `src/data/maestro-tags.json`, `src/lib/formatos/tags.ts` (+ test), `src/components/tecnico/selector-tag.tsx`, `docs/EXPORT_MAESTRO.md`, `docs/MAPEO_ZONA_AREA.md`.
+- **Verificación:** export sin TAG repetidos tras normalizar · lint y typecheck sin errores · tests 96/96 · no se volvió a probar en el navegador ni a correr el build.
+- **Pendiente / riesgos:** 184 TAG quedan sin el formato estándar a propósito (celdas `380VCP-W32 52-n`, `52-101`, `52-E1`, `XF-6001`, `160PMAP`, y los compuestos «equipo / celda»); las inspecciones ya guardadas con el TAG anterior no se reescriben, así que el historial por TAG de esas pruebas no coincide con el nuevo texto. Quedan 220 paréntesis en nombres (p. ej. `(WHIPP & BOURNE)`, `(MAURO)`, `(PUERTAS, CHAPAS…)`) pendientes de decidir.
+
+### 2026-10-30 · Flujo de 4 pasos con catálogo de 60 formatos y selector de TAG desde el Maestro
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** el flujo Área → Equipo → Modo pasa a Área → Trabajo (Inspección/Mantención) → Familia → Formato, con una fuente única de 60 formatos (`INSP`/`MANT`, 7 familias; solo INSP-12 «disponible»). Se agrega el área **Valle** (quinta, migración 0011). El campo TAG pasa a ser un selector con buscador alimentado por el Maestro de TAG (1.073 equipos): filtra por designador del formato y por área, con sectores (Planta, Tranque, GG…), «Ver todas las áreas», «Equipo sin TAG» y «+ Equipo» en formatos de generación. Los TAG **provisionales** (propuesto/reasignado) se pueden elegir con la insignia «TAG provisional» y quedan marcados en el registro; supervisión lo ve en el detalle.
+- **Archivos:** `src/lib/formatos/{catalogo,tags}.ts` (+ tests), `src/components/tecnico/{nueva-inspeccion,selector-tag,formulario}.tsx`, `src/components/revision/detalle.tsx`, `scripts/export-maestro.py`, `src/data/maestro-tags.json`, `docs/EXPORT_MAESTRO.md`, `docs/MAPEO_ZONA_AREA.md`, `supabase/migrations/0011_area_valle.sql`, `supabase/seed.sql`.
+- **Cómo se guarda:** en la cabecera del registro (ya viaja entera en `answers._header`): `tag` (texto, igual que antes), `tag_estado` (`oficial`, `por_validar`, `propuesto`, `reasignado`, `sin_tag`), `tag_original` (reasignados), `equipos_extra` (JSON, varios equipos) y `formato`. Sin cambios de esquema ni de registros anteriores (un registro sin `tag_estado` se lee como oficial).
+- **Verificación:** `pnpm lint` y `pnpm typecheck` sin errores · `pnpm test` 95/95 (20 nuevos) · `pnpm build` correcto · export: 1.073 equipos, 793 oficial / 254 propuesto / 25 reasignado / 1 por validar, 0 discrepancias entre la hoja «Cambios y propuestas» y el color · migración 0011 aplicada en Supabase local · prueba en Chrome (`next dev`): 5 áreas y «Paso n de 4»; Mina → Inspección → Transformadores = INSP-06, 07 (Próximamente) e INSP-12; Mauro → Mantención = 5 familias y los 11 formatos pedidos; Puerto → Switchgear = INSP-13, 20, 29; Valle ve solo transversales; INSP-12 abre con el selector filtrado a XF de Mina; un TAG reasignado guarda estado y TAG original.
+- **Pendiente / riesgos:** no se probó el envío completo ni el detalle de supervisión con un TAG provisional (solo el guardado en el borrador); el campo «sin TAG» y «+ Equipo» no se probaron en navegador (sí su lógica en tests); sin probar sin red (el JSON de TAG carga bajo demanda y entra al precaché). Sectores dudosos y 91+105 filas sin sector en `docs/MAPEO_ZONA_AREA.md`. XF aéreo/piso: el Maestro no alcanza (160 de 353 sin dato), solo se muestra la insignia cuando lo dice. MANT-02, 08 y 17: áreas por confirmar. No hay lectura de QR (sin librería). El selector no valida que el TAG pertenezca al formato más allá del filtro.
 
 ### 2026-10-30 · El técnico ve sus inspecciones enviadas y corrige las rechazadas
 - **Autor:** CNAVEA98 con Claude (rama `feat/pwa-offline`)

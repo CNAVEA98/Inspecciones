@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTecnico } from "./tecnico-provider";
+import { TarjetaBorrador } from "./tarjeta-borrador";
+import { eliminarBorrador } from "@/lib/tecnico/eliminar";
 import { useLive } from "@/lib/tecnico/hooks";
 import type { DraftRecord } from "@/lib/offline/db";
 import { formatFechaHora } from "@/lib/fecha";
@@ -126,9 +128,14 @@ export function InicioTecnico() {
               return (
                 <li key={d.id}>
                   {d.state === "draft" ? (
-                    <Link href={`/tecnico/inspeccion/${d.id}`} className={`${clase} hover:border-graf focus-visible:outline-3 focus-visible:outline-cu`}>
+                    <TarjetaBorrador
+                      href={`/tecnico/inspeccion/${d.id}`}
+                      onEliminar={async () => {
+                        await eliminarBorrador(db, d.id);
+                      }}
+                    >
                       {contenido}
-                    </Link>
+                    </TarjetaBorrador>
                   ) : (
                     <div className={clase}>{contenido}</div>
                   )}

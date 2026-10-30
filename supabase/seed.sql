@@ -5,7 +5,9 @@ insert into public.areas (code, name, sort) values
   ('chacay', 'Chacay', 1),
   ('mina', 'Mina', 2),
   ('mauro', 'Mauro', 3),
-  ('puerto', 'Puerto', 4);
+  ('puerto', 'Puerto', 4),
+  ('valle', 'Valle', 5)
+on conflict (code) do nothing; -- Valle también lo agrega la migración 0011
 
 insert into public.equipment_types (code, name, sort) values
   ('transformador_piso', 'Transformador de piso', 1),

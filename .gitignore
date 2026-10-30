@@ -40,3 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 !.env.example
+
+# Python (script de export del Maestro)
+__pycache__/
+*.pyc

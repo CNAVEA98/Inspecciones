@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
+import { SelectorTag } from "./selector-tag";
+import { formatoPorId, type CodigoArea } from "@/lib/formatos/catalogo";
+import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
 import { enqueueSubmission } from "@/lib/offline/outbox";
 import type { DraftRecord } from "@/lib/offline/db";
@@ -123,6 +126,12 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const titulo = paso === 0 ? "Datos del equipo" : paso <= secciones.length ? secciones[paso - 1].title : paso === iCierre ? "Cierre y firma" : "Revisar y enviar";
   const bloqueado = draft.state !== "draft";
 
+  // Filtro del selector de TAG: el formato elegido en el flujo; los borradores anteriores usan el tipo de equipo.
+  const formato = formatoPorId(draft.header.formato ?? "");
+  const codigoArea = (catalog.catalog?.areas.find((a) => a.id === draft.areaId)?.code ?? "chacay") as CodigoArea;
+  const tipoEquipo = catalog.catalog?.equipmentTypes.find((e) => e.id === draft.equipmentTypeId)?.code ?? "";
+  const designadores = formato?.designadores ?? DESIGNADORES_POR_TIPO_EQUIPO[tipoEquipo] ?? [];
+
   const part = (draft.answers[META.participantes] as Participantes | undefined) ?? { nombres: "" };
   const diag = (draft.answers[META.diagnostico] as Diagnostico | undefined) ?? { observaciones: "", consideraciones: "" };
   const roles = (draft.answers[META.roles] as Record<string, string> | undefined) ?? {};
@@ -217,7 +226,20 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 autoComplete="name"
               />
             </Campo>
-            {template.header.map((h) => (
+            {template.header.map((h) =>
+              h.key === "tag" ? (
+                <SelectorTag
+                  key={h.key}
+                  etiqueta={`${formato?.campo === "tramo" ? "Tramo o ubicación" : "TAG del equipo"}${h.required ? "" : " (opcional)"}`}
+                  area={codigoArea}
+                  designadores={designadores}
+                  tramo={formato?.campo === "tramo"}
+                  variosEquipos={formato?.variosEquipos ?? false}
+                  header={draft.header}
+                  onHeader={(cambio) => actualizar((d) => ({ ...d, header: cambio(d.header) }))}
+                  deshabilitado={bloqueado}
+                />
+              ) : (
               <Campo key={h.key} label={`${h.label}${h.required ? "" : " (opcional)"}`}>
                 <input
                   type={h.input === "number" ? "text" : h.input}
@@ -236,7 +258,8 @@ export function Formulario({ id: idInicial }: { id: string }) {
                   </datalist>
                 ) : null}
               </Campo>
-            ))}
+              ),
+            )}
           </div>
         )}
 

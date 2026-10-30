@@ -90,6 +90,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-30 · Arreglo del build en Vercel: scripts de instalación de pnpm
+- **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
+- **Qué se hizo:** el primer despliegue en Vercel falló en la instalación con `ERR_PNPM_IGNORED_BUILDS` (`@swc/core` y `esbuild` tienen scripts de compilación sin decidir y pnpm 12 devuelve error en CI; en local solo advertía). Se agregaron ambos como `false` en `allowBuilds` de `pnpm-workspace.yaml`: funcionan sin ejecutar sus scripts, igual que en local.
+- **Archivos:** `pnpm-workspace.yaml`.
+- **Verificación:** en una carpeta limpia, `CI=true pnpm install --frozen-lockfile` con la configuración anterior termina con código 1 y el mismo error de Vercel; con la nueva termina con código 0.
+- **Pendiente / riesgos:** **no verificado** que el build completo de Vercel pase (el compilado de Next y la ruta del service worker usan `esbuild` nativo; se espera que funcione porque el binario viene de un paquete opcional, pero hay que ver el log del siguiente despliegue). El despliegue fallido compiló `main` (`e146a8f`), que también tiene este problema.
+
 ### 2026-10-30 · Guía para probar en Vercel + Supabase, seed separado y pendiente de Excel
 - **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`
 - **Qué se hizo:** (1) `supabase/seed.sql` se separó en `seed_catalogo.sql` (áreas, equipos, modos y plantilla; seguro para un Supabase remoto) y `seed_usuarios_dev.sql` (cuentas de prueba, solo local); `config.toml` los carga en ese orden, así que `db reset` local queda igual. (2) `docs/DEPLOY_VERCEL.md` reescrito: migraciones 0001–0011 (CLI o a mano), catálogo, registro de usuarios desactivado, creación de las 7 cuentas y SQL de roles/turnos, variables de Vercel y lista de pruebas. (3) Se dejó como pendiente la exportación a Excel (punto 13 de «Pendientes»).

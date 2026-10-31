@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BotonActualizar } from "@/components/revision/boton-actualizar";
+import { FiltrosFallas } from "@/components/revision/filtros-fallas";
 import { SeguimientoHallazgo } from "@/components/revision/seguimiento-hallazgo";
 import { formatFechaHora } from "@/lib/fecha";
 import {
@@ -8,6 +9,7 @@ import {
   agruparPorEquipo,
   fichaSap,
   filtrarFallas,
+  queryFallas,
   type FiltroFallas,
   type Severidad,
 } from "@/lib/revision/fallas";
@@ -19,17 +21,6 @@ export const CHIP_SEVERIDAD: Record<Severidad, string> = {
   media: "bg-cu-soft text-[#7a3d12]",
   baja: "bg-[#f1f0ec] text-sub",
 };
-
-const campo = "rounded-lg border border-hair bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-cu";
-
-function aQuery(f: FiltroFallas, cambio: Partial<FiltroFallas> = {}): string {
-  const x = { ...f, ...cambio };
-  const p = new URLSearchParams();
-  if (x.gestion === "todos") p.set("gestion", "todos");
-  if (x.severidad) p.set("severidad", x.severidad);
-  if (x.area) p.set("area", x.area);
-  return p.toString();
-}
 
 /** Pestaña «Equipos con fallas»: los hallazgos en «Malo» agrupados por equipo y ordenados por severidad. */
 export async function FallasEquipos({
@@ -65,7 +56,7 @@ export async function FallasEquipos({
 
         <nav aria-label="Filtro por severidad" className="mt-3 flex flex-wrap gap-2">
           <Link
-            href={`${url}?${aQuery(filtro, { severidad: "" })}`}
+            href={`${url}?${queryFallas(filtro, { severidad: "" })}`}
             aria-current={!filtro.severidad ? "page" : undefined}
             className={`rounded-lg border px-3 py-1.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-cu ${
               !filtro.severidad ? "border-graf bg-graf text-white" : "border-hair hover:bg-paper"
@@ -76,7 +67,7 @@ export async function FallasEquipos({
           {SEVERIDADES_ORDENADAS.map((s) => (
             <Link
               key={s}
-              href={`${url}?${aQuery(filtro, { severidad: s })}`}
+              href={`${url}?${queryFallas(filtro, { severidad: s })}`}
               aria-current={filtro.severidad === s ? "page" : undefined}
               className={`rounded-lg border px-3 py-1.5 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-cu ${
                 filtro.severidad === s ? "border-graf bg-graf text-white" : "border-hair hover:bg-paper"
@@ -87,37 +78,12 @@ export async function FallasEquipos({
           ))}
         </nav>
 
-        <form method="get" action={url} role="search" className="mt-3 flex flex-wrap items-end gap-3">
-          {filtro.severidad ? <input type="hidden" name="severidad" value={filtro.severidad} /> : null}
-          <label className="grid gap-1 text-xs font-semibold text-sub">
-            Área
-            <select name="area" defaultValue={filtro.area} className={campo}>
-              <option value="">Todas</option>
-              {areas.map((a) => (
-                <option key={a} value={a}>
-                  {a}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-1 text-xs font-semibold text-sub">
-            Gestión
-            <select name="gestion" defaultValue={filtro.gestion} className={campo}>
-              <option value="abiertos">Pendientes</option>
-              <option value="todos">Todos (incluye los ya gestionados)</option>
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="rounded-lg bg-graf px-4 py-2 text-sm font-semibold text-white hover:bg-graf-2 focus-visible:outline-2 focus-visible:outline-cu"
-          >
-            Filtrar
-          </button>
-          <span role="status" className="ml-auto text-sm text-sub">
-            {equipos.length} {equipos.length === 1 ? "equipo" : "equipos"} · {visibles.length}{" "}
-            {visibles.length === 1 ? "hallazgo" : "hallazgos"}
-          </span>
-        </form>
+        <FiltrosFallas
+          url={url}
+          filtro={filtro}
+          areas={areas}
+          resumen={`${equipos.length} ${equipos.length === 1 ? "equipo" : "equipos"} · ${visibles.length} ${visibles.length === 1 ? "hallazgo" : "hallazgos"}`}
+        />
       </div>
 
       {equipos.length === 0 ? (

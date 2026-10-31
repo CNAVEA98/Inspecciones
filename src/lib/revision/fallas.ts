@@ -119,6 +119,16 @@ export function filtrarFallas(hallazgos: HallazgoFalla[], f: FiltroFallas): Hall
   );
 }
 
+/** Parámetros de la URL para un filtro (solo los que difieren del valor inicial). `cambio` permite probar una variante. */
+export function queryFallas(f: FiltroFallas, cambio: Partial<FiltroFallas> = {}): string {
+  const x = { ...f, ...cambio };
+  const p = new URLSearchParams();
+  if (x.gestion === "todos") p.set("gestion", "todos");
+  if (x.severidad) p.set("severidad", x.severidad);
+  if (x.area) p.set("area", x.area);
+  return p.toString();
+}
+
 const esSeveridad = (v: unknown): v is Severidad => v === "baja" || v === "media" || v === "alta" || v === "critica";
 
 export function parseFiltroFallas(sp: Record<string, string | string[] | undefined>): FiltroFallas {

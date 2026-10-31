@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · «Equipos con fallas»: los filtros de área y gestión se aplican al elegir
+- **Autor:** Cristóbal (con Claude) · rama `feat/fallas-seguimiento` (sin push)
+- **Qué se hizo:** los desplegables «Área» y «Gestión» aplican el filtro al elegir una opción, sin botón «Filtrar» (queda solo como respaldo si el navegador no ejecuta JavaScript). El filtro sigue en la URL (se puede compartir, el botón «atrás» funciona) y conserva la severidad elegida en las pestañas de arriba; mientras carga, el contador dice «Actualizando…». La construcción de la URL pasó a `queryFallas` (lógica pura, con tests).
+- **Archivos:** `src/components/revision/filtros-fallas.tsx` (nuevo), `src/components/revision/fallas-equipos.tsx`, `src/lib/revision/fallas.ts`, `fallas.test.ts`
+- **Verificación:** lint, tsc, 173 tests (3 nuevos) y build en verde. En Chrome con la app local: al cambiar «Gestión» la URL queda con `gestion=todos` y conserva `severidad=alta`, el área no se toca y desaparece el botón «Filtrar».
+- **Pendiente / riesgos:** con teclado, mover las flechas sobre un desplegable cerrado aplica el filtro en cada opción (comportamiento normal de los `select` con cambio inmediato); no se probó con lector de pantalla ni en iPhone. La bandeja principal sigue con su botón «Buscar» (tiene campos de texto y fechas).
+
 ### 2026-10-31 · «Equipos con fallas»: el filtro de área lista todas las áreas
 - **Autor:** Cristóbal (con Claude) · rama `feat/fallas-seguimiento` (sin push)
 - **Qué se hizo:** el filtro «Área» solo mostraba las áreas que ya tenían hallazgos (con los datos de prueba, solo Chacay). Ahora lista siempre las del catálogo, en su orden (Chacay, Mina, Mauro, Puerto, Valle), y suma cualquier área con hallazgos que ya no figure en el catálogo.

@@ -5,6 +5,7 @@ import {
   fichaSap,
   filtrarFallas,
   parseFiltroFallas,
+  queryFallas,
   textoBreve,
   textoTrazabilidad,
   type HallazgoFalla,
@@ -128,5 +129,19 @@ describe("textoTrazabilidad", () => {
     expect(textoTrazabilidad({ scope: "terceros", sapNotice: null, channelNote: "Informado por radio" })).toContain(
       "canalizado con MLP · Informado por radio",
     );
+  });
+});
+
+describe("queryFallas", () => {
+  it("el filtro inicial no agrega parámetros", () => {
+    expect(queryFallas(FILTRO_FALLAS_INICIAL)).toBe("");
+  });
+  it("incluye solo lo que se salió del valor inicial y admite un cambio", () => {
+    expect(queryFallas({ gestion: "todos", severidad: "alta", area: "Mina" })).toBe("gestion=todos&severidad=alta&area=Mina");
+    expect(queryFallas({ gestion: "todos", severidad: "alta", area: "Mina" }, { severidad: "" })).toBe("gestion=todos&area=Mina");
+  });
+  it("ida y vuelta con parseFiltroFallas", () => {
+    const f = { gestion: "todos", severidad: "critica", area: "Puerto" } as const;
+    expect(parseFiltroFallas(Object.fromEntries(new URLSearchParams(queryFallas(f))))).toEqual(f);
   });
 });

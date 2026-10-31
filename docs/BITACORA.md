@@ -19,24 +19,33 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 3. Si un cambio modifica una decisión, anótelo también en «Decisiones».
 4. No borre entradas antiguas: si algo se revierte, agregue una entrada nueva que lo diga.
 
-## Estado actual (2026-10-29)
+## Estado actual (2026-10-30)
+
+**Para quien continúa (léalo primero):**
+- `main` en GitHub ya tiene todo el trabajo (PR #1 unido el 2026-10-30). Siga el flujo de `CLAUDE.md`: rama nueva, bitácora en el mismo commit, PR.
+- **Local:** `corepack pnpm install`, `corepack pnpm supabase start` (Docker), `corepack pnpm dev`. Entre con **usuario** (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); las contraseñas de prueba están en `supabase/seed_usuarios_dev.sql`.
+- **En línea (prueba):** app en https://inspecciones-bbosch.vercel.app (proyecto de Vercel `inspecciones-bbosch`, equipo `cnv10`) y base en el proyecto de Supabase `inspecciones-bbosch` (referencia `etdeiyjzibgihqtvdrpt`, São Paulo, plan Free). Las 7 cuentas existen allí con **contraseñas que eligió el usuario y no están en el repositorio**: pídaselas a Cristóbal.
+- Lo que falta cargar es sobre todo **las plantillas de los otros 59 formatos** (hoy solo INSP-12 abre formulario) y el resto de «Pendientes».
 
 | Área | Estado |
 |---|---|
 | Scaffold Next 16 + Tailwind + TypeScript estricto | Hecho y verificado |
-| Migraciones SQL (esquema, RLS, RPC) y seed | Migraciones 0001–0010 aplicadas sin errores en Supabase local (2026-10-30); roles, firma y eliminación probados en SQL y en la app |
+| Migraciones SQL (esquema, RLS, RPC) y seeds | Migraciones 0001–0011 aplicadas sin errores en Supabase local y, **pegadas en el SQL Editor (no con `db push`)**, en el Supabase remoto de prueba (2026-10-30). Seeds: `seed_catalogo.sql` (seguro para remoto) y `seed_usuarios_dev.sql` (solo local) |
 | Test RLS (técnico A no lee lo del técnico B, firma doble, catálogo, auditoría, eliminación) | Hecho: `supabase/tests/rls.test.sql`, 30/30 con `supabase test db` (no cubre Storage ni tablas hijas) |
 | Validador de plantillas (Zod) | Hecho, con tests |
 | Plantilla real Transformador de piso × Plan Matriz (29 ítems) | Hecha en el seed |
-| Auth, proxy por rol (admin, supervisor, planificador, técnico), turnos A/B y firma doble en BD | Hecho; probado en SQL; **login y pantallas por rol sin probar en navegador** |
+| Auth, proxy por rol (admin, supervisor, programador, técnico), turnos A/B y firma doble en BD | Hecho. Cuentas genéricas con **usuario** (sin correo). Probado en navegador en local con `TECNICO_A`, `SUPERVISOR_A` y `PROGRAMADOR_A`; **sin probar en el sitio publicado** |
 | Núcleo offline (Dexie, cola, reintentos, compresión) | Hecho, con tests |
-| Flujo del técnico (Área → Trabajo → Familia → Formato → formulario con selector de TAG → envío) | Hecho (2026-10-30, rama `feat/flujo-4-pasos-tag`); solo INSP-12 disponible; probado en navegador hasta el selector de TAG |
+| Flujo del técnico (Área → Trabajo → Familia → Formato → formulario con selector de TAG → envío) | Hecho y en `main`. Catálogo de 60 formatos; solo INSP-12 disponible. Probado de extremo a extremo en local (envío con TAG provisional, firma del supervisor, aprobación del programador, PDF) |
+| Selector de TAG desde el Maestro (1.073 equipos) | Hecho: TAG con guiones, nombres limpios, sectores, TAG provisionales marcados en el registro y en el detalle de revisión. Datos en `src/data/maestro-tags.json` (se regenera con `scripts/export-maestro.py`, ver `docs/EXPORT_MAESTRO.md`) |
+| Eliminar inspecciones en curso (técnico) | Hecho; probado con el ratón, **no con el dedo en un teléfono** |
+| Despliegue de prueba (Vercel + Supabase remoto) | Esquema y catálogo cargados y verificados en el Supabase remoto; 7 cuentas con rol y turno; app publicada y compilando. **Falta que el usuario pruebe el ingreso en el sitio publicado** y confirme que desactivó el registro libre (ver «Pendientes» 15 a 19) |
 | Service worker / PWA instalable | Hecho (2026-10-30, rama `feat/pwa-offline`): probado en Chrome con el servidor apagado; **sin probar con corte total de red, envío sin red ni instalación en teléfono** |
 | Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app; firma del supervisor probada en navegador (2026-10-30), **firma del planificador y rechazo sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
 | Verificación a 375px y 1440px, prueba con red apagada | Parcial (formularios a 375px con datos simulados) |
 
-Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` sin errores · `pnpm tsc --noEmit` sin errores · `pnpm test` 69/69 · `pnpm build` correcto.
+Verificación global más reciente (2026-10-30, sobre `main` con el PR #1): `pnpm lint` y `pnpm typecheck` sin errores · `pnpm test` 101/101 · `pnpm build` correcto (también en Vercel) · `pnpm supabase test db` 30/30.
 
 ## Pendientes
 
@@ -45,18 +54,28 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 3. ~~Escribir y correr `supabase/tests/rls.test.sql` (pgTAP)~~ — hecho 2026-10-30 (30/30). Falta ampliarlo a Storage y a las tablas hijas.
 4. ~~Probar en el navegador el login por rol~~ — hecho 2026-10-30 con los usuarios genéricos nuevos (ver «Cuentas genéricas por usuario»).
 5. ~~Service worker con Serwist + manifest + iconos~~ — hecho 2026-10-30 con `@serwist/turbopack` (ver Decisiones). Falta probar la instalación en teléfono y el envío sin red.
-6. Bandejas de supervisor y planificador (y vista de solo lectura del admin): filtros, detalle, aprobar/rechazar con comentario, firma dibujada. La BD ya soporta las dos etapas de firma.
-7. PDF con `@react-pdf/renderer` reproduciendo el diseño Cobre, con logo BBOSCH, guardado en Storage privado y URL firmada.
+6. ~~Bandejas de supervisor y planificador~~ — hechas (bandeja, detalle, firma doble, buscador, eliminación por el admin).
+7. PDF con `@react-pdf/renderer`: la descarga ya existe (se genera al pedirla). **Falta guardar el PDF final y firmado en Storage privado** al aprobar, para que sea el registro oficial inmutable.
 8. ~~Vista de inspecciones ya enviadas en `/tecnico`~~ — hecha 2026-10-30, con corrección de las rechazadas.
 9. Prueba de aceptación con red apagada: crear, completar, reconectar y ver en la bandeja del supervisor.
 10. Documentos: `docs/DECISIONES.md` y `docs/COMO_AGREGAR_AREA_EQUIPO.md`.
 12. Revisar con el usuario: sectores dudosos (`docs/MAPEO_ZONA_AREA.md`), áreas de MANT-02/08/17, regla piso/aéreo de transformadores (el Maestro no alcanza) y probar envío completo con TAG provisional.
 13. **Exportar a Excel desde la bandeja** (pedido 2026-10-30, sin hacer): botón «Descargar Excel» para supervisor, programador y administrador, que respete los filtros de la bandeja (TAG, turno, fechas, estado) y exija rango de fechas. Hojas: Inspecciones (una fila por inspección: folio, fecha, área, TAG y su estado, técnico, turno, estado de revisión, firmas); Respuestas (una fila por ítem: lo marcado BN/ML/NT/NA/NR, valor medido con unidad, observación); Hallazgos; y Mediciones por formato (una fila por inspección y una columna por ítem, para ver la evolución de un TAG). Sin fotos ni firmas, solo su cantidad. **Bloqueado por una decisión:** un `.xlsx` con varias hojas requiere una dependencia nueva (se propuso `exceljs`; `CLAUDE.md` exige preguntar antes); la alternativa sin librería es CSV, un archivo por hoja. Falta autorización del usuario y confirmar si quiere la hoja 4.
-14. **Probar en Vercel + Supabase remoto:** guía actualizada en `docs/DEPLOY_VERCEL.md`. Falta que el usuario cree el proyecto de prueba, aplique las migraciones y el catálogo, cree las 7 cuentas y configure las variables en Vercel (conectar a un Supabase remoto y desplegar requieren su confirmación).
-11. Plantillas para los otros 4 equipos y el modo Mantenimiento programado (hoy solo existen en el catálogo, sin plantilla).
+14. ~~Probar en Vercel + Supabase remoto~~ — **medio hecho 2026-10-30** (ver entrada «Despliegue de prueba»): publicado, base y cuentas listas; falta la prueba de ingreso del usuario.
+11. **Plantillas de los otros 59 formatos** (INSP y MANT): cada uno se arma a partir de su Word en `Bases de datos generales/Formatos` (MANT-18 y MANT-19 están en `.doc`, convertir a `.docx`). Pasar a «disponible» = cambiar el estado en `src/lib/formatos/catalogo.ts` + cargar la plantilla en la base. Sugeridos para empezar: INSP-13 y INSP-07 (transversales, parecidos a INSP-12).
+15. **Probar el ingreso en https://inspecciones-bbosch.vercel.app** (usuario `TECNICO_A`, etc.) y recorrer INSP-12; también `SUPERVISOR_A` y `PROGRAMADOR_A`. Nadie lo ha probado en el sitio publicado.
+16. **Desactivar «Allow new users to sign up»** en Supabase (Authentication → Sign In / Providers → Save changes) y confirmarlo. Si sigue activo, cualquiera con la dirección podría crearse una cuenta de técnico. Opcional: desactivar «Confirm email».
+17. **Planes:** Supabase Free tiene 1 GB de archivos, pausa tras unos 7 días sin uso y no hace respaldos diarios; para uso real con ~60 técnicos pasar a **Pro**. Vercel Hobby es para uso personal no comercial: revisar los términos antes de usarlo con el equipo.
+18. **Migraciones remotas sin registrar:** el esquema se aplicó pegando un SQL en el editor, así que la tabla de control de Supabase no las conoce. Una migración futura aplicada con `supabase db push` intentaría repetir las anteriores y fallaría. Para producción: `supabase link` + `db push` en un proyecto nuevo, o registrar las existentes con `supabase migration repair`.
+19. **Otro proyecto de Supabase sin identificar:** en la organización «CNV» existe `inspecciones-mlp-prueba` además de `inspecciones-bbosch`; no se tocó y no se sabe si se usa. Revisar y pausar o borrar. En Vercel existe además el proyecto `inspecciones-mlp-demo-formatos` (demo estática de la carpeta `demo/`).
+20. **Contraseñas de las cuentas remotas:** las tiene el usuario; definir dónde guardarlas para el equipo y cambiarlas antes de producción. Las del seed local están en el repositorio y no deben usarse en remoto.
+21. **Probar en teléfonos reales** (Android e iPhone): instalar la PWA, abrir sin señal, deslizar una inspección en curso para eliminarla, y agregar el aviso de borradores sin enviar (iPhone puede borrar datos locales si la app no se usa por días y no está instalada).
+22. **Limpieza:** ramas ya unidas (`feat/roles-turnos-firma-doble`, `feat/pwa-offline`, `feat/flujo-4-pasos-tag`) y datos de prueba en la base local (`INS-2026-000023`, `000024`, `000031`, y borradores de `TECNICO_A`/`TECNICO_B`).
+23. **Qué ve cada supervisor:** hoy no está filtrado por área ni turno; con ~24 revisores conviene definirlo. También decidir si las cuentas serán por persona (trazabilidad) o genéricas (decisión actual).
 
 ## Decisiones
 
+- **Despliegue de prueba (2026-10-30):** Vercel (`inspecciones-bbosch`, repositorio `CNAVEA98/Inspecciones_BBOSCH`, producción = rama `main`) + Supabase creado desde la integración de Vercel (organización «CNV», región São Paulo, plan Free). La integración carga en Vercel `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` (las que usa la app) y otras variables (`SUPABASE_SERVICE_ROLE_KEY`, `POSTGRES_*`…) que la app **no** usa; nunca deben llevar prefijo `NEXT_PUBLIC_`. Sin ramas de base de datos para Preview. El esquema remoto se aplicó pegando un SQL único (migraciones 0001–0011 + `seed_catalogo.sql`, dentro de una transacción); no se ejecutó `seed_usuarios_dev.sql` en remoto.
 - **Cuentas genéricas por usuario, sin correo (2026-10-30):** no se crean cuentas por persona (la gente olvida contraseñas). Hay 7 cuentas compartidas que se ingresan con **usuario**: `ADMINISTRADOR`, `SUPERVISOR_A`, `SUPERVISOR_B`, `PROGRAMADOR_A`, `PROGRAMADOR_B`, `TECNICO_A`, `TECNICO_B` (no distingue mayúsculas). Supabase Auth exige correo, así que se usa uno interno `usuario@mlp.local` que nunca se muestra y no parece un correo real. El rol «planificador» se muestra como «Programador» (la ruta y el código siguen en `planner`/`/planificador`). La trazabilidad por persona la da el campo «quién realizó la inspección». Las contraseñas del seed son de prueba: **hay que cambiarlas antes de producción**.
 - **Formatos en código, TAG desde el Maestro (2026-10-30):** el catálogo de 60 formatos vive en `src/lib/formatos/catalogo.ts` (fuente única; habilitar uno = cambiar su estado y cargar su plantilla). Valle es una quinta área. Los TAG vienen de `src/data/maestro-tags.json`, generado con `scripts/export-maestro.py` (Python + openpyxl solo para el script). Los TAG provisionales (propuesto/reasignado) se pueden elegir y se marcan en el registro para revisión; no se bloquea al técnico por no tener el TAG oficial.
 - **Cuentas creadas por el equipo, no por la app (2026-10-30):** no habrá pantalla de alta de usuarios; las cuentas las genera el equipo de desarrollo para que solo las use personal de la empresa. No hay autoregistro.
@@ -85,10 +104,18 @@ corepack pnpm build
 corepack pnpm dev            # necesita .env.local (copiar de .env.example)
 ```
 
-Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase db reset`.
+Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase db reset` (`db reset` **borra** los datos locales y recarga `seed_catalogo.sql` y `seed_usuarios_dev.sql`).
+Pruebas de la base: `corepack pnpm supabase test db`. Para el `.env.local` local, los valores salen de `corepack pnpm supabase status`.
+Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EXPORT_MAESTRO.md`). Para probar en línea: `docs/DEPLOY_VERCEL.md`.
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · Despliegue de prueba: app en Vercel y base en Supabase remoto
+- **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-despliegue-supabase-vercel`
+- **Qué se hizo:** (1) El PR #1 (`feat/flujo-4-pasos-tag`) se unió a `main` desde GitHub (commit `474db23`). (2) Se creó el proyecto de Vercel `inspecciones-bbosch` desde el repositorio (raíz, Next.js) y el de Supabase `inspecciones-bbosch` con la integración de Vercel (São Paulo, Free). El primer despliegue falló en la instalación (`ERR_PNPM_IGNORED_BUILDS`, arreglado con `allowBuilds` en `pnpm-workspace.yaml`); luego compiló. (3) Con el Chrome del usuario se pegó y ejecutó en el SQL Editor de Supabase un único SQL con las migraciones 0001–0011 y `seed_catalogo.sql`. (4) El usuario creó las 7 cuentas (`administrador`, `supervisor_a/b`, `programador_a/b`, `tecnico_a/b`, con correo interno `@mlp.local`) y se les asignó rol, turno y nombre con un `update` sobre `public.profiles`.
+- **Verificación (consultas de solo lectura en el Supabase remoto):** 5 áreas, 5 tipos de equipo, 1 plantilla publicada (INSP-12), 12 tablas en `public`, buckets `inspection-photos`, `signatures` y `reports` **privados**; después 7 perfiles con el rol y turno esperados (admin sin turno; supervisor, planner y technician con A/B). Vercel: builds de la rama y de `main` en estado Ready; la página `/login` carga en https://inspecciones-bbosch.vercel.app.
+- **Pendiente / riesgos:** **no se probó el ingreso ni ningún flujo en el sitio publicado** (las contraseñas las tiene el usuario). No se confirmó que «Allow new users to sign up» esté desactivado. Migraciones aplicadas a mano: no quedan registradas en Supabase (ver «Pendientes» 18). Trampa del SQL Editor: arrancó en «Run as: authenticated» (como `supervisor_a`) y falló con «permission denied for table users»; hay que elegir **postgres (Superuser)** en el selector junto a «Run». La clave `service_role` y las variables `POSTGRES_*` existen en Vercel pero no se usan.
 
 ### 2026-10-30 · Arreglo del build en Vercel: scripts de instalación de pnpm
 - **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`

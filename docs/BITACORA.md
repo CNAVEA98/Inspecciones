@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-30 · Carpeta de formatos: subcarpetas inspecciones y mantenciones, sin los 4 Word antiguos
+- **Autor:** Manuel (con Claude) · rama `docs/formatos-subcarpetas`
+- **Qué se hizo:** en `docs/formatos` se eliminaron los 4 Word antiguos (`01_…TRANSFORMADORES DE PISO.doc`, `18_…CHACAY-MINA.docx`, `EST-ELEC-INSP-MLP-STN-01_…` y `-02_…`), que eran versiones previas de INSP-12, INSP-18, INSP-01 e INSP-02 de la colección vigente. Se crearon las subcarpetas `inspecciones/` y `mantenciones/` (con `.gitkeep`, porque Git no guarda carpetas vacías) y se reescribió el `LEEME.md` con la estructura y la regla de nombres `INSP-NN` / `MANT-NN`. La colección vigente (40 INSP + 20 MANT = 60, coincide con el catálogo; INSP-36 no existe) sigue fuera de Git, en «Bases de datos generales».
+- **Archivos:** `docs/formatos/` (4 eliminados, `inspecciones/.gitkeep`, `mantenciones/.gitkeep`, `LEEME.md`).
+- **Verificación:** nada del código lee `docs/formatos` (búsqueda en `src`, `scripts` y `supabase` sin resultados; solo la bitácora lo menciona). No se corrieron lint, tsc, tests ni build porque no se tocó código. Las entradas anteriores de esta bitácora que citan los nombres antiguos se conservan como historia.
+- **Pendiente / riesgos:** las subcarpetas están vacías; cada Word se copia cuando se convierte en plantilla (empezando por INSP-13 o INSP-07). Los 4 originales siguen en el historial de Git por si hay que recuperarlos. Esta rama parte de `docs/sincronizar-al-iniciar-sesion` (PR #3, aún abierto): conviene unir el #3 primero.
+
 ### 2026-10-30 · Equipo de Manuel preparado y regla de sincronizar con GitHub al iniciar sesión
 - **Autor:** Manuel (con Claude) · rama `docs/sincronizar-al-iniciar-sesion`
 - **Qué se hizo:** (1) Nueva sección «Al iniciar cada sesión (obligatorio)»: comparar GitHub con la copia local y bajar lo último antes de trabajar. (2) Se preparó un segundo equipo (Windows 11) desde cero: Node 26.13.0 LTS, corepack 0.36.0 con `npm i -g corepack` (desde Node 25 no viene incluido), pnpm 12.16.1, Python 3.13.16 + openpyxl 3.1.5, Git Credential Manager; Docker Desktop 29.9.2 y WSL2 ya estaban.

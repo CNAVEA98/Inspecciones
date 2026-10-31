@@ -9787,8 +9787,7 @@ select et.id, wm.id, 1, 'published', $tpl$
     {
       "key": "ot",
       "label": "N° OT",
-      "input": "text",
-      "required": false
+      "input": "text"
     },
     {
       "key": "transformador",
@@ -10066,7 +10065,8 @@ select et.id, wm.id, 1, 'published', $tpl$
       ]
     }
   ],
-  "note": "Pruebas de operación en instrumentos de protección del transformador, verificando la señal en módulos de entrada del PLC y módulos de salida, activación de rele asociado a las señales de cada instrumento y recepción en sala 1. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor OTIA y el OTIT. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor WTIA y el WTIT."
+  "note": "Pruebas de operación en instrumentos de protección del transformador, verificando la señal en módulos de entrada del PLC y módulos de salida, activación de rele asociado a las señales de cada instrumento y recepción en sala 1. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor OTIA y el OTIT. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor WTIA y el WTIT.",
+  "nomenclature": "NT: NO TIENE / BN: BUENO / ML: MALO / NA: NO APLICA / NR: No Realizada (Indicar motivos en observaciones)"
 }
 $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm

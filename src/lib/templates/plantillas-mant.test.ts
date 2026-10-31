@@ -74,7 +74,7 @@ describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
       if (e.estados === "A") expect(t.estados, tipo).toEqual(A);
       else if (e.estados === "B") expect(t.estados, tipo).toEqual(B);
       else expect(t.estados, tipo).toBeUndefined();
-      if (e.mant !== "MANT-19") expect(t.nomenclature, tipo).toBeTruthy(); // el Word de MANT-19 no trae leyenda
+      expect(t.nomenclature, tipo).toBeTruthy();
     }
   });
 

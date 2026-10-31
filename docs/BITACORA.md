@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-30 · Bandeja: marca «Inspecciones BBOSCH», logo y botón Actualizar
+- **Autor:** Manuel (con Claude) · rama `feat/bandeja-marca-actualizar` (parte de `feat/plantillas-insp-01-05`: unir antes esa rama)
+- **Qué se hizo:** en el encabezado del personal (supervisor, programador y administrador) el texto «Inspecciones MLP» pasa a «Inspecciones BBOSCH» y se agrega el logo de BBOSCH en la esquina superior izquierda, sobre una pastilla blanca porque es gris y naranja y no se lee sobre el grafito; el logo enlaza al inicio. La bandeja tiene un botón **Actualizar** junto al título que vuelve a leer los datos del servidor y conserva los filtros y la búsqueda (muestra «Actualizando…» mientras trabaja).
+- **Archivos:** `src/components/shared/staff-shell.tsx`, `src/components/revision/bandeja.tsx`, `src/components/revision/boton-actualizar.tsx` (nuevo).
+- **Verificación:** `pnpm lint` y `pnpm typecheck` sin errores · `pnpm test` 106/106 · `pnpm build` correcto · con la sesión de `SUPERVISOR_A`, `PROGRAMADOR_A` y `ADMINISTRADOR`, `/supervisor`, `/planificador` y `/admin` responden 200 y su HTML incluye «Inspecciones BBOSCH», el logo y el botón «Actualizar». **No verificado:** el aspecto en pantalla (tamaño del logo, alineación en móvil) ni el clic en «Actualizar» en un navegador.
+- **Pendiente / riesgos:** «Inspecciones MLP» sigue en el login, el manifiesto de la PWA, el área del técnico y los títulos de pestaña (fuera de lo pedido); decidir si se cambian también. El botón no actualiza solo: hay que pulsarlo.
+
 ### 2026-10-30 · Plantillas de INSP-01 a INSP-05 y prueba técnico → supervisor → programador
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-insp-01-05` (parte de `docs/formatos-subcarpetas`: unir antes los PR #3 y el de las subcarpetas)
 - **Qué se hizo:** se cargaron como formulario las 5 primeras inspecciones, leídas de sus Word: **INSP-01** Desconectador/seccionador 23 kV (24 ítems), **INSP-02** Banco de condensadores Mauro (56), **INSP-03** Pruebas de grupos generadores El Mauro (45: 30 de mediciones y 15 del registro operacional), **INSP-04** Limpieza de salas eléctricas STMG (24, con lecturas SF6/temperatura GIS y galería de 6 fotos) e **INSP-05** Reconectador 23 kV (23, con marca, modelo y galería). Cada formato tiene su propio tipo de equipo (la plantilla se busca por tipo × modo); INSP-05 usa el existente `reconectador`. Los 5 Word se copiaron a `docs/formatos/inspecciones/`. Los firmantes quedan como en INSP-12 (Encargado, Supervisor Bbosch, Planificador Bbosch) y las normas con el prefijo `EST-ELEC-MLP-BBOSCH-NN` (los Word antiguos decían STN).

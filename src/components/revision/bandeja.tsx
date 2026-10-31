@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BotonActualizar } from "@/components/revision/boton-actualizar";
 import { TablaBandeja } from "@/components/revision/tabla-bandeja";
 import { CONSULTA_VACIA, consultaAQuery, filtrarFilas, hayConsulta, tagsDe, type Consulta } from "@/lib/revision/consulta";
 import { FILTROS, estadosDelFiltro, type Filtro } from "@/lib/revision/estado";
@@ -28,7 +29,10 @@ export async function Bandeja({
   return (
     <section className="rounded-2xl border border-hair bg-white">
       <div className="border-b border-hair px-5 py-4">
-        <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-xl font-bold tracking-tight">{titulo}</h1>
+          <BotonActualizar />
+        </div>
         <nav aria-label="Filtro por estado" className="mt-3 flex flex-wrap gap-2">
           {FILTROS.map((f) => (
             <Link

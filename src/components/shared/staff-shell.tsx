@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { SessionProfile } from "@/lib/auth/session";
 import { roleWithShift } from "@/lib/auth/roles";
@@ -23,7 +24,13 @@ export function StaffShell({
   return (
     <div className="min-h-[100dvh]">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-graf px-6 py-3 text-white">
-        <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#9aa4ad]">Inspecciones MLP</span>
+        <Link href="/" aria-label="Inspecciones BBOSCH, inicio" className="flex items-center gap-3">
+          {/* Pastilla blanca: el logo es gris y naranja y no se lee sobre el grafito. */}
+          <span className="rounded-md bg-white px-2 py-1">
+            <Image src="/brand/bbosch-logo.png" alt="BBOSCH" width={1115} height={391} priority className="h-7 w-auto" />
+          </span>
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#9aa4ad]">Inspecciones BBOSCH</span>
+        </Link>
         <nav aria-label="Principal" className="flex gap-1">
           {nav.map((item) => (
             <Link key={item.href} href={item.href} className={link}>

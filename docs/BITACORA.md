@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · INSP-21 unificado y INSP-03 sin bloque extra: los 58 Word con el mismo bloque de firmantes
+- **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
+- **Qué se hizo:** con INSP-21 ya cerrado en Word se le aplicó el bloque estándar (`Encargado de la actividad:` / `Supervisor Bbosch:` / `Planificador Bbosch:`, todos con `Firma:`). En INSP-03 se quitó el bloque extra «Supervisor Ejecutor o Responsable de Trabajo» (título, «Nombre | Fecha | Firma» y su fila en blanco) para que tenga la misma estructura que los demás. Con esto **los 58 `.docx` tienen exactamente las mismas 4 filas** en el mismo orden: Participantes (sin firma), Encargado de la actividad, Supervisor Bbosch y Planificador Bbosch. INSP-03 se copió de nuevo al repositorio.
+- **Archivos:** `docs/formatos/inspecciones/INSP-03 Pruebas Grupos Generadores El Mauro.docx` (INSP-21 está fuera del repositorio, en `Bases de datos generales\Formatos BBOSCH`).
+- **Verificación:** comparado con la versión anterior, INSP-03 solo pierde esas 2 líneas (3 filas) e INSP-21 solo cambia sus 3 etiquetas; los dos son XML válido; el recorrido de los 58 confirma un único patrón de bloque. **No verificado:** el aspecto al abrirlos en Word. La plantilla de INSP-03 en la app no cambia (nunca tuvo ese bloque).
+- **Pendiente / riesgos:** los 3 `.doc` antiguos (MANT-18, MANT-19 y el `Insp_Relés…doc`) siguen sin convertir y, al convertirlos, habrá que aplicarles el mismo bloque.
+
 ### 2026-10-31 · Mismo bloque de firmantes en todos los formatos Word
 - **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
 - **Qué se hizo:** los formatos tenían unas 25 variantes del bloque de firmantes («Encargado de Actividad», «Encargado actividad», «Encargado de actividad»; «Firma», «Firma Recepción», «Firma/Fecha Recepción», «Firma de encargado», «Firma encargado actividad», «Cargo»; «Participantes» y «Participantes de la tarea»; INSP-15, 16, 17 y MANT-20 sin fila de participantes; INSP-28 con ella después del planificador). Ahora los formatos quedan con **el mismo bloque, en este orden**: `Participantes:` (con su espacio, sin firma) · `Encargado de la actividad:` + `Firma:` · `Supervisor Bbosch:` + `Firma:` · `Planificador Bbosch:` + `Firma:`. Se agregó la fila en 4 formatos, se movió en 1, y en las mantenciones se quitaron las 84 filas en blanco que seguían al encabezado «Participantes» (en la app los participantes son un solo texto libre). INSP-01 a 15 se copiaron de nuevo al repositorio.

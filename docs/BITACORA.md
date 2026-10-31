@@ -131,6 +131,7 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 - **Qué se hizo:** Manuel renumeró en `seed_plantillas_insp.sql` los ítems de la sección «Banco de condensadores» de INSP-02 (venían como `item_22` a `item_56`, correlativos con la sala de control) para que partan en 1. Quedaron repetidos los ids `item_01` a `item_21` con los de la sala de control y la app rechazaba la plantilla («Id de ítem duplicado»). Se dejaron ids únicos con prefijo de la sección: `banco_01` a `banco_35`.
 - **Archivos:** `supabase/seed_plantillas_insp.sql`
 - **Verificación:** 147 tests en verde (volvió a pasar el validador de INSP-02); plantilla actualizada en el Supabase local saltando el trigger de inmutabilidad. Revisión en pantalla: no verificada.
+- **También (numeración en pantalla):** el número que se ve junto a cada ítem era correlativo de toda la plantilla (INSP-02 llegaba a 56) y no dependía de los ids. Ahora parte en 1 en cada sección (`formulario.tsx`); vale para todos los formatos y, en las secciones repetibles, para cada copia. El paso de cierre y los conteos no cambian.
 - **Pendiente / riesgos:** los ids no se ven en pantalla; sirven para guardar las respuestas y deben ser únicos en toda la plantilla. En un Supabase remoto con INSP-02 ya publicada, el cambio de ids exige una versión 2 (las inspecciones enviadas usan los ids antiguos).
 
 ### 2026-10-31 · Plantillas INSP-16 a INSP-41 (los 25 formatos que faltaban)

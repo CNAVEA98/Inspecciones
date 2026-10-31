@@ -299,8 +299,8 @@ export function Formulario({ id: idInicial }: { id: string }) {
                   {inst.repetible ? (
                     <h2 className="border-b-2 border-cu pb-1 text-xl font-bold">{inst.title}</h2>
                   ) : null}
-                  {inst.items.map((item) => {
-                    const n = itemsX.findIndex((i) => i.id === item.id) + 1;
+                  {inst.items.map((item, k) => {
+                    const n = k + 1; // la numeración parte en 1 en cada sección
                     return (
                       <ItemField
                         key={item.id}

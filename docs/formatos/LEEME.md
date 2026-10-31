@@ -13,7 +13,7 @@ docs/formatos/
 - Un archivo por formato, con el nombre `INSP-NN Nombre.docx` o `MANT-NN Nombre.docx` (el mismo código del catálogo en `src/lib/formatos/catalogo.ts`).
 - Los formatos se agregan **de a uno**, a medida que se convierten en plantilla; no hace falta copiar los 60 de una vez.
 - La colección completa (60 formatos y `Indice_renombrado.csv`) vive fuera de Git, en la carpeta «Bases de datos generales».
-- Los `.doc` antiguos (MANT-18 y MANT-19) se convierten a `.docx` antes de usarlos.
+- Los `.doc` antiguos se convierten a `.docx` antes de usarlos (MANT-18 y MANT-19 ya están convertidos).
 - Cada formato nuevo o cada plantilla cargada se registra en `docs/BITACORA.md`.
 
 ## Demo estática (referencia visual)

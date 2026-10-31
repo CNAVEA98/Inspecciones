@@ -131,7 +131,8 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 - **Qué se hizo:** la etiqueta de arriba del encabezado del técnico decía solo «Técnico»; ahora dice «Técnico · Turno A» o «Técnico · Turno B» según el turno de la cuenta (usa `roleWithShift`, igual que las otras áreas).
 - **Archivos:** `src/app/tecnico/layout.tsx`
 - **Verificación:** lint y tsc en verde; vista en pantalla: no verificada.
-- **Pendiente / riesgos:** si una cuenta de técnico no tiene turno, la etiqueta queda solo «Técnico». El nombre de abajo («Técnico B») sigue siendo el nombre de la cuenta.
+- **Ajuste posterior:** el nombre de la cuenta («Técnico B») repetía lo mismo, así que se quitó: el encabezado muestra una sola línea, «Técnico · Turno B», con el tamaño del nombre.
+- **Pendiente / riesgos:** si una cuenta de técnico no tiene turno, la línea queda solo «Técnico». El nombre de la cuenta ya no se ve en el encabezado del técnico.
 
 ### 2026-10-31 · INSP-02: la sección «Banco de condensadores» numera sus ítems de 1 a 35
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`

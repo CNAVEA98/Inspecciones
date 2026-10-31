@@ -8,5 +8,5 @@ export default async function DetalleAdminPage({ params }: { params: Promise<{ i
   const { id } = await params;
   const detalle = await obtenerDetalle(id);
   if (!detalle) notFound();
-  return <Detalle d={detalle} volver="/admin" />;
+  return <Detalle d={detalle} volver="/admin" puedeGestionar />;
 }

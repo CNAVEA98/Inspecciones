@@ -5,7 +5,10 @@ import { StaffShell } from "@/components/shared/staff-shell";
 export default async function PlanificadorLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("planner");
   return (
-    <StaffShell session={session} nav={[{ href: "/planificador", label: "Bandeja" }]}>
+    <StaffShell session={session} nav={[
+        { href: "/planificador", label: "Bandeja" },
+        { href: "/planificador/fallas", label: "Equipos con fallas" },
+      ]}>
       {children}
     </StaffShell>
   );

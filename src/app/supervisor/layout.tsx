@@ -5,7 +5,10 @@ import { StaffShell } from "@/components/shared/staff-shell";
 export default async function SupervisorLayout({ children }: { children: React.ReactNode }) {
   const session = await requireRole("supervisor");
   return (
-    <StaffShell session={session} nav={[{ href: "/supervisor", label: "Bandeja" }]}>
+    <StaffShell session={session} nav={[
+        { href: "/supervisor", label: "Bandeja" },
+        { href: "/supervisor/fallas", label: "Equipos con fallas" },
+      ]}>
       {children}
     </StaffShell>
   );

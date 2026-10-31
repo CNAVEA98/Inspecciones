@@ -12,6 +12,7 @@ export function alturaEstimadaGrupo(g: GrupoInforme): number {
   for (const f of g.filas) {
     alto += 21 + (f.texto.length > 85 ? 11 : 0) + (f.texto.length > 170 ? 11 : 0);
     if (f.obs) alto += 18 + 11 * Math.floor(f.obs.length / 100);
+    if (f.traza) alto += 12;
   }
   return alto;
 }

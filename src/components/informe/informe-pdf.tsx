@@ -302,6 +302,9 @@ function FilaItem({ f, ultima }: { f: Informe["grupos"][number]["filas"][number]
           <Text style={{ fontSize: 8, color: C.cuTexto }}>{f.obs}</Text>
         </View>
       ) : null}
+      {f.traza ? (
+        <Text style={{ marginLeft: 22, marginTop: 2, fontFamily: MONO_B, fontSize: 7, color: C.sub }}>{f.traza}</Text>
+      ) : null}
     </View>
   );
 }

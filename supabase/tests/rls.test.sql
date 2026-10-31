@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(32);
+select plan(42);
 
 -- ---------- Ayuda: actuar como un usuario del seed ----------
 -- tap_as('correo') cambia al rol "authenticated" con el JWT de ese usuario; tap_as(null) vuelve a postgres.
@@ -51,6 +51,11 @@ join auth.users u on u.email = x.email
 cross join (select id from public.areas order by sort limit 1) ar
 cross join (select id, equipment_type_id, work_mode_id, version from public.form_templates
             where status = 'published' limit 1) ft;
+
+-- Hallazgos de prueba (con la inspección aún en borrador): F1 en A (se aprobará) y F2 en C (se rechazará).
+insert into public.findings (id, inspection_id, item_key, severity, description)
+select '99999999-9999-4999-8999-999999999991'::uuid, (select a from ids), 'item_01', 'alta', 'prueba A'
+union all select '99999999-9999-4999-8999-999999999992'::uuid, (select c from ids), 'item_02', 'media', 'prueba C';
 
 update public.inspections set status = 'submitted'
  where id in (select a from ids union select b from ids union select c from ids);
@@ -182,6 +187,36 @@ select is((select count(*) from public.inspections where id = (select b from ids
 select tap_as('administrador@mlp.local');
 select is((select (public.delete_inspections(array[(select b from ids)]) ->> 'eliminadas')::int), 1,
           'el administrador elimina por la función con auditoría');
+
+-- ---------- 7. Seguimiento de hallazgos (no bloquea las firmas) ----------
+select tap_as('tecnico_a@mlp.local');
+select throws_ok($$select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'bbosch', '4500012345', null)$$,
+                 '42501', null, 'el técnico no registra seguimiento');
+select tap_as('programador_a@mlp.local');
+select throws_ok($$select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'bbosch', '4500012345', null)$$,
+                 '42501', null, 'el planificador solo lee el seguimiento');
+select tap_as('supervisor_a@mlp.local');
+select is((select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'bbosch', ' 4500012345 ', 'x') ->> 'sap_notice'),
+          '4500012345', 'el supervisor registra el N.º de aviso aunque la inspección ya esté aprobada');
+select tap_as('tecnico_a@mlp.local');
+select is((select count(*) from public.finding_followups), 1::bigint, 'el técnico dueño ve el seguimiento de su inspección');
+select throws_ok($$insert into public.finding_followups (finding_id, inspection_id, scope) values ('99999999-9999-4999-8999-999999999991', (select a from ids), 'bbosch')$$,
+                 '42501', null, 'el técnico no escribe directo en la tabla de seguimiento');
+select tap_as('tecnico_b@mlp.local');
+select is((select count(*) from public.finding_followups), 0::bigint, 'el técnico B no ve el seguimiento ajeno');
+select tap_as('supervisor_a@mlp.local');
+select is((select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'terceros', '4500012345', 'Canalizado con MLP') ->> 'channel_note'),
+          'Canalizado con MLP', 'al pasar a terceros se guarda la nota de canalización');
+select tap_as(null);
+select ok((select sap_notice is null from public.finding_followups where finding_id = '99999999-9999-4999-8999-999999999991'),
+          'al pasar a terceros se descarta el N.º de aviso');
+select tap_as('supervisor_a@mlp.local');
+select throws_ok($$select public.set_finding_followup('99999999-9999-4999-8999-999999999992', 'bbosch', '4500099999', null)$$,
+                 '22023', null, 'una inspección rechazada no admite seguimiento');
+select tap_as('administrador@mlp.local');
+select ok((select count(*) from public.audit_log where table_name = 'finding_followups') >= 2,
+         'el seguimiento queda en la auditoría');
+
 
 select * from finish();
 rollback;

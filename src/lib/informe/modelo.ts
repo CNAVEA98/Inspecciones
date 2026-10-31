@@ -1,6 +1,7 @@
 import { formatFechaHora } from "@/lib/fecha";
 import type { DetalleInspeccion } from "@/lib/revision/queries";
 import { STATUS_LABEL_INFORME } from "@/lib/revision/estado";
+import { textoTrazabilidad } from "@/lib/revision/fallas";
 import { expandirPlantilla } from "@/lib/templates/repetir";
 import { ESTADOS, ESTADOS_CONFORMES, type Estado, type TemplateItem, type VerificationValue } from "@/lib/templates/schema";
 
@@ -15,6 +16,8 @@ export interface FilaInforme {
   /** null en ítems que no son de verificación (número, texto, placa, foto). */
   estado: EstadoVer | null;
   obs: string;
+  /** Trazabilidad del hallazgo (aviso subsecuente o canalización con MLP); vacío si no hay o sigue pendiente. */
+  traza?: string;
 }
 
 export interface GrupoInforme {
@@ -150,7 +153,12 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
 
   let n = 0;
   const grupos: GrupoInforme[] = (tpl?.sections ?? []).map((s) => {
-    const filas = s.items.map((it) => filaDe(it, ++n, d.respuestas[it.id]));
+    const filas = s.items.map((it) => {
+      const fila = filaDe(it, ++n, d.respuestas[it.id]);
+      if (fila.estado !== "ML") return fila;
+      const traza = textoTrazabilidad(d.hallazgos.find((h) => h.itemKey === it.id)?.seguimiento);
+      return traza ? { ...fila, traza } : fila;
+    });
     const ver = s.items.filter((it) => it.type === "verificacion");
     return {
       titulo: s.title,

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { TarjetaBorrador } from "./tarjeta-borrador";
+import { BotonPdf } from "./boton-pdf";
 import { eliminarBorrador } from "@/lib/tecnico/eliminar";
 import { useLive } from "@/lib/tecnico/hooks";
 import type { DraftRecord } from "@/lib/offline/db";
@@ -203,6 +204,9 @@ export function InicioTecnico() {
                     {e.folio ? `${e.folio} · ` : ""}
                     {e.submitted_at ? formatFechaHora(e.submitted_at) : ""}
                   </p>
+                  <div className="mt-3">
+                    <BotonPdf id={e.id} />
+                  </div>
                   {e.status === "rejected" ? (
                     <div className="mt-3 rounded-xl bg-[#fbe4e4] p-3">
                       <p className="text-sm font-semibold text-[#8a0000]">Motivo del rechazo</p>

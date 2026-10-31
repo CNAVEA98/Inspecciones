@@ -15,6 +15,7 @@ export default async function DetalleSupervisorPage({ params }: { params: Promis
     <Detalle
       d={detalle}
       volver="/supervisor"
+      puedeGestionar
       revision={etapa ? <PanelRevision inspeccionId={detalle.id} folio={detalle.folio ?? detalle.id} etapa={etapa} /> : undefined}
     />
   );

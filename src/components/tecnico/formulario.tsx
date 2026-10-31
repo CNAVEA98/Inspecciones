@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
 import { SelectorTag } from "./selector-tag";
+import { EnvioListo } from "./envio-listo";
 import { formatoPorId, type CodigoArea } from "@/lib/formatos/catalogo";
 import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
@@ -54,12 +54,13 @@ function useIdDeUrl(idInicial: string): string {
 /** Formulario de inspección: una sección por pantalla, guardado automático en el equipo. */
 export function Formulario({ id: idInicial }: { id: string }) {
   const id = useIdDeUrl(idInicial);
-  const router = useRouter();
   const { db, userId, catalog, sync } = useTecnico();
   const [draft, setDraft] = useState<DraftRecord | null | undefined>(undefined);
   const [paso, setPaso] = useState(0);
   const [guardado, setGuardado] = useState<"ok" | "guardando">("ok");
   const [enviando, setEnviando] = useState(false);
+  const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
+  const [enviado, setEnviado] = useState(false);
   const draftRef = useRef<DraftRecord | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -97,7 +98,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
     [db],
   );
 
-  if (draft === undefined) return <p className="text-lg text-sub">Abriendo inspección</p>;
+  if (draft === undefined) return <p className="text-lg text-sub">Abriendo inspección…</p>;
   if (draft === null) {
     return (
       <div className="flex flex-col gap-4">
@@ -114,11 +115,13 @@ export function Formulario({ id: idInicial }: { id: string }) {
     return (
       <p role="alert" className="rounded-2xl border border-[#bb0000] bg-[#fdecec] p-5 text-lg text-[#7a0000]">
         {catalog.status === "loading"
-          ? "Cargando el formulario"
+          ? "Cargando el formulario…"
           : "No se encontró el formulario de esta inspección. Conéctese a internet para descargarlo."}
       </p>
     );
   }
+
+  if (enviado) return <EnvioListo id={id} />;
 
   const secciones = template.sections;
   // Secciones repetibles ya desplegadas (p. ej. «Estructura 1», «Estructura 2»): cada paso muestra sus copias.
@@ -201,11 +204,13 @@ export function Formulario({ id: idInicial }: { id: string }) {
     const { payload, photoIds } = buildSubmission(draftRef.current!, template, fotos);
     await enqueueSubmission(db, { payload, photoIds });
     void sync.notifyQueued();
-    router.replace("/tecnico");
+    setEnviado(true);
+    window.scrollTo({ top: 0 });
   };
 
   const irA = (n: number, itemId?: string) => {
     setPaso(n);
+    setConfirmandoQuitar(false);
     if (itemId) setTimeout(() => document.getElementById(`item-${itemId}`)?.scrollIntoView({ block: "center" }), 60);
     else window.scrollTo({ top: 0 });
   };
@@ -223,7 +228,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             Paso {paso + 1} de {total}
           </p>
           <p className="text-sm font-medium text-sub" aria-live="polite">
-            {guardado === "ok" ? "Guardado en el equipo" : "Guardando"}
+            {guardado === "ok" ? "Guardado en el equipo" : "Guardando…"}
           </p>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e4e0d7]" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={paso + 1}>
@@ -329,12 +334,39 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 {(reps[secciones[paso - 1].id] ?? 1) > 1 ? (
                   <button
                     type="button"
-                    onClick={() => cambiarCopias(secciones[paso - 1].id, -1)}
+                    onClick={() => setConfirmandoQuitar(true)}
                     className="min-h-14 rounded-xl border-[1.5px] border-[#bb0000] bg-white px-5 text-base font-semibold text-[#7a0000] hover:bg-[#fdecec]"
                   >
                     Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}
                   </button>
                 ) : null}
+              </div>
+            ) : null}
+            {confirmandoQuitar && secciones[paso - 1].repetible && (reps[secciones[paso - 1].id] ?? 1) > 1 ? (
+              <div role="alertdialog" aria-label="Quitar sección" className="rounded-2xl border-[1.5px] border-bad bg-white p-4">
+                <p className="text-lg font-semibold">
+                  ¿Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}?
+                </p>
+                <p className="mt-1 text-base text-sub">Se borran sus respuestas y hallazgos. No se puede deshacer.</p>
+                <div className="mt-3 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      cambiarCopias(secciones[paso - 1].id, -1);
+                      setConfirmandoQuitar(false);
+                    }}
+                    className="min-h-12 flex-1 rounded-xl bg-bad px-4 text-base font-semibold text-white"
+                  >
+                    Sí, quitar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmandoQuitar(false)}
+                    className="min-h-12 rounded-xl border-[1.5px] border-graf px-4 text-base font-semibold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             ) : null}
             {seccionesX.some((s) => s.origen === paso - 1 && s.items.some((i) => i.type === "verificacion")) ? (

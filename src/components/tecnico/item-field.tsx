@@ -169,7 +169,7 @@ function Verificacion({
               }
             >
               <span className="font-mono text-lg font-bold">{e.code}</span>
-              <span className="text-[11px] leading-tight">{e.word}</span>
+              <span className="max-w-full break-words px-0.5 text-xs leading-tight">{e.word}</span>
             </button>
           );
         })}

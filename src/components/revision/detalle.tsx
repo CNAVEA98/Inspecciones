@@ -3,6 +3,9 @@ import { formatFechaHora } from "@/lib/fecha";
 import { STATUS_LABEL } from "@/lib/revision/estado";
 import { ETIQUETA_ESTADO, extrasDe, seleccionDeCabecera } from "@/lib/formatos/tags";
 import type { Adjunto, DetalleInspeccion } from "@/lib/revision/queries";
+import { CHIP_SEVERIDAD } from "@/components/revision/fallas-equipos";
+import { SeguimientoHallazgo } from "@/components/revision/seguimiento-hallazgo";
+import { SEVERIDAD_NOMBRE, fichaSap, type HallazgoFalla } from "@/lib/revision/fallas";
 import { expandirPlantilla } from "@/lib/templates/repetir";
 import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
 
@@ -13,8 +16,6 @@ const ESTADO_NOMBRE: Record<string, string> = {
   NA: "No aplica",
   NR: "No se pudo realizar",
 };
-
-const SEVERIDAD_NOMBRE = { baja: "Baja", media: "Media", alta: "Alta", critica: "Crítica" } as const;
 
 function Fotos({ ids, adjuntos }: { ids: string[]; adjuntos: Map<string, Adjunto> }) {
   const visibles = ids.map((id) => adjuntos.get(id)).filter((a): a is Adjunto => !!a);
@@ -88,11 +89,14 @@ export function Detalle({
   d,
   volver,
   revision,
+  puedeGestionar = false,
 }: {
   d: DetalleInspeccion;
   volver: string;
   /** Panel de firma; solo lo recibe el rol al que le toca firmar esta inspección. */
   revision?: React.ReactNode;
+  /** Supervisor y administrador registran el seguimiento de los hallazgos (aviso subsecuente o canalización con MLP). */
+  puedeGestionar?: boolean;
 }) {
   const adjuntos = new Map(d.adjuntos.map((a) => [a.id, a]));
   const header = (d.respuestas._header ?? {}) as Record<string, string>;
@@ -202,10 +206,37 @@ export function Detalle({
           <ul className="mt-2 space-y-2">
             {d.hallazgos.map((h) => {
               const item = plantilla?.sections.flatMap((s) => s.items).find((i) => i.id === h.itemKey);
+              const valor = d.respuestas[h.itemKey] as { obs?: string } | undefined;
+              const falla: HallazgoFalla = {
+                id: h.id,
+                inspeccionId: d.id,
+                folio: d.folio,
+                status: d.status,
+                itemKey: h.itemKey,
+                itemTexto: item?.label ?? h.itemKey,
+                severidad: h.severity,
+                observacion: valor?.obs?.trim() ?? h.description,
+                enviadaEn: d.submittedAt,
+                tag: d.equipmentTag,
+                area: d.area,
+                equipo: d.equipo,
+                ot: header.ot ?? "",
+                realizadoPor: d.realizadoPor === "—" ? "" : d.realizadoPor,
+                seguimiento: h.seguimiento,
+              };
               return (
                 <li key={h.id} className="rounded-lg bg-cu-soft px-3 py-2 text-sm">
-                  <span className="font-semibold">{SEVERIDAD_NOMBRE[h.severity]}</span> · {item?.label ?? h.itemKey}
+                  <span className={`rounded-md px-2 py-0.5 text-xs font-semibold ${CHIP_SEVERIDAD[h.severity]}`}>
+                    {SEVERIDAD_NOMBRE[h.severity]}
+                  </span>{" "}
+                  {item?.label ?? h.itemKey}
                   {h.description && <p className="text-sub">{h.description}</p>}
+                  <SeguimientoHallazgo
+                    findingId={h.id}
+                    seguimiento={h.seguimiento}
+                    ficha={fichaSap(falla)}
+                    puedeGestionar={puedeGestionar && d.status !== "rejected" && d.status !== "draft"}
+                  />
                 </li>
               );
             })}

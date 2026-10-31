@@ -2,6 +2,7 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import type { EstadoVer, Informe, LecturaAncha, LecturaChica } from "@/lib/informe/modelo";
 import { ESTADOS_VER, fmtNumero } from "@/lib/informe/modelo";
+import { grupoSinCortes } from "@/lib/informe/paginado";
 
 /** Imagen ya descargada, lista para incrustar. */
 export interface ImagenPdf {
@@ -301,6 +302,9 @@ function FilaItem({ f, ultima }: { f: Informe["grupos"][number]["filas"][number]
           <Text style={{ fontSize: 8, color: C.cuTexto }}>{f.obs}</Text>
         </View>
       ) : null}
+      {f.traza ? (
+        <Text style={{ marginLeft: 22, marginTop: 2, fontFamily: MONO_B, fontSize: 7, color: C.sub }}>{f.traza}</Text>
+      ) : null}
     </View>
   );
 }
@@ -311,6 +315,8 @@ function Grupos({ r }: { r: Informe }) {
       {r.grupos.map((g) => (
         <View
           key={g.titulo}
+          // La tabla viaja entera a la página siguiente si no cabe; solo se parte si es más alta que una página.
+          wrap={grupoSinCortes(g) ? false : undefined}
           style={{ marginHorizontal: MARGEN, marginTop: 14, borderWidth: 1, borderColor: C.hair, borderRadius: 12, paddingTop: 7, paddingBottom: 3, paddingHorizontal: 11 }}
         >
           {/* El título viaja junto con la primera fila: así nunca queda solo al pie de una página. */}
@@ -405,8 +411,11 @@ export function InformePdf({ informe: r, recursos: rec }: { informe: Informe; re
         <Resumen r={r} />
         <Lecturas r={r} />
         <Grupos r={r} />
-        <Diagnostico r={r} />
-        <Firmas r={r} rec={rec} />
+        {/* Cierre (observaciones y firmas) siempre junto: las firmas no quedan solas en una página. */}
+        <View wrap={false}>
+          <Diagnostico r={r} />
+          <Firmas r={r} rec={rec} />
+        </View>
         <Fotos r={r} rec={rec} />
 
         <View fixed style={{ position: "absolute", left: MARGEN, right: MARGEN, bottom: 20, flexDirection: "row", justifyContent: "space-between" }}>

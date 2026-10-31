@@ -29,7 +29,10 @@ const runtimeCaching: RuntimeCaching[] = [
   {
     // Solo el área del técnico se guarda para uso sin red; el resto de la app necesita conexión.
     matcher: ({ request, url }) =>
-      request.mode === "navigate" && (url.pathname === "/tecnico" || url.pathname.startsWith("/tecnico/")),
+      request.mode === "navigate" &&
+      (url.pathname === "/tecnico" || url.pathname.startsWith("/tecnico/")) &&
+      // El PDF se genera en el servidor y no se guarda ni se reemplaza por una página sin red.
+      !url.pathname.endsWith("/pdf"),
     handler: new NetworkFirst({
       cacheName: CACHE_PAGINAS,
       // Con señal mala se prefiere la copia local a esperar.

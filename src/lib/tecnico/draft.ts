@@ -5,7 +5,8 @@ import { answerIssues } from "@/lib/templates/validate";
 /** Claves de respuestas "meta" (no son ítems de la plantilla). */
 export const META = {
   header: "_header",
-  participantes: "_participantes",
+  /** Firma del encargado de la actividad. La clave es heredada (antes eran los «participantes»): no se cambia para no tocar los registros existentes. */
+  firmaEncargado: "_participantes",
   diagnostico: "_diagnostico",
   roles: "_roles",
   ejecutor: "_ejecutor",
@@ -17,11 +18,24 @@ export const getEjecutor = (answers: Record<string, unknown>): string => {
   return typeof v === "string" ? v : "";
 };
 
-export interface Participantes {
-  nombres: string;
+/** Firma del encargado de la actividad (el técnico que ejecuta). El supervisor y el planificador firman después, al revisar. */
+export interface FirmaEncargado {
+  /** Nombre del encargado; se completa al enviar con el rol «Encargado de la actividad». */
+  nombres?: string;
   firmaId?: string;
   /** Solo local, para volver a dibujar la firma; no se envía. */
   firmaDataUrl?: string;
+}
+
+/** Rol de la plantilla que corresponde al encargado de la actividad («Encargado de la actividad», «Encargado actividad»…). */
+export const rolEncargado = (template: FormTemplateSchema): string | undefined =>
+  template.roles.find((r) => /encargado/i.test(r));
+
+/** Nombre escrito para el encargado de la actividad (vacío si la plantilla no tiene ese rol o no se escribió). */
+export function nombreEncargado(answers: Record<string, unknown>, template: FormTemplateSchema): string {
+  const rol = rolEncargado(template);
+  const roles = (answers[META.roles] as Record<string, string> | undefined) ?? {};
+  return rol ? (roles[rol] ?? "").trim() : "";
 }
 
 export interface Diagnostico {
@@ -80,7 +94,7 @@ export interface Issue {
   message: string;
 }
 
-/** Reglas de envío: obligatorios, ML con observación, NR con motivo (foto opcional), firma del participante. */
+/** Reglas de envío: obligatorios, ML con observación, NR con motivo (foto opcional), nombre y firma del encargado de la actividad. */
 export function validateDraft(draft: DraftRecord, template: FormTemplateSchema): Issue[] {
   const issues: Issue[] = [];
 
@@ -108,9 +122,11 @@ export function validateDraft(draft: DraftRecord, template: FormTemplateSchema):
     }
   });
 
-  const part = draft.answers[META.participantes] as Participantes | undefined;
-  if (!part?.nombres?.trim()) issues.push({ section: null, area: "closing", message: "Falta el nombre de los participantes" });
-  if (!part?.firmaId) issues.push({ section: null, area: "closing", message: "Falta la firma del participante" });
+  if (rolEncargado(template) && !nombreEncargado(draft.answers, template)) {
+    issues.push({ section: null, area: "closing", message: "Falta el nombre del encargado de la actividad" });
+  }
+  const firma = draft.answers[META.firmaEncargado] as FirmaEncargado | undefined;
+  if (!firma?.firmaId) issues.push({ section: null, area: "closing", message: "Falta la firma del encargado de la actividad" });
   return issues;
 }
 
@@ -150,10 +166,10 @@ export function buildSubmission(
 
   answers.push({ item_key: META.header, value: draft.header });
   answers.push({ item_key: META.ejecutor, value: getEjecutor(draft.answers).trim() });
-  const part = draft.answers[META.participantes] as Participantes | undefined;
-  if (part) {
-    answers.push({ item_key: META.participantes, value: { nombres: part.nombres, firmaId: part.firmaId } });
-    if (part.firmaId) used.set(part.firmaId, "participant_signature");
+  const firma = draft.answers[META.firmaEncargado] as FirmaEncargado | undefined;
+  if (firma?.firmaId) {
+    answers.push({ item_key: META.firmaEncargado, value: { nombres: nombreEncargado(draft.answers, template), firmaId: firma.firmaId } });
+    used.set(firma.firmaId, "participant_signature");
   }
   for (const key of [META.diagnostico, META.roles]) {
     if (draft.answers[key] !== undefined) answers.push({ item_key: key, value: draft.answers[key] });

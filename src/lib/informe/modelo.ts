@@ -136,7 +136,8 @@ function filaDe(item: TemplateItem, n: number, valor: unknown): FilaInforme {
 export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): Informe {
   const tpl = d.plantilla;
   const header = (d.respuestas._header ?? {}) as Record<string, string>;
-  const part = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
+  // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
+  const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diag = (d.respuestas._diagnostico ?? {}) as { observaciones?: string; consideraciones?: string };
   const roles = (d.respuestas._roles ?? {}) as Record<string, string>;
   const urlDe = new Map(d.adjuntos.map((a) => [a.id, a.url]));
@@ -176,7 +177,6 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     ...(tpl?.header ?? [])
       .filter((h) => !CABECERA_EN_HERO.has(h.key) && header[h.key])
       .map((h) => ({ label: h.label, valor: h.input === "date" ? fmtFecha(header[h.key]) : header[h.key] })),
-    { label: "Participantes", valor: part?.nombres?.trim() || "—" },
     { label: "Realizado por", valor: d.realizadoPor },
     { label: "Cuenta de envío", valor: `${d.tecnico}${d.turno ? ` · Turno ${d.turno}` : ""}` },
   ];
@@ -189,18 +189,21 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     return { rol, nombre: f.firmante, fecha: formatFechaHora(f.signedAt), imagenUrl: f.url, detalle };
   };
 
+  // Firman el encargado de la actividad (al enviar), el supervisor y el planificador (al revisar).
+  const tarjetaEncargado = (rol: string): TarjetaFirma => ({
+    rol,
+    nombre: roles[rol]?.trim() || encargado?.nombres?.trim() || d.realizadoPor,
+    fecha: null,
+    imagenUrl: encargado?.firmaId ? (urlDe.get(encargado.firmaId) ?? null) : null,
+    detalle: null,
+  });
+  const rolesPlantilla = tpl?.roles ?? [];
   const firmas: TarjetaFirma[] = [
-    {
-      rol: "Participantes",
-      nombre: part?.nombres?.trim() ?? "",
-      fecha: null,
-      imagenUrl: part?.firmaId ? (urlDe.get(part.firmaId) ?? null) : null,
-      detalle: null,
-    },
-    ...(tpl?.roles ?? []).map((rol): TarjetaFirma => {
+    ...(rolesPlantilla.some((r) => /encargado/i.test(r)) ? [] : [tarjetaEncargado("Encargado de la actividad")]),
+    ...rolesPlantilla.map((rol): TarjetaFirma => {
       if (/supervisor/i.test(rol)) return tarjetaDeEtapa(rol, "supervisor");
       if (/planificador/i.test(rol)) return tarjetaDeEtapa(rol, "planner");
-      return { rol, nombre: roles[rol]?.trim() || d.realizadoPor, fecha: null, imagenUrl: null, detalle: null };
+      return tarjetaEncargado(rol);
     }),
   ];
 

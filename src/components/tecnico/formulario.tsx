@@ -19,7 +19,8 @@ import {
   getEjecutor,
   validateDraft,
   type Diagnostico,
-  type Participantes,
+  type FirmaEncargado,
+  rolEncargado,
   type Severity,
 } from "@/lib/tecnico/draft";
 import { deletePhoto, saveSignature } from "@/lib/tecnico/photos";
@@ -132,7 +133,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const tipoEquipo = catalog.catalog?.equipmentTypes.find((e) => e.id === draft.equipmentTypeId)?.code ?? "";
   const designadores = formato?.designadores ?? DESIGNADORES_POR_TIPO_EQUIPO[tipoEquipo] ?? [];
 
-  const part = (draft.answers[META.participantes] as Participantes | undefined) ?? { nombres: "" };
+  const firmaEncargado = (draft.answers[META.firmaEncargado] as FirmaEncargado | undefined) ?? {};
   const diag = (draft.answers[META.diagnostico] as Diagnostico | undefined) ?? { observaciones: "", consideraciones: "" };
   const roles = (draft.answers[META.roles] as Record<string, string> | undefined) ?? {};
   const issues = validateDraft(draft, template);
@@ -154,15 +155,14 @@ export function Formulario({ id: idInicial }: { id: string }) {
     });
 
   const firmar = async (png: Blob | null, dataUrl: string | null) => {
-    const anterior = (draftRef.current?.answers[META.participantes] as Participantes | undefined)?.firmaId;
+    const anterior = (draftRef.current?.answers[META.firmaEncargado] as FirmaEncargado | undefined)?.firmaId;
     if (anterior) await deletePhoto(db, anterior);
     if (!png) {
-      setAnswer(META.participantes, { ...part, firmaId: undefined, firmaDataUrl: undefined });
+      setAnswer(META.firmaEncargado, { firmaId: undefined, firmaDataUrl: undefined });
       return;
     }
     const firmaId = await saveSignature(db, userId, id, png);
-    const actual = (draftRef.current?.answers[META.participantes] as Participantes | undefined) ?? { nombres: "" };
-    setAnswer(META.participantes, { ...actual, firmaId, firmaDataUrl: dataUrl ?? undefined });
+    setAnswer(META.firmaEncargado, { firmaId, firmaDataUrl: dataUrl ?? undefined });
   };
 
   const enviar = async () => {
@@ -209,7 +209,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             <p className="text-sm font-semibold text-[#8a0000]">Corrección de {draft.correccion.folio}</p>
             <p className="mt-1 text-base">Motivo del rechazo: {draft.correccion.motivo || "sin comentario"}</p>
             <p className="mt-1 text-sm text-sub">
-              Se copiaron los datos y respuestas. Las fotos y la firma del participante hay que tomarlas de nuevo.
+              Se copiaron los datos y respuestas. Las fotos y la firma del encargado de la actividad hay que tomarlas de nuevo.
             </p>
           </div>
         ) : null}
@@ -320,18 +320,6 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 className={`${campo} py-3`}
               />
             </Campo>
-            <Campo label="Participantes">
-              <input
-                value={part.nombres}
-                onChange={(e) => setAnswer(META.participantes, { ...part, nombres: e.target.value })}
-                className={campo}
-                autoComplete="off"
-              />
-            </Campo>
-            <div>
-              <p className="mb-2 text-sm font-semibold">Firma del participante</p>
-              <SignatureField initialDataUrl={part.firmaDataUrl} onChange={(png, url) => void firmar(png, url)} />
-            </div>
             {template.roles.length ? (
               <div className="grid gap-4">
                 {template.roles.map((r) => (
@@ -346,6 +334,11 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 ))}
               </div>
             ) : null}
+            <div>
+              <p className="mb-2 text-sm font-semibold">Firma de {rolEncargado(template) ?? "encargado de la actividad"}</p>
+              <p className="mb-2 text-sm text-sub">El supervisor y el planificador firman después, al revisar la inspección.</p>
+              <SignatureField initialDataUrl={firmaEncargado.firmaDataUrl} onChange={(png, url) => void firmar(png, url)} />
+            </div>
           </div>
         )}
       </fieldset>

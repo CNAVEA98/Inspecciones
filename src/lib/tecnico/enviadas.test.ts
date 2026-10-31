@@ -39,7 +39,8 @@ function respuestasServidor() {
   const cabecera = Object.fromEntries(template.header.map((h) => [h.key, "x"]));
   r.push({ item_key: META.header, value: { ...cabecera, tag: "VIEJO", ot: "OT-9" } });
   r.push({ item_key: META.ejecutor, value: "Pedro Soto" });
-  r.push({ item_key: META.participantes, value: { nombres: "Manuel Aguilar", firmaId: FIRMA } });
+  r.push({ item_key: META.firmaEncargado, value: { nombres: "Manuel Aguilar", firmaId: FIRMA } });
+  r.push({ item_key: META.roles, value: { "Encargado de la actividad": "Manuel Aguilar" } });
   return r;
 }
 
@@ -59,15 +60,16 @@ describe("borradorDeCorreccion", () => {
     expect(d.answers.item_21).toEqual({ estado: "ML", obs: "Mancha de aceite" });
   });
 
-  it("no copia fotos ni la firma del participante (no existen en este equipo)", () => {
+  it("no copia fotos ni la firma del encargado (no existen en este equipo), pero sí su nombre", () => {
     expect(JSON.stringify(d.answers)).not.toContain(FOTO);
     expect(JSON.stringify(d.answers)).not.toContain(FIRMA);
-    expect(d.answers[META.participantes]).toEqual({ nombres: "Manuel Aguilar" });
+    expect(d.answers[META.firmaEncargado]).toBeUndefined();
+    expect(d.answers[META.roles]).toEqual({ "Encargado de la actividad": "Manuel Aguilar" });
   });
 
   it("crea el hallazgo de los ítems ML y solo falta la firma para poder reenviar", () => {
     expect(d.findings.map((f) => f.item_key)).toEqual(["item_21"]);
-    expect(validateDraft(d, template).map((i) => i.message)).toEqual(["Falta la firma del participante"]);
+    expect(validateDraft(d, template).map((i) => i.message)).toEqual(["Falta la firma del encargado de la actividad"]);
   });
 });
 

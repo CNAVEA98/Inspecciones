@@ -98,9 +98,10 @@ export function Detalle({
   const seleccion = seleccionDeCabecera(header);
   const avisoTag = seleccion ? ETIQUETA_ESTADO[seleccion.estado] : null;
   const extras = extrasDe(header);
-  const participantes = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
+  // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
+  const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diagnostico = d.respuestas._diagnostico as { observaciones?: string; consideraciones?: string } | undefined;
-  const firmaParticipante = participantes?.firmaId ? adjuntos.get(participantes.firmaId) : undefined;
+  const firmaEncargado = encargado?.firmaId ? adjuntos.get(encargado.firmaId) : undefined;
 
   return (
     <div className="space-y-5">
@@ -220,11 +221,11 @@ export function Detalle({
       )}
 
       <section className="rounded-2xl border border-hair bg-white p-5 text-sm">
-        <h2 className="font-bold">Participantes</h2>
-        <p className="mt-1">{participantes?.nombres || "—"}</p>
-        {firmaParticipante?.url && (
+        <h2 className="font-bold">Encargado de la actividad</h2>
+        <p className="mt-1">{encargado?.nombres?.trim() || d.realizadoPor || "—"}</p>
+        {firmaEncargado?.url && (
           // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Storage
-          <img src={firmaParticipante.url} alt="Firma del participante" className="mt-2 h-20 rounded-lg border border-hair bg-white" />
+          <img src={firmaEncargado.url} alt="Firma del encargado de la actividad" className="mt-2 h-20 rounded-lg border border-hair bg-white" />
         )}
       </section>
 

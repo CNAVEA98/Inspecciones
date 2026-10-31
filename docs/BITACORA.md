@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Word INSP-24 a 41: se quitan las marcas de relleno ##…##
+- **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
+- **Qué se hizo:** los 17 formatos INSP-24 a 41 (no existe el 36) traían las marcas de la plantilla de relleno automático (`##nombre_parque_de_generacion##`, `##fecha##`, `##foto_1##`…). Se quitaron **todas (1.407)**, junto con el espacio que las precedía («Fecha: ##fecha##» queda «Fecha:»; las celdas que solo tenían una marca quedan vacías), incluso las que Word había partido en varios trozos de texto. No se tocó ninguna otra cosa: ni textos, ni imágenes, ni filas ni tablas (las galerías y los títulos siguen como estaban hasta que Manuel los revise).
+- **Archivos:** `Bases de datos generales\Formatos BBOSCH\Inspeciones\INSP-24 … INSP-41 *.docx` (fuera del repositorio). Respaldo previo en `Bases de datos generales\Formatos BBOSCH - respaldo antes de limpiar marcas`.
+- **Verificación:** en los 17 archivos no queda `##` en ninguna parte del documento; comparado con el respaldo, el texto es idéntico salvo las marcas quitadas, sin cambios de imágenes ni de cantidad de filas, y el XML es válido. **No verificado:** el aspecto al abrirlos en Word.
+- **Pendiente / riesgos:** quedan 2 marcas sueltas fuera de este rango, en INSP-03 e INSP-18 («Grupo generador tag##tag##»), que no se tocaron; INSP-16 a 23 y las mantenciones ya no tienen marcas. Los 3 `.doc` antiguos siguen sin convertir.
+
 ### 2026-10-31 · INSP-21 unificado y INSP-03 sin bloque extra: los 58 Word con el mismo bloque de firmantes
 - **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
 - **Qué se hizo:** con INSP-21 ya cerrado en Word se le aplicó el bloque estándar (`Encargado de la actividad:` / `Supervisor Bbosch:` / `Planificador Bbosch:`, todos con `Firma:`). En INSP-03 se quitó el bloque extra «Supervisor Ejecutor o Responsable de Trabajo» (título, «Nombre | Fecha | Firma» y su fila en blanco) para que tenga la misma estructura que los demás. Con esto **los 58 `.docx` tienen exactamente las mismas 4 filas** en el mismo orden: Participantes (sin firma), Encargado de la actividad, Supervisor Bbosch y Planificador Bbosch. INSP-03 se copió de nuevo al repositorio.

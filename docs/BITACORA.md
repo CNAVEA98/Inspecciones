@@ -81,7 +81,7 @@ Verificación global más reciente (2026-10-31, rama `feat/fallas-seguimiento`, 
 13. **Exportar a Excel desde la bandeja** (pedido 2026-10-30, sin hacer): botón «Descargar Excel» para supervisor, programador y administrador, que respete los filtros de la bandeja (TAG, turno, fechas, estado) y exija rango de fechas. Hojas: Inspecciones (una fila por inspección: folio, fecha, área, TAG y su estado, técnico, turno, estado de revisión, firmas); Respuestas (una fila por ítem: lo marcado BN/ML/NT/NA/NR, valor medido con unidad, observación); Hallazgos; y Mediciones por formato (una fila por inspección y una columna por ítem, para ver la evolución de un TAG). Sin fotos ni firmas, solo su cantidad. **Bloqueado por una decisión:** un `.xlsx` con varias hojas requiere una dependencia nueva (se propuso `exceljs`; `CLAUDE.md` exige preguntar antes); la alternativa sin librería es CSV, un archivo por hoja. Falta autorización del usuario y confirmar si quiere la hoja 4.
 14. ~~Probar en Vercel + Supabase remoto~~ — **medio hecho 2026-10-30** (ver entrada «Despliegue de prueba»): publicado, base y cuentas listas; falta la prueba de ingreso del usuario.
 11. ~~Plantillas de los otros 27 formatos~~ — hecho 2026-10-31: ya están los 60 (INSP-01 a 41 sin el 36, MANT-01 a 20). Falta revisarlos en pantalla (ver la entrada «Plantillas INSP-16 a INSP-41»).
-15. **Probar el ingreso en https://inspecciones-bbosch.vercel.app** (usuario `TECNICO_A`, etc.) y recorrer INSP-12; también `SUPERVISOR_A` y `PROGRAMADOR_A`. Nadie lo ha probado en el sitio publicado.
+15. **Probar en el sitio publicado (https://inspecciones-bbosch.vercel.app)** — migraciones ya aplicadas el 2026-10-31, falta recorrerlo: (a) `SUPERVISOR_A`: aprobar una inspección **sin comentario** y abrir «Equipos con fallas»; (b) `TECNICO_A`: enviar una inspección y descargar su PDF, que debe mostrar el nombre de quien firmó; (c) `PROGRAMADOR_A`: firmar la segunda etapa. Nadie lo ha probado en el sitio publicado.
 16. **Desactivar «Allow new users to sign up»** en Supabase (Authentication → Sign In / Providers → Save changes) y confirmarlo. Si sigue activo, cualquiera con la dirección podría crearse una cuenta de técnico. Opcional: desactivar «Confirm email».
 17. **Planes:** Supabase Free tiene 1 GB de archivos, pausa tras unos 7 días sin uso y no hace respaldos diarios; para uso real con ~60 técnicos pasar a **Pro**. Vercel Hobby es para uso personal no comercial: revisar los términos antes de usarlo con el equipo.
 18. **Migraciones remotas sin registrar:** el esquema se aplicó pegando un SQL en el editor, así que la tabla de control de Supabase no las conoce. Una migración futura aplicada con `supabase db push` intentaría repetir las anteriores y fallaría. Para producción: `supabase link` + `db push` en un proyecto nuevo, o registrar las existentes con `supabase migration repair`.
@@ -98,6 +98,10 @@ Verificación global más reciente (2026-10-31, rama `feat/fallas-seguimiento`, 
 28. **Probar en iPhone y en pantalla angosta lo nuevo:** descarga del PDF por el técnico, confirmaciones al quitar fotos o secciones, etiquetas de estado a 12 px, «Equipos con fallas» y el botón de copiar la ficha. Procedimiento por Wi-Fi: `next start -H 0.0.0.0` con `NEXT_PUBLIC_SUPABASE_URL` apuntando a la IP del PC (sin HTTPS no hay modo sin red ni instalación).
 29. **Auditoría React/UI** (`docs/AUDITORIA_REACT_UI_TECNICO.md`): quedan el paso del formulario en la URL, medir con el Profiler antes de memoizar `ItemField`, y revisar los archivos no auditados (`tecnico-provider`, `nueva-inspeccion`, `signature-field`, área del supervisor).
 30. **Datos de prueba en la base local** de esta sesión: inspecciones `INS-2026-000007` a `000009` con hallazgos (`320-XF-007`, `740-XF-001`, `280-XF-281A`); desaparecen con el próximo `supabase db reset`.
+
+31. **Subir la rama `docs/bitacora-migraciones-remotas`** (commit con la entrada de las migraciones remotas y la actualización de esta lista) y abrir su PR hacia `main`. Solo con confirmación del usuario; hoy está solo en el equipo local.
+32. **Opcional, a decisión del usuario:** renombrar el repositorio de GitHub (por ejemplo a `pwa-inspecciones`; después actualizar `git remote set-url origin …`, revisar que Vercel siga desplegando y cambiar el nombre en `CLAUDE.md`, esta bitácora y `docs/DEPLOY_VERCEL.md`); y borrar la carpeta `.fcc` del perfil de Windows, que dejó el intento fallido de instalar «Free Claude Code» (solo contiene un registro).
+33. **Al retomar tras reiniciar el PC (entorno local):** abrir Docker Desktop, `corepack pnpm supabase start`, `corepack pnpm dev` y entrar a `http://localhost:3000`. La base local conserva los datos de prueba (inspecciones `INS-2026-000007` a `000009`) mientras no se corra `supabase db reset`. El servidor de desarrollo y las ventanas de la prueba por Wi-Fi se pierden al reiniciar; hay que volver a lanzarlos.
 
 ## Decisiones
 
@@ -141,6 +145,13 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-31 · Cierre de la jornada: lo pendiente queda anotado antes de reiniciar el equipo
+- **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-migraciones-remotas` (sin push)
+- **Qué se hizo:** solo documentación. Se detalló el pendiente 15 (pruebas en el sitio publicado, por cuenta) y se agregaron los pendientes 31 a 33: subir esta rama y abrir su PR, decisiones opcionales (renombrar el repositorio, borrar la carpeta `.fcc`) y cómo retomar el entorno local después de reiniciar el PC.
+- **Archivos:** `docs/BITACORA.md`
+- **Verificación:** no aplica (cambio de documentación). Estado al cierre: `main` en GitHub contiene el PR #5; las migraciones `0012` a `0014` están aplicadas en el Supabase remoto (comprobado 6/6); lint, tsc, 173 tests, build y `supabase test db` 42/42 pasaron sobre ese código.
+- **Pendiente / riesgos:** lo de arriba. Lo más importante para mañana: probar el sitio publicado con las tres cuentas (pendiente 15), porque nada se ha recorrido allá con las funciones nuevas.
 
 ### 2026-10-31 · Migraciones 0012, 0013 y 0014 aplicadas en el Supabase remoto
 - **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-migraciones-remotas`

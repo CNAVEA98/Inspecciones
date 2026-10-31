@@ -1,4 +1,5 @@
 import { requireRole } from "@/lib/auth/session";
+import { roleWithShift } from "@/lib/auth/roles";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { TecnicoProvider } from "@/components/tecnico/tecnico-provider";
 import { SyncIndicator } from "@/components/tecnico/sync-indicator";
@@ -12,7 +13,7 @@ export default async function TecnicoLayout({ children }: { children: React.Reac
         <header className="rounded-b-3xl bg-graf px-5 py-4 text-white">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#9aa4ad]">Técnico</p>
+              <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#9aa4ad]">{roleWithShift("technician", session.shift)}</p>
               <p className="truncate text-lg font-semibold">{session.fullName}</p>
             </div>
             <SignOutButton className="text-white" />

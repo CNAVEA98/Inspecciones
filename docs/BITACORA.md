@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · El encabezado del técnico muestra su turno
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** la etiqueta de arriba del encabezado del técnico decía solo «Técnico»; ahora dice «Técnico · Turno A» o «Técnico · Turno B» según el turno de la cuenta (usa `roleWithShift`, igual que las otras áreas).
+- **Archivos:** `src/app/tecnico/layout.tsx`
+- **Verificación:** lint y tsc en verde; vista en pantalla: no verificada.
+- **Pendiente / riesgos:** si una cuenta de técnico no tiene turno, la etiqueta queda solo «Técnico». El nombre de abajo («Técnico B») sigue siendo el nombre de la cuenta.
+
 ### 2026-10-31 · INSP-02: la sección «Banco de condensadores» numera sus ítems de 1 a 35
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** Manuel renumeró en `seed_plantillas_insp.sql` los ítems de la sección «Banco de condensadores» de INSP-02 (venían como `item_22` a `item_56`, correlativos con la sala de control) para que partan en 1. Quedaron repetidos los ids `item_01` a `item_21` con los de la sala de control y la app rechazaba la plantilla («Id de ítem duplicado»). Se dejaron ids únicos con prefijo de la sección: `banco_01` a `banco_35`.

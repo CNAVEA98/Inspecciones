@@ -424,177 +424,177 @@ select et.id, wm.id, 1, 'published', $tpl$
       "title": "Banco de condensadores",
       "items": [
         {
-          "id": "item_22",
+          "id": "banco_01",
           "type": "verificacion",
           "label": "El cerco perimetral cuenta con extintor."
         },
         {
-          "id": "item_23",
+          "id": "banco_02",
           "type": "verificacion",
           "label": "Estatus de limpieza al interior del cerco perimetral."
         },
         {
-          "id": "item_24",
+          "id": "banco_03",
           "type": "verificacion",
           "label": "Estatus de limpieza de aisladores y componentes."
         },
         {
-          "id": "item_25",
+          "id": "banco_04",
           "type": "verificacion",
           "label": "Estatus de condensadores banco etapa 1."
         },
         {
-          "id": "item_26",
+          "id": "banco_05",
           "type": "verificacion",
           "label": "Estatus de condensadores banco etapa 2."
         },
         {
-          "id": "item_27",
+          "id": "banco_06",
           "type": "verificacion",
           "label": "Estatus de condensadores banco etapa 3."
         },
         {
-          "id": "item_28",
+          "id": "banco_07",
           "type": "verificacion",
           "label": "Estatus de condensadores banco etapa 4."
         },
         {
-          "id": "item_29",
+          "id": "banco_08",
           "type": "verificacion",
           "label": "Estatus de condensadores banco etapa 5."
         },
         {
-          "id": "item_30",
+          "id": "banco_09",
           "type": "verificacion",
           "label": "Estatus de transformadores de corriente banco etapa 1."
         },
         {
-          "id": "item_31",
+          "id": "banco_10",
           "type": "verificacion",
           "label": "Estatus de transformadores de corriente banco etapa 2."
         },
         {
-          "id": "item_32",
+          "id": "banco_11",
           "type": "verificacion",
           "label": "Estatus de transformadores de corriente banco etapa 3."
         },
         {
-          "id": "item_33",
+          "id": "banco_12",
           "type": "verificacion",
           "label": "Estatus de transformadores de corriente banco etapa 4."
         },
         {
-          "id": "item_34",
+          "id": "banco_13",
           "type": "verificacion",
           "label": "Estatus de transformadores de corriente banco etapa 5."
         },
         {
-          "id": "item_35",
+          "id": "banco_14",
           "type": "verificacion",
           "label": "Estatus de transformadores de potencial banco etapa 1."
         },
         {
-          "id": "item_36",
+          "id": "banco_15",
           "type": "verificacion",
           "label": "Estatus de transformadores de potencial banco etapa 2."
         },
         {
-          "id": "item_37",
+          "id": "banco_16",
           "type": "verificacion",
           "label": "Estatus de transformadores de potencial banco etapa 3."
         },
         {
-          "id": "item_38",
+          "id": "banco_17",
           "type": "verificacion",
           "label": "Estatus de transformadores de potencial banco etapa 4."
         },
         {
-          "id": "item_39",
+          "id": "banco_18",
           "type": "verificacion",
           "label": "Estatus de transformadores de potencial banco etapa 5."
         },
         {
-          "id": "item_40",
+          "id": "banco_19",
           "type": "verificacion",
           "label": "Estado de los interruptores Power-Cooper etapa 1."
         },
         {
-          "id": "item_41",
+          "id": "banco_20",
           "type": "verificacion",
           "label": "Estado de los interruptores Power-Cooper etapa 2."
         },
         {
-          "id": "item_42",
+          "id": "banco_21",
           "type": "verificacion",
           "label": "Estado de los interruptores Power-Cooper etapa 3."
         },
         {
-          "id": "item_43",
+          "id": "banco_22",
           "type": "verificacion",
           "label": "Estado de los interruptores Power-Cooper etapa 4."
         },
         {
-          "id": "item_44",
+          "id": "banco_23",
           "type": "verificacion",
           "label": "Estado de los interruptores Power-Cooper etapa 5."
         },
         {
-          "id": "item_45",
+          "id": "banco_24",
           "type": "verificacion",
           "label": "Estado visual de los capacitores."
         },
         {
-          "id": "item_46",
+          "id": "banco_25",
           "type": "verificacion",
           "label": "Signos de hinchazón o deformación de los capacitores."
         },
         {
-          "id": "item_47",
+          "id": "banco_26",
           "type": "verificacion",
           "label": "Signos de filtración de aceite de los capacitores."
         },
         {
-          "id": "item_48",
+          "id": "banco_27",
           "type": "verificacion",
           "label": "Estado de aisladores."
         },
         {
-          "id": "item_49",
+          "id": "banco_28",
           "type": "verificacion",
           "label": "Estado de los inductores."
         },
         {
-          "id": "item_50",
+          "id": "banco_29",
           "type": "verificacion",
           "label": "Estado de la puesta a tierra."
         },
         {
-          "id": "item_51",
+          "id": "banco_30",
           "type": "verificacion",
           "label": "Estado de los conductores."
         },
         {
-          "id": "item_52",
+          "id": "banco_31",
           "type": "verificacion",
           "label": "Signos de oxidación en la estructura."
         },
         {
-          "id": "item_53",
+          "id": "banco_32",
           "type": "verificacion",
           "label": "Estado de seccionadora palanca 23 kV."
         },
         {
-          "id": "item_54",
+          "id": "banco_33",
           "type": "verificacion",
           "label": "Estado de cerco perimetral."
         },
         {
-          "id": "item_55",
+          "id": "banco_34",
           "type": "verificacion",
           "label": "Estado de acceso al patio de condensadores."
         },
         {
-          "id": "item_56",
+          "id": "banco_35",
           "type": "verificacion",
           "label": "Necesita desmalezado."
         }

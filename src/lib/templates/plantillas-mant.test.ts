@@ -20,7 +20,7 @@ function cargar(): Map<string, unknown> {
   return mapa;
 }
 
-/** Cantidad de ítems y nomenclatura según el Word revisado de cada mantención (MANT-18 y 19 aún no están). */
+/** Cantidad de ítems y nomenclatura según el Word revisado de cada mantención . */
 const ESPERADO: Record<string, { mant: string; items: number; estados: "A" | "B" | "inspeccion" }> = {
   mant_generadores_locales: { mant: "MANT-01", items: 24, estados: "A" },
   mant_parques_generacion: { mant: "MANT-02", items: 26, estados: "A" },
@@ -40,6 +40,8 @@ const ESPERADO: Record<string, { mant: string; items: number; estados: "A" | "B"
   mant_transformador_piso: { mant: "MANT-16", items: 38, estados: "A" },
   mant_transformador_poder_correas: { mant: "MANT-17", items: 27, estados: "A" },
   mant_linea_aerea: { mant: "MANT-20", items: 18, estados: "B" },
+  mant_celda_piso: { mant: "MANT-18", items: 8, estados: "A" },
+  mant_instrumentos_transformador: { mant: "MANT-19", items: 35, estados: "inspeccion" },
 };
 
 const A = ["SI", "NO", "RL", "NR", "BN", "ML", "RMP", "NT"];
@@ -53,7 +55,7 @@ function plantilla(tipo: string): FormTemplateSchema {
 const items = (t: FormTemplateSchema) => t.sections.flatMap((s) => s.items);
 
 describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
-  it("carga las 18 y cada una pasa el validador de la app", () => {
+  it("carga las 20 y cada una pasa el validador de la app", () => {
     expect([...cargar().keys()].sort()).toEqual(Object.keys(ESPERADO).sort());
     for (const tipo of Object.keys(ESPERADO)) expect(() => plantilla(tipo)).not.toThrow();
   });
@@ -72,7 +74,7 @@ describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
       if (e.estados === "A") expect(t.estados, tipo).toEqual(A);
       else if (e.estados === "B") expect(t.estados, tipo).toEqual(B);
       else expect(t.estados, tipo).toBeUndefined();
-      expect(t.nomenclature, tipo).toBeTruthy();
+      if (e.mant !== "MANT-19") expect(t.nomenclature, tipo).toBeTruthy(); // el Word de MANT-19 no trae leyenda
     }
   });
 
@@ -166,12 +168,11 @@ describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
     ]);
     expect(Object.fromEntries(delCatalogo)).toEqual(Object.fromEntries(Object.entries(ESPERADO).map(([tipo, e]) => [tipo, e.mant])));
     expect(FORMATOS.filter((f) => f.tipo === "MANT" && f.estado === "disponible").every((f) => f.plantilla?.modo === "mantenimiento_programado")).toBe(true);
-    // MANT-18 y 19 siguen sin plantilla (sus Word aún son .doc)
-    expect(FORMATOS.filter((f) => f.tipo === "MANT" && f.estado !== "disponible").map((f) => f.id)).toEqual(["MANT-18", "MANT-19"]);
+    expect(FORMATOS.filter((f) => f.tipo === "MANT" && f.estado !== "disponible")).toEqual([]);
   });
 
   it("es repetible: tipos con on conflict y plantillas con on conflict do nothing", () => {
-    expect((sql.match(/on conflict \(code\) do nothing/g) ?? []).length).toBe(18);
-    expect((sql.match(/on conflict \(equipment_type_id, work_mode_id, version\) do nothing/g) ?? []).length).toBe(18);
+    expect((sql.match(/on conflict \(code\) do nothing/g) ?? []).length).toBe(20);
+    expect((sql.match(/on conflict \(equipment_type_id, work_mode_id, version\) do nothing/g) ?? []).length).toBe(20);
   });
 });

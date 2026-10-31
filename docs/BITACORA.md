@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Plantillas MANT-18 (Celda de piso) y MANT-19 (Instrumentos del transformador principal)
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** con los Word guardados como `.docx` se crearon las plantillas de MANT-18 (8 ítems, estados SI/NO/RL/NR/BN/ML/RMP/NT, cabecera con marca y serie) y MANT-19 (35 ítems en 6 secciones por instrumento: presión súbita, nivel de aceite, válvula de alivio, presión cambiador TAP, temperatura de aceite y de enrollado; los N° de señal del PLC son campos de texto y los enclaves/recepciones son verificaciones). Ambas pasan a «disponible» en el catálogo; ya no quedan mantenciones «próximamente».
+- **Archivos:** `supabase/seed_plantillas_mant.sql` (20 plantillas), `src/lib/formatos/catalogo.ts`, `src/lib/templates/plantillas-mant.test.ts`
+- **Verificación:** lint, tsc, 139 tests y build en verde; seed cargado en el Supabase local (ambos tipos existen). Revisión en pantalla: no verificada.
+- **Pendiente / riesgos:** (1) los Word de MANT-18 y 19 aún tienen el formato antiguo (logo, «BBOSCH», bloque de firmantes, tabla de participantes); falta unificarlos como los otros 58. (2) El Word de MANT-19 no trae leyenda de estados ni OT: se usan los estados de inspección (BN/ML…) y se agregó «N° OT» opcional; confirmar. (3) MANT-18 dice «ver especificación del vendor adjunta»: no hay adjunto en la app. (4) Siguen los `.doc` antiguos en la carpeta (borrarlos requiere confirmación). (5) Áreas: MANT-18 y 19 quedan transversales (aparecen también en Valle), por confirmar.
+
 ### 2026-10-31 · MANT-09 solo con la sala 1 (la sala 12 queda en MANT-07)
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** de la plantilla de MANT-09 se sacó la sección «Interruptores Sala Eléctrica 12» (12 ítems de N° de operaciones): ahora son 101 ítems con 39 interruptores de la sala 1. Título del catálogo y de la plantilla: «Switchgear Sala 1». El código de tipo de equipo se mantiene (`mant_switchgear_sala_1_y_12`) para no tocar la base.

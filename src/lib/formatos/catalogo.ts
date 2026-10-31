@@ -33,14 +33,13 @@ export interface Formato {
 
 export const FAMILIAS: Record<CodigoFamilia, string> = {
   F1: "Switchgear y celdas MT",
-  F2: "Salas eléctricas y túneles",
+  F2: "Salas eléctricas y túneles STMG",
   F3: "Transformadores",
   F4: "Líneas, reconectadores y relés",
-  F5: "Generación",
-  F6: "Condensadores y filtros",
-  F7: "BT, respaldo y otros",
-};
-export const ORDEN_FAMILIAS = Object.keys(FAMILIAS) as CodigoFamilia[];
+  F5: "Grupo Generadores",
+  F6: "Filtros y Condensadores",
+  F7: "Corriente Continua, BT",
+};export const ORDEN_FAMILIAS = Object.keys(FAMILIAS) as CodigoFamilia[];
 
 export const TRABAJOS: Record<TipoTrabajo, string> = { INSP: "Inspección", MANT: "Mantención" };
 
@@ -110,7 +109,7 @@ export const FORMATOS: Formato[] = [
     tramo: true,
     disponible: { tipoEquipo: "tunel_cables_stmg", modo: "plan_matriz" },
   }),
-  f("INSP", 16, "Grupos Generadores (Kizeo)", "F5", "T", GEN, { varios: true }),
+  f("INSP", 16, "Grupos Generadores ", "F5", "T", GEN, { varios: true }),
   f("INSP", 17, "Cargador y Banco de Baterías", "F7", "T", ["BC", "BA"]),
   f("INSP", 18, "Pruebas Grupos Generadores Chacay-Mina", "F5", "CH,MI", GEN, { varios: true }),
   f("INSP", 19, "Cables y Tierras de Escalerillas", "F2", "T", [], { tramo: true }),
@@ -121,11 +120,11 @@ export const FORMATOS: Formato[] = [
   f("INSP", 24, "Parque Generador", "F5", "T", GEN, { varios: true }),
   f("INSP", 25, "Filtro Armónico STATCOM", "F6", "CH", ["HF"]),
   f("INSP", 26, "Tablero de Respaldo UPS", "F7", "T", ["UP"]),
-  f("INSP", 27, "Filtro Armónico 740-HF-5002 (SAG4)", "F6", "CH", ["HF"]),
-  f("INSP", 28, "Filtro Armónico 740-HF-5001 (SAG4)", "F6", "CH", ["HF"]),
+  f("INSP", 27, "Filtro Armónico 740-HF-5002 ", "F6", "CH", ["HF"]),
+  f("INSP", 28, "Filtro Armónico 740-HF-5001 ", "F6", "CH", ["HF"]),
   f("INSP", 29, "Switchgear PPCH", "F1", "PU", ["SG"]),
   f("INSP", 30, "Sala Eléctrica 740-ER-5002", "F2", "CH", ["ER"]),
-  f("INSP", 31, "Ficha Generadores (AGK)", "F5", "T", GEN, { varios: true }),
+  f("INSP", 31, "Ficha Generadores ", "F5", "T", GEN, { varios: true }),
   f("INSP", 32, "Check List Grupo Generador", "F5", "T", GEN, { varios: true }),
   f("INSP", 33, "Sala Eléctrica 741-ER-5001 (STATCOM)", "F2", "CH", ["ER"]),
   f("INSP", 34, "Relés de Protección y Controladores de Reconectadores", "F4", "T", ["GV", "NJ"]),
@@ -133,7 +132,7 @@ export const FORMATOS: Formato[] = [
   // No existe INSP-36 (la numeración salta de 35 a 37).
   f("INSP", 37, "Cerco Perimetral STATCOM", "F7", "CH", [], { tramo: true }),
   f("INSP", 38, "Carga de Combustible PG Piuquenes", "F5", "CH", [], { tramo: true }),
-  f("INSP", 39, "Limpieza Sala Eléctrica 740-ER-5002 Línea 4", "F2", "CH", ["ER"]),
+  f("INSP", 39, "Limpieza Sala Eléctrica 740-ER-5002 ", "F2", "CH", ["ER"]),
   f("INSP", 40, "Pruebas Grupos Generadores Puerto-Mauro", "F5", "PU,MA", GEN, { varios: true }),
   f("INSP", 41, "Sala Eléctrica 741-ER-5002 STATCOM", "F2", "CH", ["ER"]),
 
@@ -145,7 +144,7 @@ export const FORMATOS: Formato[] = [
   f("MANT", 5, "Tablero BT", "F7", "T", ["DP", "CO"], { disponible: { tipoEquipo: "mant_tablero_bt", modo: "mantenimiento_programado" } }),
   f("MANT", 6, "Reconectador", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "mant_reconectador", modo: "mantenimiento_programado" } }),
   f("MANT", 7, "Switchgear Sala 12 23 kV", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_12", modo: "mantenimiento_programado" } }),
-  f("MANT", 8, "Switchgear Estaciones 23 kV", "F1", "MI", ["SG"], { porConfirmar: true, disponible: { tipoEquipo: "mant_switchgear_estaciones", modo: "mantenimiento_programado" } }),
+  f("MANT", 8, "Switchgear Estaciones Móviles 23 kV", "F1", "MI", ["SG"], { porConfirmar: true, disponible: { tipoEquipo: "mant_switchgear_estaciones", modo: "mantenimiento_programado" } }),
   f("MANT", 9, "Switchgear Sala 1", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_1_y_12", modo: "mantenimiento_programado" } }),
   f("MANT", 10, "Switchgear SE El Mauro 23 kV", "F1", "MA", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_mauro", modo: "mantenimiento_programado" } }),
   f("MANT", 11, "Transformador Aéreo", "F3", "T", ["XF"], { disponible: { tipoEquipo: "mant_transformador_aereo", modo: "mantenimiento_programado" } }),
@@ -155,8 +154,8 @@ export const FORMATOS: Formato[] = [
   f("MANT", 15, "Parrones 23 kV", "F4", "MI", ["PM"], { disponible: { tipoEquipo: "mant_parrones", modo: "mantenimiento_programado" } }),
   f("MANT", 16, "Transformador de Piso", "F3", "T", ["XF"], { disponible: { tipoEquipo: "mant_transformador_piso", modo: "mantenimiento_programado" } }),
   f("MANT", 17, "Transformador de Poder Correas", "F3", "MI", ["XF"], { porConfirmar: true, disponible: { tipoEquipo: "mant_transformador_poder_correas", modo: "mantenimiento_programado" } }),
-  f("MANT", 18, "Celda de Piso 23 kV", "F1", "T", ["SW"]),
-  f("MANT", 19, "Prueba de Instrumentos Transformador Principal", "F3", "T", ["CT", "PT"]),
+  f("MANT", 18, "Celda de Piso 23 kV", "F1", "T", ["SW"], { disponible: { tipoEquipo: "mant_celda_piso", modo: "mantenimiento_programado" } }),
+  f("MANT", 19, "Prueba de Instrumentos Transformador Principal", "F3", "T", ["CT", "PT"], { disponible: { tipoEquipo: "mant_instrumentos_transformador", modo: "mantenimiento_programado" } }),
   f("MANT", 20, "Línea Aérea 23 kV", "F4", "T", ["LI"], { tramo: true, disponible: { tipoEquipo: "mant_linea_aerea", modo: "mantenimiento_programado" } }),
 ];
 

@@ -1,5 +1,5 @@
--- Plantillas de mantención MANT-01 a 17 y 20 × Mantenimiento programado (Word revisados de «Bases de datos generales/Formatos BBOSCH/MANTENCIONES»).
--- MANT-18 y 19 aún no están (siguen en .doc). Es seguro ejecutarlo más de una vez y también en un Supabase remoto.
+-- Plantillas de mantención MANT-01 a 20 × Mantenimiento programado (Word revisados de «Bases de datos generales/Formatos BBOSCH/MANTENCIONES»).
+-- Es seguro ejecutarlo más de una vez y también en un Supabase remoto.
 -- Requiere que existan los modos de trabajo (seed_catalogo.sql). En el SQL Editor remoto elegir «postgres (Superuser)» junto a «Run».
 
 insert into public.equipment_types (code, name, sort)
@@ -72,6 +72,14 @@ on conflict (code) do nothing;
 
 insert into public.equipment_types (code, name, sort)
 values ('mant_linea_aerea', 'Mantención · Línea aérea 23 kV', 37)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('mant_celda_piso', 'Mantención · Celda de piso 23 kV', 38)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('mant_instrumentos_transformador', 'Mantención · Instrumentos transformador principal', 39)
 on conflict (code) do nothing;
 
 -- MANT-01 · EST-ELEC-MANT-MLP-BBOSCH-01 · Mantención Control de GG MLP (24 ítems)
@@ -9638,5 +9646,430 @@ select et.id, wm.id, 1, 'published', $tpl$
 $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_linea_aerea' and wm.code = 'mantenimiento_programado'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- MANT-18 · EST-ELEC-MANT-MLP-BBOSCH-18 · Mantención Celda de piso 23 kV (8 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Mantención Celda de piso 23 kV",
+  "meta": {
+    "norma": "EST-ELEC-MANT-MLP-BBOSCH-18",
+    "revision": "Junio 2026",
+    "titulo": "Mantención Celda de piso 23 kV"
+  },
+  "header": [
+    {
+      "key": "tag",
+      "label": "TAG Equipo",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text"
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "marca",
+      "label": "Marca",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "serie",
+      "label": "Serie",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora y fecha de inicio",
+      "input": "text"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora y fecha de término",
+      "input": "text"
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "celda_23_kv",
+      "title": "Celda 23 kV",
+      "items": [
+        {
+          "id": "item_001",
+          "type": "verificacion",
+          "label": "Revisar sello de tapas"
+        },
+        {
+          "id": "item_002",
+          "type": "verificacion",
+          "label": "Realizar revisión de humedad al interior"
+        },
+        {
+          "id": "item_003",
+          "type": "verificacion",
+          "label": "Realizar limpieza interior y exterior de celda"
+        },
+        {
+          "id": "item_004",
+          "type": "verificacion",
+          "label": "Realizar limpieza y revisión de aisladores"
+        },
+        {
+          "id": "item_005",
+          "type": "verificacion",
+          "label": "Verificar estado de las mufas"
+        },
+        {
+          "id": "item_006",
+          "type": "verificacion",
+          "label": "Reapriete de conexión de puntos de conexión"
+        },
+        {
+          "id": "item_007",
+          "type": "verificacion",
+          "label": "Verificar descargas parciales en mufas y cables"
+        },
+        {
+          "id": "item_008",
+          "type": "verificacion",
+          "label": "Realizar reapriete de conexiones según la especificación del vendor adjunto en este estándar."
+        }
+      ]
+    }
+  ],
+  "nomenclature": "SI / NO / RL: REALIZADO / NR: NO REALIZADO / BN: BUENO / ML: MALO (Indicar motivos en observaciones) / RMP: REEMPLAZADO (Indicar motivos en observaciones) / NT: NO TIENE",
+  "estados": [
+    "SI",
+    "NO",
+    "RL",
+    "NR",
+    "BN",
+    "ML",
+    "RMP",
+    "NT"
+  ],
+  "note": "En caso de encontrar observaciones críticas, adjuntar registro fotográfico con la referencia, además realizar set fotográfico con el antes y después de la Mantención."
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'mant_celda_piso' and wm.code = 'mantenimiento_programado'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- MANT-19 · EST-ELEC-MANT-MLP-BBOSCH-19 · Pruebas de operación instrumentos Transf. Principal (35 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Pruebas de operación instrumentos Transf. Principal",
+  "meta": {
+    "norma": "EST-ELEC-MANT-MLP-BBOSCH-19",
+    "revision": "Junio 2026",
+    "titulo": "Pruebas de operación instrumentos Transf. Principal"
+  },
+  "header": [
+    {
+      "key": "tag",
+      "label": "TAG Equipo",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "transformador",
+      "label": "Transformador N°",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora inicio",
+      "input": "time"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora término",
+      "input": "time"
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "presion_subita_gpra_t",
+      "title": "Presión Súbita (GPRA/T)",
+      "items": [
+        {
+          "id": "item_001",
+          "type": "text",
+          "label": "Detalle de operación de trip y alarma en instrumento",
+          "required": false,
+          "multiline": true
+        },
+        {
+          "id": "item_002",
+          "type": "verificacion",
+          "label": "Enclave de contactor alarma GPRA"
+        },
+        {
+          "id": "item_003",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip GPRT"
+        },
+        {
+          "id": "item_004",
+          "type": "text",
+          "label": "Señal de entrada PLC de alarma GPRA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_005",
+          "type": "text",
+          "label": "Señal de salida PLC de alarma GPRA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_006",
+          "type": "text",
+          "label": "Señal de entrada PLC de Trip GPRT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_007",
+          "type": "text",
+          "label": "Señal de salida PLC de Trip GPRT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_008",
+          "type": "verificacion",
+          "label": "Recepción de señal de alarma GPRA en sala 1"
+        },
+        {
+          "id": "item_009",
+          "type": "verificacion",
+          "label": "Recepción de señal de alarma GPRT en sala 1"
+        }
+      ]
+    },
+    {
+      "id": "nivel_de_aceite_oga",
+      "title": "Nivel de aceite (OGA)",
+      "items": [
+        {
+          "id": "item_010",
+          "type": "text",
+          "label": "Detalle de operación de alarma en instrumento",
+          "required": false,
+          "multiline": true
+        },
+        {
+          "id": "item_011",
+          "type": "verificacion",
+          "label": "Enclave de contactor alarma OGA"
+        },
+        {
+          "id": "item_012",
+          "type": "text",
+          "label": "Señal de entrada PLC de alarma OGA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_013",
+          "type": "text",
+          "label": "Señal de salida PLC de alarma OGA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_014",
+          "type": "verificacion",
+          "label": "Recepción de señal de alarma OGA en sala 1"
+        }
+      ]
+    },
+    {
+      "id": "valvula_de_presion_alivio_prvt",
+      "title": "Válvula de Presión Alivio (PRVT)",
+      "items": [
+        {
+          "id": "item_015",
+          "type": "text",
+          "label": "Detalle de operación de trip en instrumento",
+          "required": false,
+          "multiline": true
+        },
+        {
+          "id": "item_016",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip PRVT (Nº1)"
+        },
+        {
+          "id": "item_017",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip PRVT (Nº2)"
+        },
+        {
+          "id": "item_018",
+          "type": "text",
+          "label": "Señal de entrada PLC de trip PRVT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_019",
+          "type": "text",
+          "label": "Señal de salida PLC de trip PRVT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_020",
+          "type": "verificacion",
+          "label": "Recepción de señal de trip PRVT en sala 1"
+        }
+      ]
+    },
+    {
+      "id": "presion_cambiador_tap_tcst",
+      "title": "Presión Cambiador TAP (TCST)",
+      "items": [
+        {
+          "id": "item_021",
+          "type": "text",
+          "label": "Detalle de operación de trip en instrumento",
+          "required": false,
+          "multiline": true
+        },
+        {
+          "id": "item_022",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip TCST (H1)"
+        },
+        {
+          "id": "item_023",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip TCST (H2)"
+        },
+        {
+          "id": "item_024",
+          "type": "verificacion",
+          "label": "Enclave de contactor trip TCST (H3)"
+        },
+        {
+          "id": "item_025",
+          "type": "text",
+          "label": "Señal de entrada PLC de trip TCST N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_026",
+          "type": "text",
+          "label": "Señal de salida PLC de trip TCST N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_027",
+          "type": "verificacion",
+          "label": "Recepción de señal de trip TCST en sala 1"
+        }
+      ]
+    },
+    {
+      "id": "temperatura_de_aceite_otia_t",
+      "title": "Temperatura de Aceite (OTIA/T)",
+      "items": [
+        {
+          "id": "item_028",
+          "type": "text",
+          "label": "Salida de PLC para alarma OTIA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_029",
+          "type": "text",
+          "label": "Salida de PLC para trip OTIT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_030",
+          "type": "verificacion",
+          "label": "Recepción de señal de alarma OTIA en sala 1"
+        },
+        {
+          "id": "item_031",
+          "type": "verificacion",
+          "label": "Recepción de señal de trip OTIA en sala 1"
+        }
+      ]
+    },
+    {
+      "id": "temperatura_de_enrollado_wtia",
+      "title": "Temperatura de Enrollado (WTIA/T)",
+      "items": [
+        {
+          "id": "item_032",
+          "type": "text",
+          "label": "Salida de PLC para alarma WTIA N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_033",
+          "type": "text",
+          "label": "Salida de PLC para trip WTIT N°",
+          "required": false,
+          "multiline": false
+        },
+        {
+          "id": "item_034",
+          "type": "verificacion",
+          "label": "Recepción de señal de alarma WTIA en sala 1"
+        },
+        {
+          "id": "item_035",
+          "type": "verificacion",
+          "label": "Recepción de señal de trip WTIA en sala 1"
+        }
+      ]
+    }
+  ],
+  "note": "Pruebas de operación en instrumentos de protección del transformador, verificando la señal en módulos de entrada del PLC y módulos de salida, activación de rele asociado a las señales de cada instrumento y recepción en sala 1. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor OTIA y el OTIT. Para el chequeo de las salidas del PLC y recepción en sala 1, se debe enclavar manualmente el contactor WTIA y el WTIT."
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'mant_instrumentos_transformador' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 

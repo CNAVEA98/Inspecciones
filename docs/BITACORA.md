@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Inicio del técnico rediseñado, logo nuevo y nombre «Inspección Eléctrica Bbosch-MLP»
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** (1) Logo nuevo de Bbosch (solo la palabra, sin la frase) en la portada y en el encabezado del técnico, sin pastilla blanca. (2) Inicio del técnico rediseñado: encabezado con logo, «Salir», «Técnico · Turno A/B» (turno de la cuenta) e indicador de sincronización, borde cobre; botón «Nuevo Standard» (antes «Nueva inspección») con ícono; tres recuadros **Enviadas / Aceptadas / Rechazadas** (Rechazadas en tono cobre si hay); lista vacía con título y ayuda. (3) El nombre de la app pasa a «Inspección Eléctrica Bbosch-MLP» en la portada, el encabezado de supervisor/planificador/administrador, el título general y el manifest. (4) Manuel renombró la familia F2 a «Salas eléctricas y túnel de cables» en el catálogo.
+- **Archivos:** `public/brand/bbosch-logo-solo.png` (nuevo), `src/app/tecnico/layout.tsx`, `src/components/tecnico/inicio-tecnico.tsx`, `src/app/tecnico/nueva/page.tsx`, `src/app/login/page.tsx`, `src/app/layout.tsx`, `src/app/manifest.ts`, `src/components/shared/staff-shell.tsx`, `src/lib/formatos/catalogo.ts`
+- **Verificación:** lint, tsc, 150 tests y build en verde. Vista en pantalla de la portada y del inicio: Manuel las revisó en localhost mientras se hacían los cambios; a 375 px y en teléfono real: no verificado.
+- **Pendiente / riesgos:** el logo anterior (`bbosch-logo.png`) sigue en el PDF del informe y en `docs/DESIGN.md`; falta decidir si el PDF usa el nuevo. Los títulos de las pestañas todavía terminan en «· Inspecciones MLP». «Aceptadas» cuenta solo las aprobadas por supervisor y planificador.
+
 ### 2026-10-31 · El PDF del informe se descarga con nombre y fecha
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** el PDF ya no se descarga como `INS-2026-000016.pdf`; ahora se llama «<título del formato> - <TAG> - <fecha de envío>.pdf», por ejemplo «Inspección Banco de condensadores Mauro - 320-XC-001 - 2026-10-31.pdf». La fecha es la del envío en horario de Chile (si faltara, la de inicio). Se quitan los caracteres que Windows no admite y se envía también el nombre completo con tildes (`filename*`).

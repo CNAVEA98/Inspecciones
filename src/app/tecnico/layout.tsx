@@ -11,19 +11,19 @@ export default async function TecnicoLayout({ children }: { children: React.Reac
   return (
     <TecnicoProvider userId={session.id}>
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-col">
-        <header className="rounded-b-3xl bg-graf px-5 py-4 text-white">
-          {/* Pastilla blanca: el logo es gris y naranja y no se lee sobre el grafito. */}
-          <span className="mb-3 inline-block rounded-md bg-white px-2 py-1">
-            <Image src="/brand/bbosch-logo.png" alt="BBOSCH" width={1115} height={391} priority className="h-8 w-auto" />
-          </span>
+        <header className="rounded-b-3xl border-b-[3px] border-cu bg-graf px-5 pb-5 pt-4 text-white">
           <div className="flex items-center justify-between gap-3">
-            <div className="min-w-0">
-              <p className="truncate text-lg font-semibold">{roleWithShift("technician", session.shift)}</p>
-            </div>
+            <Image src="/brand/bbosch-logo-solo.png" alt="BBOSCH" width={1304} height={319} priority className="h-7 w-auto" />
             <SignOutButton className="text-white" />
           </div>
-          <div className="mt-3">
-            <SyncIndicator />
+          <div className="mt-5 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-mono text-xs uppercase tracking-[0.1em] text-[#9aa4ad]">Bienvenido</p>
+              <p className="truncate text-2xl font-bold tracking-tight">{roleWithShift("technician", session.shift)}</p>
+            </div>
+            <div className="shrink-0">
+              <SyncIndicator />
+            </div>
           </div>
         </header>
         <main className="flex-1 px-5 py-6">{children}</main>

@@ -24,12 +24,12 @@ export function StaffShell({
   return (
     <div className="min-h-[100dvh]">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-graf px-6 py-3 text-white">
-        <Link href="/" aria-label="Inspecciones BBOSCH, inicio" className="flex items-center gap-3">
+        <Link href="/" aria-label="Inspección Eléctrica Bbosch-MLP, inicio" className="flex items-center gap-3">
           {/* Pastilla blanca: el logo es gris y naranja y no se lee sobre el grafito. */}
           <span className="rounded-md bg-white px-2 py-1">
             <Image src="/brand/bbosch-logo.png" alt="BBOSCH" width={1115} height={391} priority className="h-7 w-auto" />
           </span>
-          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#9aa4ad]">Inspecciones BBOSCH</span>
+          <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#9aa4ad]">Inspección Eléctrica Bbosch-MLP</span>
         </Link>
         <nav aria-label="Principal" className="flex gap-1">
           {nav.map((item) => (

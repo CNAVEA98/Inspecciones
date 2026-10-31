@@ -3,7 +3,7 @@ import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { safeNext } from "@/lib/auth/roles";
 
-export const metadata: Metadata = { title: "Ingresar · Inspecciones MLP" };
+export const metadata: Metadata = { title: "Ingresar · Inspección Eléctrica Bbosch-MLP" };
 
 export default async function LoginPage({
   searchParams,
@@ -15,7 +15,7 @@ export default async function LoginPage({
   return (
     <main className="grid min-h-[100dvh] bg-paper lg:grid-cols-[1.1fr_1fr]">
       <section className="relative flex flex-col justify-between gap-12 bg-graf px-6 py-8 text-white sm:px-10 lg:px-16 lg:py-14">
-        <p className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-[#9aa4ad]">Inspecciones MLP</p>
+        <p className="font-mono text-xs font-medium uppercase tracking-[0.12em] text-[#9aa4ad]">Inspección Eléctrica Bbosch-MLP</p>
 
         <div className="max-w-xl">
           <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
@@ -36,12 +36,12 @@ export default async function LoginPage({
 
       <section className="flex flex-col items-center justify-center gap-10 px-6 py-12 sm:px-10">
         <Image
-          src="/brand/bbosch-logo.png"
-          alt="BBOSCH, Infraestructura para el futuro"
-          width={1115}
-          height={391}
+          src="/brand/bbosch-logo-solo.png"
+          alt="BBOSCH"
+          width={1304}
+          height={319}
           priority
-          className="h-auto w-48 sm:w-56"
+          className="h-auto w-56 sm:w-64"
         />
         <LoginForm next={safeNext(next) ?? undefined} />
       </section>

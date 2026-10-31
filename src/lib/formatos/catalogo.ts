@@ -33,7 +33,7 @@ export interface Formato {
 
 export const FAMILIAS: Record<CodigoFamilia, string> = {
   F1: "Switchgear y celdas MT",
-  F2: "Salas eléctricas y túneles STMG",
+  F2: "Salas eléctricas y túnel de cables",
   F3: "Transformadores",
   F4: "Líneas, reconectadores y relés",
   F5: "Grupo Generadores",

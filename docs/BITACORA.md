@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · El PDF del informe se descarga con nombre y fecha
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** el PDF ya no se descarga como `INS-2026-000016.pdf`; ahora se llama «<título del formato> - <TAG> - <fecha de envío>.pdf», por ejemplo «Inspección Banco de condensadores Mauro - 320-XC-001 - 2026-10-31.pdf». La fecha es la del envío en horario de Chile (si faltara, la de inicio). Se quitan los caracteres que Windows no admite y se envía también el nombre completo con tildes (`filename*`).
+- **Archivos:** `src/lib/informe/nombre-archivo.ts` (nuevo), `src/lib/informe/nombre-archivo.test.ts` (nuevo), `src/lib/informe/responder.ts`
+- **Verificación:** lint, tsc y 150 tests en verde (3 nuevos). Descarga real desde la bandeja: no verificada. Build: no corrido en esta entrada.
+- **Pendiente / riesgos:** el folio ya no está en el nombre del archivo (sigue dentro del informe). Dos inspecciones del mismo formato, TAG y día generan el mismo nombre; el navegador agrega « (1)».
+
 ### 2026-10-31 · El comentario de la revisión es obligatorio solo al rechazar
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** al aprobar, el supervisor y el planificador ya no están obligados a escribir un comentario; al rechazar sigue siendo obligatorio. Nueva migración `0012_comentario_solo_al_rechazar.sql` que redefine `review_inspection` (sin comentario se guarda `null`), y el panel de revisión muestra «Comentario (opcional)» al aprobar y «(obligatorio)» al rechazar.

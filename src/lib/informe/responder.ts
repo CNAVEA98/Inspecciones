@@ -2,6 +2,7 @@ import { getSession } from "@/lib/auth/session";
 import { obtenerDetalle } from "@/lib/revision/queries";
 import { generarPdf } from "./generar";
 import { armarInforme } from "./modelo";
+import { contentDisposition, nombrePdf } from "./nombre-archivo";
 
 /** Roles que pueden descargar el informe de cualquier inspección (el técnico no). */
 const ROLES_CON_PDF = new Set(["admin", "supervisor", "planner"]);
@@ -24,11 +25,15 @@ export async function responderPdf(id: string): Promise<Response> {
   if (detalle.status === "draft") return texto("La inspección aún es un borrador", 409);
 
   const pdf = await generarPdf(armarInforme(detalle));
-  const nombre = `${detalle.folio ?? detalle.id}.pdf`;
+  const nombre = nombrePdf({
+    titulo: detalle.plantilla?.meta?.titulo ?? detalle.plantilla?.title ?? detalle.equipo,
+    equipmentTag: detalle.equipmentTag,
+    fecha: detalle.submittedAt ?? detalle.startedAt,
+  });
   return new Response(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="${nombre}"`,
+      "Content-Disposition": contentDisposition(nombre),
       "Cache-Control": "private, no-store",
     },
   });

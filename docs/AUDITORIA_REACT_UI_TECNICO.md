@@ -60,3 +60,9 @@ hasta medirlos.
 
 Tomar 1, 2 y 5 de «Interfaz» (cambios chicos, de alto valor en terreno) en una rama aparte, con prueba en teléfono real,
 y medir el punto 1 de rendimiento con el Profiler de React antes de memoizar.
+
+## Estado de los hallazgos (actualizado 2026-10-31, rama `fix/ux-terreno-tecnico`)
+
+- **Aplicados:** Interfaz 1 (botón de foto), 2 (confirmaciones), 5 (texto de 12 px), 6 (puntos suspensivos) y parte del 7 (`touch-action`, `alt` de fotos).
+- **Descartado:** Interfaz 3 (zona segura): el `viewport` no usa `viewport-fit=cover`, el navegador ya la respeta.
+- **Pendiente:** Interfaz 4 (paso en la URL) y el resto del 7; Rendimiento 1 a 3. Medido: `validateDraft` ≈7 µs por render con 29 ítems, así que el cálculo no es el problema; falta medir el render de los `ItemField` en el teléfono.

@@ -60,6 +60,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const [paso, setPaso] = useState(0);
   const [guardado, setGuardado] = useState<"ok" | "guardando">("ok");
   const [enviando, setEnviando] = useState(false);
+  const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
   const draftRef = useRef<DraftRecord | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -97,7 +98,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
     [db],
   );
 
-  if (draft === undefined) return <p className="text-lg text-sub">Abriendo inspección</p>;
+  if (draft === undefined) return <p className="text-lg text-sub">Abriendo inspección…</p>;
   if (draft === null) {
     return (
       <div className="flex flex-col gap-4">
@@ -114,7 +115,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
     return (
       <p role="alert" className="rounded-2xl border border-[#bb0000] bg-[#fdecec] p-5 text-lg text-[#7a0000]">
         {catalog.status === "loading"
-          ? "Cargando el formulario"
+          ? "Cargando el formulario…"
           : "No se encontró el formulario de esta inspección. Conéctese a internet para descargarlo."}
       </p>
     );
@@ -206,6 +207,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
 
   const irA = (n: number, itemId?: string) => {
     setPaso(n);
+    setConfirmandoQuitar(false);
     if (itemId) setTimeout(() => document.getElementById(`item-${itemId}`)?.scrollIntoView({ block: "center" }), 60);
     else window.scrollTo({ top: 0 });
   };
@@ -223,7 +225,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             Paso {paso + 1} de {total}
           </p>
           <p className="text-sm font-medium text-sub" aria-live="polite">
-            {guardado === "ok" ? "Guardado en el equipo" : "Guardando"}
+            {guardado === "ok" ? "Guardado en el equipo" : "Guardando…"}
           </p>
         </div>
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e4e0d7]" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={paso + 1}>
@@ -329,12 +331,39 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 {(reps[secciones[paso - 1].id] ?? 1) > 1 ? (
                   <button
                     type="button"
-                    onClick={() => cambiarCopias(secciones[paso - 1].id, -1)}
+                    onClick={() => setConfirmandoQuitar(true)}
                     className="min-h-14 rounded-xl border-[1.5px] border-[#bb0000] bg-white px-5 text-base font-semibold text-[#7a0000] hover:bg-[#fdecec]"
                   >
                     Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}
                   </button>
                 ) : null}
+              </div>
+            ) : null}
+            {confirmandoQuitar && secciones[paso - 1].repetible && (reps[secciones[paso - 1].id] ?? 1) > 1 ? (
+              <div role="alertdialog" aria-label="Quitar sección" className="rounded-2xl border-[1.5px] border-bad bg-white p-4">
+                <p className="text-lg font-semibold">
+                  ¿Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}?
+                </p>
+                <p className="mt-1 text-base text-sub">Se borran sus respuestas y hallazgos. No se puede deshacer.</p>
+                <div className="mt-3 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      cambiarCopias(secciones[paso - 1].id, -1);
+                      setConfirmandoQuitar(false);
+                    }}
+                    className="min-h-12 flex-1 rounded-xl bg-bad px-4 text-base font-semibold text-white"
+                  >
+                    Sí, quitar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmandoQuitar(false)}
+                    className="min-h-12 rounded-xl border-[1.5px] border-graf px-4 text-base font-semibold"
+                  >
+                    Cancelar
+                  </button>
+                </div>
               </div>
             ) : null}
             {seccionesX.some((s) => s.origen === paso - 1 && s.items.some((i) => i.type === "verificacion")) ? (

@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Correcciones de uso en terreno del formulario del técnico
+- **Autor:** Cristóbal (con Claude) · rama `fix/ux-terreno-tecnico` (sale de `chore/skills-react-best-practices`: unir primero esa)
+- **Qué se hizo:** (1) «Quitar foto»: área táctil de 44 px (miniatura de 80 px, círculo visible de 28 px) y **confirmación** antes de borrar; el texto alternativo pasa a «Foto N». (2) «Quitar sección» repetible: **confirmación** antes de borrar respuestas y hallazgos. (3) Etiqueta de estado (Bueno, Malo…) de 11 a 12 px. (4) `touch-action: manipulation` global (sin zoom por doble toque; el pellizco sigue). (5) Puntos suspensivos en «Abriendo inspección…», «Cargando el formulario…», «Guardando…», «Cargando equipos…» y el placeholder de búsqueda.
+- **Archivos:** `src/components/tecnico/photo-field.tsx`, `formulario.tsx`, `item-field.tsx`, `selector-tag.tsx`, `src/app/globals.css`, `docs/AUDITORIA_REACT_UI_TECNICO.md`
+- **Verificación:** lint, tsc, 150 tests y build en verde. Medición (script temporal ya borrado, Node en PC): con la plantilla de 29 ítems, `validateDraft` tarda ≈7 µs y `expandirSecciones` ≈0,3 µs por render, es decir, el cálculo derivado por tecla **no** es un cuello de botella. **Prueba en teléfono: pendiente** (Cristóbal la hará); no hay tests de componentes en el proyecto, así que las confirmaciones no tienen prueba automática.
+- **Pendiente / riesgos:** probar en teléfono: que «Reemplazado» y «No realizada» quepan a 12 px en 375 px de ancho, que el × de la foto se pueda tocar sin tocar la foto vecina y que las confirmaciones se vean. No se memoizó `ItemField` ni se difirió la búsqueda de TAG: sin medir el render real en el teléfono (Profiler de React) no se justifica. El paso del formulario sigue sin estar en la URL. Hallazgo 3 del informe (zona segura inferior) no era problema: el `viewport` no usa `viewport-fit=cover`, así que el navegador ya respeta la zona segura.
+
 ### 2026-10-31 · Skills de React y de interfaz instaladas y auditoría de solo lectura del técnico
 - **Autor:** Cristóbal (con Claude) · rama `chore/skills-react-best-practices`
 - **Qué se hizo:** se copiaron al proyecto las skills `react-best-practices` (70 reglas de rendimiento de Vercel para React/Next) y `web-design-guidelines` (revisión de interfaz; baja las reglas de GitHub en cada uso) desde `agent-skills-main`, para que las use todo el equipo. Con ellas se auditó, sin cambiar código, `src/components/tecnico/` (5 archivos) y se dejó el informe.

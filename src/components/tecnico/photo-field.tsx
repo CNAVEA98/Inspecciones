@@ -5,23 +5,55 @@ import { useTecnico } from "./tecnico-provider";
 import { useLive, useObjectUrl } from "@/lib/tecnico/hooks";
 import { deletePhoto, savePhoto } from "@/lib/tecnico/photos";
 
-function Miniatura({ id, onRemove }: { id: string; onRemove: () => void }) {
+function Miniatura({ id, numero, onRemove }: { id: string; numero: number; onRemove: () => void }) {
   const { db } = useTecnico();
   const rec = useLive(() => db.photos.get(id), id, undefined);
   const url = useObjectUrl(rec?.blob);
+  const [confirmando, setConfirmando] = useState(false);
+
+  if (confirmando) {
+    return (
+      <div role="alertdialog" aria-label={`Quitar foto ${numero}`} className="w-full rounded-xl border-[1.5px] border-bad bg-white p-3">
+        <p className="text-base font-semibold">¿Quitar la foto {numero}?</p>
+        <p className="mt-0.5 text-sm text-sub">Se borra de este equipo. No se puede deshacer.</p>
+        <div className="mt-2 flex gap-3">
+          <button
+            type="button"
+            onClick={onRemove}
+            className="min-h-12 flex-1 rounded-xl bg-bad px-4 text-base font-semibold text-white focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-cu"
+          >
+            Sí, quitar
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmando(false)}
+            className="min-h-12 rounded-xl border-[1.5px] border-graf px-4 text-base font-semibold focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-cu"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <span className="relative h-16 w-16 overflow-hidden rounded-xl border border-hair bg-[#f1f0ec]">
-      {url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="Foto adjunta" className="h-full w-full object-cover" />
-      ) : null}
+    <span className="relative h-20 w-20">
+      <span className="block h-full w-full overflow-hidden rounded-xl border border-hair bg-[#f1f0ec]">
+        {url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt={`Foto ${numero}`} width={80} height={80} className="h-full w-full object-cover" />
+        ) : null}
+      </span>
+      {/* Área táctil de 44 px (guantes); el círculo visible es más pequeño. */}
       <button
         type="button"
-        aria-label="Quitar foto"
-        onClick={onRemove}
-        className="absolute right-0.5 top-0.5 grid size-6 place-items-center rounded-full bg-graf/80 text-sm leading-none text-white"
+        aria-label={`Quitar foto ${numero}`}
+        onClick={() => setConfirmando(true)}
+        className="absolute -right-3 -top-3 grid size-11 place-items-center focus-visible:outline-3 focus-visible:outline-cu"
       >
-        ×
+        <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-graf text-base leading-none text-white">
+          ×
+        </span>
       </button>
     </span>
   );
@@ -64,9 +96,10 @@ export function PhotoField({
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      {ids.map((id) => (
+      {ids.map((id, i) => (
         <Miniatura
           key={id}
+          numero={i + 1}
           id={id}
           onRemove={() => {
             void deletePhoto(db, id);

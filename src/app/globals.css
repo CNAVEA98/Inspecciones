@@ -24,6 +24,17 @@ body {
   font-family: var(--font-sans);
 }
 
+/* Evita el zoom por doble toque en botones y campos (el zoom de pellizco sigue disponible). */
+a,
+button,
+input,
+select,
+textarea,
+label,
+summary {
+  touch-action: manipulation;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;

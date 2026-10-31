@@ -114,7 +114,7 @@ function Buscador({ equipos, area, designadores, tramo, onElegir, onCancelar }: 
         type="search"
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
-        placeholder="Buscar por TAG, nombre o instalación"
+        placeholder="Buscar por TAG, nombre o instalación…"
         aria-label="Buscar equipo"
         className={campo}
         autoComplete="off"
@@ -259,7 +259,7 @@ export function SelectorTag({ etiqueta, area, designadores, tramo, variosEquipos
   }
 
   const cuerpo = (() => {
-    if (equipos === null) return <p className="text-base text-sub">Cargando equipos</p>;
+    if (equipos === null) return <p className="text-base text-sub">Cargando equipos…</p>;
     if (equipos === "error") {
       return (
         <p role="alert" className="rounded-xl bg-[#fdecec] px-4 py-3 text-base text-[#7a0000]">

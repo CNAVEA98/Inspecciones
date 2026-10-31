@@ -116,7 +116,7 @@ export function borradorDeCorreccion(input: {
     }
   }
 
-  for (const key of [META.ejecutor, META.diagnostico, META.roles]) {
+  for (const key of [META.ejecutor, META.diagnostico, META.roles, META.participantes]) {
     const v = porClave.get(key);
     if (v !== undefined) draft.answers[key] = v;
   }

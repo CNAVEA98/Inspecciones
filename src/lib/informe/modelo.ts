@@ -177,6 +177,9 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     ...(tpl?.header ?? [])
       .filter((h) => !CABECERA_EN_HERO.has(h.key) && header[h.key])
       .map((h) => ({ label: h.label, valor: h.input === "date" ? fmtFecha(header[h.key]) : header[h.key] })),
+    ...(typeof d.respuestas._lista_participantes === "string" && d.respuestas._lista_participantes.trim()
+      ? [{ label: "Participantes", valor: d.respuestas._lista_participantes.trim() }]
+      : []),
     { label: "Realizado por", valor: d.realizadoPor },
     { label: "Cuenta de envío", valor: `${d.tecnico}${d.turno ? ` · Turno ${d.turno}` : ""}` },
   ];

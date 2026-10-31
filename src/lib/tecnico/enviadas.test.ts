@@ -40,6 +40,7 @@ function respuestasServidor() {
   r.push({ item_key: META.header, value: { ...cabecera, tag: "VIEJO", ot: "OT-9" } });
   r.push({ item_key: META.ejecutor, value: "Pedro Soto" });
   r.push({ item_key: META.firmaEncargado, value: { nombres: "Manuel Aguilar", firmaId: FIRMA } });
+  r.push({ item_key: META.participantes, value: "Ana Pérez" });
   r.push({ item_key: META.roles, value: { "Encargado de la actividad": "Manuel Aguilar" } });
   return r;
 }
@@ -64,6 +65,7 @@ describe("borradorDeCorreccion", () => {
     expect(JSON.stringify(d.answers)).not.toContain(FOTO);
     expect(JSON.stringify(d.answers)).not.toContain(FIRMA);
     expect(d.answers[META.firmaEncargado]).toBeUndefined();
+    expect(d.answers[META.participantes]).toBe("Ana Pérez");
     expect(d.answers[META.roles]).toEqual({ "Encargado de la actividad": "Manuel Aguilar" });
   });
 

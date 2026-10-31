@@ -80,6 +80,18 @@ describe("validateDraft", () => {
     expect(msgs.join(" ")).not.toMatch(/participante/i);
   });
 
+  it("los participantes son opcionales, no firman y viajan como texto si se anotan", () => {
+    const d = completo();
+    expect(validateDraft(d, template)).toEqual([]);
+    expect(buildSubmission(d, template, [foto(FIRMA, "png")]).payload.answers.map((a) => a.item_key)).not.toContain(META.participantes);
+
+    d.answers[META.participantes] = "  Ana Pérez, Luis Soto  ";
+    expect(validateDraft(d, template)).toEqual([]);
+    const { payload } = buildSubmission(d, template, [foto(FIRMA, "png")]);
+    expect(payload.answers.find((a) => a.item_key === META.participantes)?.value).toBe("Ana Pérez, Luis Soto");
+    expect(payload.attachments.filter((a) => a.kind === "participant_signature")).toHaveLength(1); // solo la del encargado
+  });
+
   it("no pide el nombre del supervisor ni del planificador: firman al revisar", () => {
     const d = completo();
     d.answers[META.roles] = { "Encargado de la actividad": "Manuel Aguilar" };

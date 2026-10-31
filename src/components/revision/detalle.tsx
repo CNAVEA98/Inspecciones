@@ -101,6 +101,7 @@ export function Detalle({
   // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
   const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diagnostico = d.respuestas._diagnostico as { observaciones?: string; consideraciones?: string } | undefined;
+  const participantes = typeof d.respuestas._lista_participantes === "string" ? d.respuestas._lista_participantes.trim() : "";
   const firmaEncargado = encargado?.firmaId ? adjuntos.get(encargado.firmaId) : undefined;
 
   return (
@@ -221,6 +222,12 @@ export function Detalle({
       )}
 
       <section className="rounded-2xl border border-hair bg-white p-5 text-sm">
+        {participantes ? (
+          <>
+            <h2 className="font-bold">Participantes</h2>
+            <p className="mb-4 mt-1 whitespace-pre-wrap">{participantes}</p>
+          </>
+        ) : null}
         <h2 className="font-bold">Encargado de la actividad</h2>
         <p className="mt-1">{encargado?.nombres?.trim() || d.realizadoPor || "—"}</p>
         {firmaEncargado?.url && (

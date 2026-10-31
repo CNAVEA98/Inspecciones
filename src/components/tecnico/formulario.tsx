@@ -133,6 +133,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const tipoEquipo = catalog.catalog?.equipmentTypes.find((e) => e.id === draft.equipmentTypeId)?.code ?? "";
   const designadores = formato?.designadores ?? DESIGNADORES_POR_TIPO_EQUIPO[tipoEquipo] ?? [];
 
+  const participantes = typeof draft.answers[META.participantes] === "string" ? (draft.answers[META.participantes] as string) : "";
   const firmaEncargado = (draft.answers[META.firmaEncargado] as FirmaEncargado | undefined) ?? {};
   const diag = (draft.answers[META.diagnostico] as Diagnostico | undefined) ?? { observaciones: "", consideraciones: "" };
   const roles = (draft.answers[META.roles] as Record<string, string> | undefined) ?? {};
@@ -317,6 +318,15 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 rows={3}
                 value={diag.consideraciones}
                 onChange={(e) => setAnswer(META.diagnostico, { ...diag, consideraciones: e.target.value })}
+                className={`${campo} py-3`}
+              />
+            </Campo>
+            <Campo label="Participantes (opcional)">
+              <textarea
+                rows={2}
+                value={participantes}
+                onChange={(e) => setAnswer(META.participantes, e.target.value)}
+                placeholder="Nombres de quienes participaron. No firman."
                 className={`${campo} py-3`}
               />
             </Campo>

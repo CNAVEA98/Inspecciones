@@ -7,6 +7,8 @@ export const META = {
   header: "_header",
   /** Firma del encargado de la actividad. La clave es heredada (antes eran los «participantes»): no se cambia para no tocar los registros existentes. */
   firmaEncargado: "_participantes",
+  /** Nombres de los participantes (texto libre, opcional). Participan pero no firman. */
+  participantes: "_lista_participantes",
   diagnostico: "_diagnostico",
   roles: "_roles",
   ejecutor: "_ejecutor",
@@ -30,6 +32,12 @@ export interface FirmaEncargado {
 /** Rol de la plantilla que corresponde al encargado de la actividad («Encargado de la actividad», «Encargado actividad»…). */
 export const rolEncargado = (template: FormTemplateSchema): string | undefined =>
   template.roles.find((r) => /encargado/i.test(r));
+
+/** Nombres de los participantes escritos en el formulario (vacío si no se anotó ninguno). */
+export function nombresParticipantes(answers: Record<string, unknown>): string {
+  const v = answers[META.participantes];
+  return typeof v === "string" ? v.trim() : "";
+}
 
 /** Nombre escrito para el encargado de la actividad (vacío si la plantilla no tiene ese rol o no se escribió). */
 export function nombreEncargado(answers: Record<string, unknown>, template: FormTemplateSchema): string {
@@ -166,6 +174,8 @@ export function buildSubmission(
 
   answers.push({ item_key: META.header, value: draft.header });
   answers.push({ item_key: META.ejecutor, value: getEjecutor(draft.answers).trim() });
+  const participantes = nombresParticipantes(draft.answers);
+  if (participantes) answers.push({ item_key: META.participantes, value: participantes });
   const firma = draft.answers[META.firmaEncargado] as FirmaEncargado | undefined;
   if (firma?.firmaId) {
     answers.push({ item_key: META.firmaEncargado, value: { nombres: nombreEncargado(draft.answers, template), firmaId: firma.firmaId } });

@@ -101,6 +101,13 @@ describe("armarInforme", () => {
     expect(r.specs.find((s) => s.label === "Cuenta de envío")?.valor).toBe("Técnico Turno A · Turno A");
   });
 
+  it("muestra los participantes (si se anotaron) como dato, sin firma", () => {
+    expect(armarInforme(detalle()).specs.some((s) => s.label === "Participantes")).toBe(false);
+    const r = armarInforme(detalle({ respuestas: { ...detalle().respuestas, _lista_participantes: "Ana Pérez, Luis Soto" } }));
+    expect(r.specs.find((s) => s.label === "Participantes")?.valor).toBe("Ana Pérez, Luis Soto");
+    expect(r.firmas.some((f) => /participante/i.test(f.rol))).toBe(false);
+  });
+
   it("formatea fecha y horario de Chile", () => {
     const r = armarInforme(detalle());
     expect(r.fecha).toBe("17-10-2026");

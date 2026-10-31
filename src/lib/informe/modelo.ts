@@ -1,6 +1,7 @@
 import { formatFechaHora } from "@/lib/fecha";
 import type { DetalleInspeccion } from "@/lib/revision/queries";
 import { STATUS_LABEL_INFORME } from "@/lib/revision/estado";
+import { expandirPlantilla } from "@/lib/templates/repetir";
 import { ESTADOS, ESTADOS_CONFORMES, type Estado, type TemplateItem, type VerificationValue } from "@/lib/templates/schema";
 
 export type EstadoVer = Estado;
@@ -136,7 +137,7 @@ function filaDe(item: TemplateItem, n: number, valor: unknown): FilaInforme {
 
 /** Convierte una inspección leída de la base en el contenido del PDF. Función pura (sin red). */
 export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): Informe {
-  const tpl = d.plantilla;
+  const tpl = d.plantilla ? expandirPlantilla(d.plantilla, d.respuestas._repeticiones) : d.plantilla;
   const header = (d.respuestas._header ?? {}) as Record<string, string>;
   // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
   const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;

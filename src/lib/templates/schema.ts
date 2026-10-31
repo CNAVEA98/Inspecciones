@@ -98,6 +98,8 @@ export const sectionSchema = z.object({
   id: idSchema,
   title: z.string().min(1),
   items: z.array(itemSchema).min(1),
+  /** El técnico puede agregar copias de la sección (p. ej. varias estructuras de un mismo tramo). */
+  repetible: z.boolean().optional(),
 });
 
 /** Campo de cabecera del formulario (TAG, OT, ubicación, etc.). */

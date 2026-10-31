@@ -1,5 +1,6 @@
 import type { DraftRecord, PhotoRecord, SubmitPayload } from "@/lib/offline/db";
 import type { FormTemplateSchema, TemplateItem, VerificationValue } from "@/lib/templates/schema";
+import { CLAVE_REPETICIONES, expandirPlantilla, expandirSecciones, leerRepeticiones } from "@/lib/templates/repetir";
 import { answerIssues } from "@/lib/templates/validate";
 
 /** Claves de respuestas "meta" (no son ítems de la plantilla). */
@@ -9,6 +10,8 @@ export const META = {
   firmaEncargado: "_participantes",
   /** Nombres de los participantes (texto libre, opcional). Participan pero no firman. */
   participantes: "_lista_participantes",
+  /** Copias de cada sección repetible (sección → cantidad). */
+  repeticiones: CLAVE_REPETICIONES,
   diagnostico: "_diagnostico",
   roles: "_roles",
   ejecutor: "_ejecutor",
@@ -116,19 +119,22 @@ export function validateDraft(draft: DraftRecord, template: FormTemplateSchema):
     }
   }
 
-  template.sections.forEach((section, si) => {
+  // Las secciones repetibles se validan copia por copia; `section` es el índice de la sección original (paso del formulario).
+  for (const section of expandirSecciones(template, leerRepeticiones(draft.answers[META.repeticiones]))) {
+    const si = section.origen;
+    const prefijo = section.repetible ? `${section.title} · ` : "";
     for (const item of section.items) {
       const value = draft.answers[item.id];
       const requerido = item.type === "verificacion" || ("required" in item && item.required);
       if (value === undefined || (item.type === "verificacion" && !(value as Partial<VerificationValue>).estado)) {
-        if (requerido) issues.push({ section: si, area: "item", itemId: item.id, message: `Sin responder: ${item.label}` });
+        if (requerido) issues.push({ section: si, area: "item", itemId: item.id, message: `Sin responder: ${prefijo}${item.label}` });
         continue;
       }
       for (const m of answerIssues(item, value)) {
-        issues.push({ section: si, area: "item", itemId: item.id, message: `${item.label} (${m})` });
+        issues.push({ section: si, area: "item", itemId: item.id, message: `${prefijo}${item.label} (${m})` });
       }
     }
-  });
+  }
 
   if (rolEncargado(template) && !nombreEncargado(draft.answers, template)) {
     issues.push({ section: null, area: "closing", message: "Falta el nombre del encargado de la actividad" });
@@ -149,7 +155,8 @@ export function buildSubmission(
   const findings: SubmitPayload["findings"] = [];
   const used = new Map<string, "photo" | "finding_photo" | "participant_signature">();
 
-  for (const item of allItems(template)) {
+  const repeticiones = leerRepeticiones(draft.answers[META.repeticiones]);
+  for (const item of allItems(expandirPlantilla(template, repeticiones))) {
     const value = draft.answers[item.id];
     if (value === undefined) continue;
     answers.push({ item_key: item.id, value });
@@ -172,6 +179,7 @@ export function buildSubmission(
     }
   }
 
+  if (Object.keys(repeticiones).length) answers.push({ item_key: META.repeticiones, value: repeticiones });
   answers.push({ item_key: META.header, value: draft.header });
   answers.push({ item_key: META.ejecutor, value: getEjecutor(draft.answers).trim() });
   const participantes = nombresParticipantes(draft.answers);

@@ -6477,7 +6477,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_transformador_aereo' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-12 · EST-ELEC-MANT-MLP-BBOSCH-12 · Mantención Filtro Armónico Mina 23kV (96 ítems)
+-- MANT-12 · EST-ELEC-MANT-MLP-BBOSCH-12 · Mantención Filtro Armónico Mina 23kV (56 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -6662,13 +6662,13 @@ select et.id, wm.id, 1, 'published', $tpl$
       ]
     },
     {
-      "id": "filtro_de_armonicos_120hf001",
-      "title": "Filtro de Armónicos 120HF001",
+      "id": "x3a_sintonia",
+      "title": "3a sintonía",
       "items": [
         {
           "id": "item_027",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Capacitivas · componente 1: estado del componente",
+          "label": "3a sintonía · unidades capacitivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6677,7 +6677,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_028",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Capacitivas · componente 1: ¿se realizó mantención?",
+          "label": "3a sintonía · unidades capacitivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6686,7 +6686,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_029",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 1: estado del componente",
+          "label": "3a sintonía · unidades inductivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6695,7 +6695,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_030",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 1: ¿se realizó mantención?",
+          "label": "3a sintonía · unidades inductivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6704,7 +6704,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_031",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 2: estado del componente",
+          "label": "3a sintonía · unidades resistivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6713,16 +6713,22 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_032",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 2: ¿se realizó mantención?",
+          "label": "3a sintonía · unidades resistivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "x5a_sintonia",
+      "title": "5a sintonía",
+      "items": [
         {
           "id": "item_033",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 3: estado del componente",
+          "label": "5a sintonía · unidades capacitivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6731,7 +6737,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_034",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Inductivas · componente 3: ¿se realizó mantención?",
+          "label": "5a sintonía · unidades capacitivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6740,7 +6746,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_035",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 1: estado del componente",
+          "label": "5a sintonía · unidades inductivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6749,7 +6755,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_036",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 1: ¿se realizó mantención?",
+          "label": "5a sintonía · unidades inductivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6758,7 +6764,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_037",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 2: estado del componente",
+          "label": "5a sintonía · unidades resistivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6767,16 +6773,22 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_038",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 2: ¿se realizó mantención?",
+          "label": "5a sintonía · unidades resistivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "x7a_sintonia",
+      "title": "7a sintonía",
+      "items": [
         {
           "id": "item_039",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 3: estado del componente",
+          "label": "7a sintonía · unidades capacitivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6785,7 +6797,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_040",
           "type": "verificacion",
-          "label": "3a Sintonía · Unidades Resistivas · componente 3: ¿se realizó mantención?",
+          "label": "7a sintonía · unidades capacitivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6794,7 +6806,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_041",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · componente 1: estado del componente",
+          "label": "7a sintonía · unidades inductivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6803,7 +6815,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_042",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · componente 1: ¿se realizó mantención?",
+          "label": "7a sintonía · unidades inductivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6812,7 +6824,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_043",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 1: estado del componente",
+          "label": "7a sintonía · unidades resistivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6821,16 +6833,22 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_044",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 1: ¿se realizó mantención?",
+          "label": "7a sintonía · unidades resistivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "x11a_sintonia",
+      "title": "11a sintonía",
+      "items": [
         {
           "id": "item_045",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 2: estado del componente",
+          "label": "11a sintonía · unidades capacitivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6839,7 +6857,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_046",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 2: ¿se realizó mantención?",
+          "label": "11a sintonía · unidades capacitivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6848,7 +6866,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_047",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 3: estado del componente",
+          "label": "11a sintonía · unidades inductivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6857,7 +6875,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_048",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · componente 3: ¿se realizó mantención?",
+          "label": "11a sintonía · unidades inductivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6866,7 +6884,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_049",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 1: estado del componente",
+          "label": "11a sintonía · unidades resistivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6875,16 +6893,22 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_050",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 1: ¿se realizó mantención?",
+          "label": "11a sintonía · unidades resistivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "x13a_sintonia",
+      "title": "13a sintonía",
+      "items": [
         {
           "id": "item_051",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 2: estado del componente",
+          "label": "13a sintonía · unidades capacitivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6893,7 +6917,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_052",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 2: ¿se realizó mantención?",
+          "label": "13a sintonía · unidades capacitivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6902,7 +6926,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_053",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 3: estado del componente",
+          "label": "13a sintonía · unidades inductivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6911,7 +6935,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_054",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · componente 3: ¿se realizó mantención?",
+          "label": "13a sintonía · unidades inductivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -6920,7 +6944,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_055",
           "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Capacitivas · componente 1: estado del componente",
+          "label": "13a sintonía · unidades resistivas: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -6929,367 +6953,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_056",
           "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Capacitivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_057",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_058",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_059",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_060",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_061",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_062",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Inductivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_063",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_064",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_065",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_066",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_067",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_068",
-          "type": "verificacion",
-          "label": "7ma Sintonía · Unidades Resistivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_069",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_070",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_071",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_072",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_073",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_074",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_075",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_076",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_077",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_078",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_079",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_080",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_081",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Resistivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_082",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Resistivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_083",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_084",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_085",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_086",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_087",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_088",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Capacitivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_089",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_090",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 1: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_091",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 2: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_092",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 2: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_093",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 3: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_094",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Inductivas · componente 3: ¿se realizó mantención?",
-          "estados": [
-            "SI",
-            "NO"
-          ]
-        },
-        {
-          "id": "item_095",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Resistivas · componente 1: estado del componente",
-          "estados": [
-            "BN",
-            "ML"
-          ]
-        },
-        {
-          "id": "item_096",
-          "type": "verificacion",
-          "label": "11ava Sintonía · Unidades Resistivas · componente 1: ¿se realizó mantención?",
+          "label": "13a sintonía · unidades resistivas: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7307,7 +6971,7 @@ select et.id, wm.id, 1, 'published', $tpl$
     "RMP",
     "NT"
   ],
-  "note": "En caso de encontrar observaciones críticas, adjuntar registro fotográfico con la referencia, además realizar set fotográfico con el antes y después de la Mantención."
+  "note": "En caso de encontrar observaciones críticas, adjuntar registro fotográfico con la referencia, además realizar set fotográfico con el antes y después de la Mantención. Filtro de armónicos 120HF001."
 }
 $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm
@@ -9330,7 +8994,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_parrones' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-16 · EST-ELEC-MANT-MLP-BBOSCH-16 · Mantención transformadora de piso (37 ítems)
+-- MANT-16 · EST-ELEC-MANT-MLP-BBOSCH-16 · Mantención transformadora de piso (38 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -9555,67 +9219,73 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_025",
           "type": "verificacion",
-          "label": "Registrar temperatura aceite min / máx.",
+          "label": "Registrar temperatura mínima de aceite.",
           "unit": "°C"
         },
         {
           "id": "item_026",
           "type": "verificacion",
-          "label": "Devolver aguja Arrastre a temperatura actual."
+          "label": "Registrar temperatura máxima de aceite.",
+          "unit": "°C"
         },
         {
           "id": "item_027",
+          "type": "verificacion",
+          "label": "Devolver aguja Arrastre a temperatura actual."
+        },
+        {
+          "id": "item_028",
           "type": "verificacion",
           "label": "Registrar presión de vacío",
           "unit": ""
         },
         {
-          "id": "item_028",
+          "id": "item_029",
           "type": "verificacion",
           "label": "Realizar Limpieza generaldel equipo"
         },
         {
-          "id": "item_029",
+          "id": "item_030",
           "type": "verificacion",
           "label": "Verificar estado general de pintura"
         },
         {
-          "id": "item_030",
+          "id": "item_031",
           "type": "verificacion",
           "label": "Limpieza de tablero de control."
         },
         {
-          "id": "item_031",
+          "id": "item_032",
           "type": "verificacion",
           "label": "Reapriete de conexiones en tablero de control"
         },
         {
-          "id": "item_032",
+          "id": "item_033",
           "type": "verificacion",
           "label": "Realizar revisión de estado de interruptoresde control"
         },
         {
-          "id": "item_033",
+          "id": "item_034",
           "type": "verificacion",
           "label": "Realizar prueba de selector aut/man de ventiladores"
         },
         {
-          "id": "item_034",
+          "id": "item_035",
           "type": "verificacion",
           "label": "Revisión de fusibles que están instalados y en buen estado"
         },
         {
-          "id": "item_035",
+          "id": "item_036",
           "type": "verificacion",
           "label": "Realizar pruebas efectivas de instrumentos según los planos de control. Una vez terminada esta actividad, se deben reponer todas las alarmas y trip´s asociados."
         },
         {
-          "id": "item_036",
+          "id": "item_037",
           "type": "verificacion",
           "label": "Realizar medida de tensión Fase - Fase, Fase – Neutro y fase tierra."
         },
         {
-          "id": "item_037",
+          "id": "item_038",
           "type": "verificacion",
           "label": "Realizar reapriete de conexiones según la especificación del vendor adjunto en este estándar."
         }
@@ -9640,7 +9310,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_transformador_piso' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-17 · EST-ELEC-MANT-MLP-BBOSCH-17 · Mantención Transformador Poder Correas (26 ítems)
+-- MANT-17 · EST-ELEC-MANT-MLP-BBOSCH-17 · Mantención Transformador Poder Correas (27 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -9818,51 +9488,57 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_017",
           "type": "verificacion",
-          "label": "Anotar Temperatura aceite min / max.",
+          "label": "Anotar temperatura mínima de aceite.",
           "unit": "°C"
         },
         {
           "id": "item_018",
           "type": "verificacion",
-          "label": "Devolver aguja arrastre a temperatura actual."
+          "label": "Anotar temperatura máxima de aceite.",
+          "unit": "°C"
         },
         {
           "id": "item_019",
           "type": "verificacion",
-          "label": "Revisar estado vaso Silica gel, cambiar si amerita"
+          "label": "Devolver aguja arrastre a temperatura actual."
         },
         {
           "id": "item_020",
           "type": "verificacion",
-          "label": "Limpieza general"
+          "label": "Revisar estado vaso Silica gel, cambiar si amerita"
         },
         {
           "id": "item_021",
           "type": "verificacion",
-          "label": "Estado general de pintura"
+          "label": "Limpieza general"
         },
         {
           "id": "item_022",
           "type": "verificacion",
-          "label": "Si hay filtraciones en cuba o conservador, limpiar"
+          "label": "Estado general de pintura"
         },
         {
           "id": "item_023",
           "type": "verificacion",
-          "label": "Retiro de los Bloqueos en AT. y BT."
+          "label": "Si hay filtraciones en cuba o conservador, limpiar"
         },
         {
           "id": "item_024",
           "type": "verificacion",
-          "label": "Realizar Housekeeping y retiro de elementos mantención"
+          "label": "Retiro de los Bloqueos en AT. y BT."
         },
         {
           "id": "item_025",
           "type": "verificacion",
-          "label": "Realizar pruebas efectivas de instrumentos según los planos de control. Una vez terminada esta actividad, se deben reponer todas las alarmas y trip´s asociados."
+          "label": "Realizar Housekeeping y retiro de elementos mantención"
         },
         {
           "id": "item_026",
+          "type": "verificacion",
+          "label": "Realizar pruebas efectivas de instrumentos según los planos de control. Una vez terminada esta actividad, se deben reponer todas las alarmas y trip´s asociados."
+        },
+        {
+          "id": "item_027",
           "type": "verificacion",
           "label": "Realizar reapriete de conexiones según la especificación del vendor adjunto en este estándar."
         }
@@ -9887,7 +9563,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_transformador_poder_correas' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-20 · EST-ELEC-MANT-MLP-BBOSCH-20 · Mantención Línea Aérea 23kV (17 ítems)
+-- MANT-20 · EST-ELEC-MANT-MLP-BBOSCH-20 · Mantención Línea Aérea 23kV (18 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -9930,11 +9606,6 @@ select et.id, wm.id, 1, 'published', $tpl$
       "label": "Supervisor",
       "input": "text",
       "required": false
-    },
-    {
-      "key": "estructura",
-      "label": "Estructura N°",
-      "input": "text"
     }
   ],
   "roles": [
@@ -9949,90 +9620,98 @@ select et.id, wm.id, 1, 'published', $tpl$
       "items": [
         {
           "id": "item_001",
-          "type": "verificacion",
-          "label": "Identificación"
+          "type": "text",
+          "label": "N° de estructura",
+          "required": true,
+          "multiline": false
         },
         {
           "id": "item_002",
           "type": "verificacion",
-          "label": "Equipo Maniobra"
+          "label": "Identificación"
         },
         {
           "id": "item_003",
           "type": "verificacion",
-          "label": "Limpieza de Aisladores"
+          "label": "Equipo Maniobra"
         },
         {
           "id": "item_004",
           "type": "verificacion",
-          "label": "Cable Guarda"
+          "label": "Limpieza de Aisladores"
         },
         {
           "id": "item_005",
           "type": "verificacion",
-          "label": "Estado del Poste"
+          "label": "Cable Guarda"
         },
         {
           "id": "item_006",
           "type": "verificacion",
-          "label": "Estado Tirantes"
+          "label": "Estado del Poste"
         },
         {
           "id": "item_007",
           "type": "verificacion",
-          "label": "Estado de Crucetas"
+          "label": "Estado Tirantes"
         },
         {
           "id": "item_008",
           "type": "verificacion",
-          "label": "Estado de Puentes"
+          "label": "Estado de Crucetas"
         },
         {
           "id": "item_009",
           "type": "verificacion",
-          "label": "Acceso"
+          "label": "Estado de Puentes"
         },
         {
           "id": "item_010",
           "type": "verificacion",
-          "label": "Templado de línea"
+          "label": "Acceso"
         },
         {
           "id": "item_011",
           "type": "verificacion",
-          "label": "Limpieza equipo maniobra"
+          "label": "Templado de línea"
         },
         {
           "id": "item_012",
           "type": "verificacion",
-          "label": "Capacidad hilo fusible"
+          "label": "Limpieza equipo maniobra"
         },
         {
           "id": "item_013",
           "type": "verificacion",
-          "label": "Potencia S"
+          "label": "Capacidad hilo fusible"
         },
         {
           "id": "item_014",
           "type": "verificacion",
-          "label": "Estado de aislación"
+          "label": "Potencia S"
         },
         {
           "id": "item_015",
           "type": "verificacion",
-          "label": "Estado de pararrayos"
+          "label": "Estado de aislación"
         },
         {
           "id": "item_016",
           "type": "verificacion",
-          "label": "Estado desconectador fusible"
+          "label": "Estado de pararrayos"
         },
         {
           "id": "item_017",
           "type": "verificacion",
+          "label": "Estado desconectador fusible"
+        },
+        {
+          "id": "item_018",
+          "type": "verificacion",
           "label": "Estado de puesta a tierra"
         }
-      ]
+      ],
+      "repetible": true
     }
   ],
   "nomenclature": "RL: REALIZADO / NR: NO REALIZADO / ML: MALO / BN: BUENO / RMP: REEMPLAZADO (Indicar motivos en observaciones) / NT: NO TIENE",
@@ -10044,7 +9723,7 @@ select et.id, wm.id, 1, 'published', $tpl$
     "RMP",
     "NT"
   ],
-  "note": "En caso de encontrar observaciones críticas, adjuntar registro fotográfico con la referencia, además realizar set fotográfico con el antes y después de la Mantención. Una inspección registra una estructura (su número va en «Estructura N°»): para revisar otra se envía otra inspección."
+  "note": "En caso de encontrar observaciones críticas, adjuntar registro fotográfico con la referencia, además realizar set fotográfico con el antes y después de la Mantención. Si el tramo tiene más de una estructura, use «Agregar estructura» al final de la sección."
 }
 $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm

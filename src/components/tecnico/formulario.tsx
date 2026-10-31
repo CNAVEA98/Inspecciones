@@ -11,10 +11,10 @@ import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
 import { enqueueSubmission } from "@/lib/offline/outbox";
 import type { DraftRecord } from "@/lib/offline/db";
+import { MAX_REPETICIONES, expandirSecciones, idEnCopia, leerRepeticiones } from "@/lib/templates/repetir";
 import { estadoPorDefecto, type FormTemplateSchema } from "@/lib/templates/schema";
 import {
   META,
-  allItems,
   buildSubmission,
   getEjecutor,
   validateDraft,
@@ -121,6 +121,10 @@ export function Formulario({ id: idInicial }: { id: string }) {
   }
 
   const secciones = template.sections;
+  // Secciones repetibles ya desplegadas (p. ej. «Estructura 1», «Estructura 2»): cada paso muestra sus copias.
+  const reps = leerRepeticiones(draft.answers[META.repeticiones]);
+  const seccionesX = expandirSecciones(template, reps);
+  const itemsX = seccionesX.flatMap((s) => s.items);
   const total = secciones.length + 3; // datos + secciones + cierre + revisar
   const iCierre = secciones.length + 1;
   const iRevisar = secciones.length + 2;
@@ -141,6 +145,28 @@ export function Formulario({ id: idInicial }: { id: string }) {
 
   const setAnswer = (key: string, value: unknown) =>
     actualizar((d) => ({ ...d, answers: { ...d.answers, [key]: value } }));
+
+  /** Agrega (+1) o quita (-1) la última copia de una sección repetible; al quitarla se descartan sus respuestas y hallazgos. */
+  const cambiarCopias = (seccionId: string, delta: 1 | -1) =>
+    actualizar((d) => {
+      const actuales = leerRepeticiones(d.answers[META.repeticiones]);
+      const n = actuales[seccionId] ?? 1;
+      const nuevo = Math.min(Math.max(n + delta, 1), MAX_REPETICIONES);
+      if (nuevo === n) return d;
+      const answers = { ...d.answers };
+      let findings = d.findings;
+      if (delta === -1) {
+        const origen = template.sections.find((s) => s.id === seccionId);
+        const claves = new Set((origen?.items ?? []).map((i) => idEnCopia(i.id, n)));
+        for (const k of claves) delete answers[k];
+        findings = findings.filter((f) => !claves.has(f.item_key));
+      }
+      const siguientes = { ...actuales, [seccionId]: nuevo };
+      if (nuevo === 1) delete siguientes[seccionId];
+      if (Object.keys(siguientes).length) answers[META.repeticiones] = siguientes;
+      else delete answers[META.repeticiones];
+      return { ...d, answers, findings };
+    });
 
   const setSeverity = (itemId: string, severity: Severity) =>
     actualizar((d) => {
@@ -184,7 +210,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
     else window.scrollTo({ top: 0 });
   };
 
-  const respondidos = allItems(template).filter((i) => {
+  const respondidos = itemsX.filter((i) => {
     const v = draft.answers[i.id];
     return v !== undefined && (i.type !== "verificacion" || (v as { estado?: string }).estado);
   }).length;
@@ -266,29 +292,58 @@ export function Formulario({ id: idInicial }: { id: string }) {
 
         {paso >= 1 && paso <= secciones.length && (
           <div className="flex flex-col gap-4">
-            {secciones[paso - 1].items.map((item) => {
-              const n = allItems(template).findIndex((i) => i.id === item.id) + 1;
-              return (
-                <ItemField
-                  key={item.id}
-                  item={item}
-                  index={n}
-                  inspectionId={id}
-                  value={draft.answers[item.id]}
-                  estados={item.type === "verificacion" ? (item.estados ?? template.estados) : undefined}
-                  severity={draft.findings.find((f) => f.item_key === item.id)?.severity}
-                  onChange={(v) => setAnswer(item.id, v)}
-                  onSeverity={(s) => setSeverity(item.id, s)}
-                />
-              );
-            })}
-            {secciones[paso - 1].items.some((i) => i.type === "verificacion") ? (
+            {seccionesX
+              .filter((s) => s.origen === paso - 1)
+              .map((inst) => (
+                <div key={inst.id} className="flex flex-col gap-4">
+                  {inst.repetible ? (
+                    <h2 className="border-b-2 border-cu pb-1 text-xl font-bold">{inst.title}</h2>
+                  ) : null}
+                  {inst.items.map((item) => {
+                    const n = itemsX.findIndex((i) => i.id === item.id) + 1;
+                    return (
+                      <ItemField
+                        key={item.id}
+                        item={item}
+                        index={n}
+                        inspectionId={id}
+                        value={draft.answers[item.id]}
+                        estados={item.type === "verificacion" ? (item.estados ?? template.estados) : undefined}
+                        severity={draft.findings.find((f) => f.item_key === item.id)?.severity}
+                        onChange={(v) => setAnswer(item.id, v)}
+                        onSeverity={(s) => setSeverity(item.id, s)}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            {secciones[paso - 1].repetible && !bloqueado ? (
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => cambiarCopias(secciones[paso - 1].id, 1)}
+                  className="min-h-14 rounded-xl border-[1.5px] border-graf bg-white px-5 text-base font-semibold hover:bg-paper"
+                >
+                  + Agregar {secciones[paso - 1].title.toLowerCase()}
+                </button>
+                {(reps[secciones[paso - 1].id] ?? 1) > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => cambiarCopias(secciones[paso - 1].id, -1)}
+                    className="min-h-14 rounded-xl border-[1.5px] border-[#bb0000] bg-white px-5 text-base font-semibold text-[#7a0000] hover:bg-[#fdecec]"
+                  >
+                    Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {seccionesX.some((s) => s.origen === paso - 1 && s.items.some((i) => i.type === "verificacion")) ? (
               <button
                 type="button"
                 onClick={() =>
                   actualizar((d) => {
                     const answers = { ...d.answers };
-                    for (const i of secciones[paso - 1].items) {
+                    for (const i of seccionesX.filter((s) => s.origen === paso - 1).flatMap((s) => s.items)) {
                       if (i.type === "verificacion" && !(answers[i.id] as { estado?: string } | undefined)?.estado) {
                         answers[i.id] = { ...(answers[i.id] as object), estado: estadoPorDefecto(i.estados ?? template.estados) };
                       }
@@ -363,7 +418,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
       {paso === iRevisar && (
         <div className="flex flex-col gap-4">
           <p className="rounded-2xl border border-hair bg-white p-4 text-lg">
-            {respondidos} de {allItems(template).length} ítems respondidos.
+            {respondidos} de {itemsX.length} ítems respondidos.
           </p>
           {issues.length ? (
             <div role="alert" className="rounded-2xl border border-[#bb0000] bg-[#fdecec] p-4">

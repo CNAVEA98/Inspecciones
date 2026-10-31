@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { DraftRecord, MlpDB } from "@/lib/offline/db";
 import type { FormTemplateSchema, VerificationValue } from "@/lib/templates/schema";
 import type { InspectionStatus } from "@/lib/revision/estado";
+import { CLAVE_REPETICIONES, expandirPlantilla, leerRepeticiones } from "@/lib/templates/repetir";
 import { META, allItems, newDraft } from "./draft";
 import { hoyIso } from "@/lib/fecha";
 
@@ -93,7 +94,9 @@ export function borradorDeCorreccion(input: {
     fecha: hoyIso(),
   };
 
-  for (const item of allItems(template)) {
+  const repeticiones = leerRepeticiones(porClave.get(CLAVE_REPETICIONES));
+  if (Object.keys(repeticiones).length) draft.answers[META.repeticiones] = repeticiones;
+  for (const item of allItems(expandirPlantilla(template, repeticiones))) {
     const v = porClave.get(item.id);
     if (v === undefined) continue;
     if (item.type === "verificacion") {

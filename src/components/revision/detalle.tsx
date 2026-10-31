@@ -3,6 +3,7 @@ import { formatFechaHora } from "@/lib/fecha";
 import { STATUS_LABEL } from "@/lib/revision/estado";
 import { ETIQUETA_ESTADO, extrasDe, seleccionDeCabecera } from "@/lib/formatos/tags";
 import type { Adjunto, DetalleInspeccion } from "@/lib/revision/queries";
+import { expandirPlantilla } from "@/lib/templates/repetir";
 import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
 
 const ESTADO_NOMBRE: Record<string, string> = {
@@ -99,6 +100,7 @@ export function Detalle({
   const avisoTag = seleccion ? ETIQUETA_ESTADO[seleccion.estado] : null;
   const extras = extrasDe(header);
   // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
+  const plantilla = d.plantilla ? expandirPlantilla(d.plantilla, d.respuestas._repeticiones) : d.plantilla;
   const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diagnostico = d.respuestas._diagnostico as { observaciones?: string; consideraciones?: string } | undefined;
   const participantes = typeof d.respuestas._lista_participantes === "string" ? d.respuestas._lista_participantes.trim() : "";
@@ -178,7 +180,7 @@ export function Detalle({
         </p>
       )}
 
-      {d.plantilla?.sections.map((s) => (
+      {plantilla?.sections.map((s) => (
         <section key={s.id} className="rounded-2xl border border-hair bg-white">
           <h2 className="border-b border-hair px-5 py-3 font-bold">{s.title}</h2>
           <ul>
@@ -199,7 +201,7 @@ export function Detalle({
         ) : (
           <ul className="mt-2 space-y-2">
             {d.hallazgos.map((h) => {
-              const item = d.plantilla?.sections.flatMap((s) => s.items).find((i) => i.id === h.itemKey);
+              const item = plantilla?.sections.flatMap((s) => s.items).find((i) => i.id === h.itemKey);
               return (
                 <li key={h.id} className="rounded-lg bg-cu-soft px-3 py-2 text-sm">
                   <span className="font-semibold">{SEVERIDAD_NOMBRE[h.severity]}</span> · {item?.label ?? h.itemKey}

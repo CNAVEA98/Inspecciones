@@ -33,13 +33,13 @@ const ESPERADO: Record<string, { mant: string; items: number; estados: "A" | "B"
   mant_switchgear_sala_1_y_12: { mant: "MANT-09", items: 113, estados: "B" },
   mant_switchgear_mauro: { mant: "MANT-10", items: 58, estados: "B" },
   mant_transformador_aereo: { mant: "MANT-11", items: 17, estados: "B" },
-  mant_filtro_chancado: { mant: "MANT-12", items: 96, estados: "B" },
+  mant_filtro_chancado: { mant: "MANT-12", items: 56, estados: "B" },
   mant_filtro_planta: { mant: "MANT-13", items: 149, estados: "B" },
   mant_filtro_ppch: { mant: "MANT-14", items: 47, estados: "B" },
   mant_parrones: { mant: "MANT-15", items: 19, estados: "inspeccion" },
-  mant_transformador_piso: { mant: "MANT-16", items: 37, estados: "A" },
-  mant_transformador_poder_correas: { mant: "MANT-17", items: 26, estados: "A" },
-  mant_linea_aerea: { mant: "MANT-20", items: 17, estados: "B" },
+  mant_transformador_piso: { mant: "MANT-16", items: 38, estados: "A" },
+  mant_transformador_poder_correas: { mant: "MANT-17", items: 27, estados: "A" },
+  mant_linea_aerea: { mant: "MANT-20", items: 18, estados: "B" },
 };
 
 const A = ["SI", "NO", "RL", "NR", "BN", "ML", "RMP", "NT"];
@@ -128,10 +128,35 @@ describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
     expect(unit("mant_transformador_piso", "Capacidad de los fusibles")).toBe("A");
   });
 
-  it("MANT-20 registra una estructura por inspección", () => {
+  it("MANT-20: una estructura por defecto y la opción de agregar más (sección repetible)", () => {
     const t = plantilla("mant_linea_aerea");
-    expect(t.header.map((h) => h.key)).toContain("estructura");
-    expect(t.note).toContain("una estructura");
+    expect(t.sections).toHaveLength(1);
+    expect(t.sections[0].repetible).toBe(true);
+    expect(t.sections[0].items[0]).toMatchObject({ type: "text", label: "N° de estructura", required: true });
+    expect(t.header.map((h) => h.key)).not.toContain("estructura");
+    expect(t.note).toContain("Agregar estructura");
+  });
+
+  it("MANT-12: cada sintonía (3a, 5a, 7a, 11a, 13a) tiene unidades capacitivas, inductivas y resistivas con estado y mantención", () => {
+    const t = plantilla("mant_filtro_chancado");
+    const sintonias = t.sections.filter((s) => s.title.endsWith("sintonía"));
+    expect(sintonias.map((s) => s.title)).toEqual(["3a sintonía", "5a sintonía", "7a sintonía", "11a sintonía", "13a sintonía"]);
+    for (const s of sintonias) {
+      expect(s.items).toHaveLength(6);
+      const pares = s.items.map((i) => (i.type === "verificacion" ? i.estados?.join() : ""));
+      expect(pares).toEqual(["BN,ML", "SI,NO", "BN,ML", "SI,NO", "BN,ML", "SI,NO"]);
+      expect(s.items.map((i) => i.label.split(": ")[0].split("· ")[1])).toEqual([
+        "unidades capacitivas", "unidades capacitivas", "unidades inductivas", "unidades inductivas", "unidades resistivas", "unidades resistivas",
+      ]);
+    }
+  });
+
+  it("MANT-16 y 17 piden la temperatura mínima y la máxima del aceite por separado, en °C", () => {
+    for (const tipo of ["mant_transformador_piso", "mant_transformador_poder_correas"]) {
+      const temps = items(plantilla(tipo)).filter((i) => /temperatura (mínima|máxima) de aceite/i.test(i.label));
+      expect(temps.map((i) => (i.type === "verificacion" ? i.unit : null)), tipo).toEqual(["°C", "°C"]);
+      expect(items(plantilla(tipo)).some((i) => /min \/ m/i.test(i.label)), tipo).toBe(false);
+    }
   });
 
   it("los tipos de equipo del seed son exactamente los de las mantenciones disponibles en el catálogo", () => {

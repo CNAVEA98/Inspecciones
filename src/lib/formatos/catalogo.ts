@@ -81,11 +81,14 @@ function f(
 
 export const FORMATOS: Formato[] = [
   // ---------- Inspección ----------
-  f("INSP", 1, "Desconectador Seccionador Maniobra 23 kV", "F4", "T", ["SW"]),
-  f("INSP", 2, "Banco de Condensadores Mauro", "F6", "MA", ["XC"]),
-  f("INSP", 3, "Pruebas Grupos Generadores El Mauro", "F5", "MA", GEN, { varios: true }),
-  f("INSP", 4, "Limpieza Salas Eléctricas STMG 23 kV", "F2", "MI", ["ER"]),
-  f("INSP", 5, "Reconectadores", "F4", "T", ["GV", "NJ"]),
+  f("INSP", 1, "Desconectador Seccionador Maniobra 23 kV", "F4", "T", ["SW"], { disponible: { tipoEquipo: "desconectador_seccionador", modo: "plan_matriz" } }),
+  f("INSP", 2, "Banco de Condensadores Mauro", "F6", "MA", ["XC"], { disponible: { tipoEquipo: "banco_condensadores_mauro", modo: "plan_matriz" } }),
+  f("INSP", 3, "Pruebas Grupos Generadores El Mauro", "F5", "MA", GEN, {
+    varios: true,
+    disponible: { tipoEquipo: "grupo_generador_mauro", modo: "plan_matriz" },
+  }),
+  f("INSP", 4, "Limpieza Salas Eléctricas STMG 23 kV", "F2", "MI", ["ER"], { disponible: { tipoEquipo: "sala_electrica_stmg", modo: "plan_matriz" } }),
+  f("INSP", 5, "Reconectadores", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "reconectador", modo: "plan_matriz" } }),
   f("INSP", 6, "Subestaciones Móviles", "F3", "MI", ["SE", "US"]),
   f("INSP", 7, "Transformadores Aéreos", "F3", "T", ["XF"]),
   f("INSP", 8, "Switchgear Sala Eléctrica 12", "F1", "MI", ["SG"]),

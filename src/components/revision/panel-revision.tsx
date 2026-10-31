@@ -23,8 +23,8 @@ const campo =
   "w-full rounded-lg border border-hair bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-cu";
 
 /**
- * Firma de una etapa de revisión: decisión, comentario obligatorio y firma dibujada.
- * La base de datos exige el orden (supervisor, luego planificador) y el comentario; aquí se valida antes
+ * Firma de una etapa de revisión: decisión, comentario (obligatorio solo al rechazar) y firma dibujada.
+ * La base de datos exige el orden (supervisor, luego planificador) y el comentario al rechazar; aquí se valida antes
  * para no mostrar errores técnicos, y se pide confirmación porque la firma es definitiva.
  */
 export function PanelRevision({ inspeccionId, folio, etapa }: { inspeccionId: string; folio: string; etapa: EtapaFirma }) {
@@ -39,7 +39,7 @@ export function PanelRevision({ inspeccionId, folio, etapa }: { inspeccionId: st
 
   const faltas = [
     !decision && "Elija si aprueba o rechaza.",
-    !comentario.trim() && "El comentario es obligatorio.",
+    decision === "rejected" && !comentario.trim() && "El comentario es obligatorio al rechazar.",
     !firma && "Falta la firma.",
   ].filter((f): f is string => !!f);
 
@@ -119,7 +119,7 @@ export function PanelRevision({ inspeccionId, folio, etapa }: { inspeccionId: st
         </fieldset>
 
         <label className="mt-4 block text-sm font-semibold" htmlFor="comentario-revision">
-          Comentario (obligatorio)
+          {decision === "rejected" ? "Comentario (obligatorio)" : "Comentario (opcional)"}
         </label>
         <textarea
           id="comentario-revision"

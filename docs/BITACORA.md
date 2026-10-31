@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · El comentario de la revisión es obligatorio solo al rechazar
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** al aprobar, el supervisor y el planificador ya no están obligados a escribir un comentario; al rechazar sigue siendo obligatorio. Nueva migración `0012_comentario_solo_al_rechazar.sql` que redefine `review_inspection` (sin comentario se guarda `null`), y el panel de revisión muestra «Comentario (opcional)» al aprobar y «(obligatorio)» al rechazar.
+- **Archivos:** `supabase/migrations/0012_comentario_solo_al_rechazar.sql` (nueva), `supabase/tests/rls.test.sql`, `src/components/revision/panel-revision.tsx`
+- **Verificación:** lint, tsc y 147 tests en verde; `supabase test db` 30/30 (el caso «comentario obligatorio» ahora prueba que rechazar sin comentario falla y que aprobar sin comentario funciona); migración aplicada a mano en el Supabase local. Build y vista en pantalla: no verificados en esta entrada.
+- **Pendiente / riesgos:** la migración 0012 no está aplicada en el Supabase remoto (solo archivo): hay que ejecutarla allá antes de desplegar este cambio, o el supervisor recibirá «El comentario es obligatorio» al aprobar sin comentario.
+
 ### 2026-10-31 · Logo de Bbosch arriba en el área del técnico
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** el encabezado del técnico muestra el logo de Bbosch sobre una pastilla blanca (como el de supervisor, planificador y administrador), encima de la línea «Técnico · Turno X».

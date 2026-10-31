@@ -19,6 +19,20 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 3. Si un cambio modifica una decisión, anótelo también en «Decisiones».
 4. No borre entradas antiguas: si algo se revierte, agregue una entrada nueva que lo diga.
 
+## Al iniciar cada sesión (obligatorio)
+
+Cada vez que se abre una sesión nueva (persona o Claude), **antes de cualquier cambio**, compare el repositorio de
+GitHub con la copia local y baje lo último:
+
+1. `git fetch origin` y `git status`: diga en qué rama está y si hay cambios locales sin commit.
+2. Compare con GitHub: `git log --oneline HEAD..origin/main` (lo que falta bajar) y `git log --oneline origin/main..HEAD`
+   (lo local que GitHub no tiene). Revise también las ramas remotas nuevas (`git branch -r`) y los PR abiertos.
+3. Si `main` está atrasado: `git switch main` y `git pull --ff-only origin main`. Si está en una rama de trabajo, traiga
+   `main` a esa rama (`git merge origin/main`) y resuelva conflictos conservando ambas entradas de la bitácora.
+4. Si hubo cambios, vuelva a leer esta bitácora (Registro, Estado actual y Pendientes) y, si cambiaron dependencias o
+   migraciones, corra `corepack pnpm install` y `corepack pnpm supabase db reset`.
+5. Si el `pull` falla (credenciales, conflicto, rama divergente), no lo fuerce: anote el error y avise antes de seguir.
+
 ## Estado actual (2026-10-29)
 
 | Área | Estado |
@@ -53,6 +67,7 @@ Verificación global más reciente (2026-10-30, en `C:\Proyectos`): `pnpm lint` 
 12. Revisar con el usuario: sectores dudosos (`docs/MAPEO_ZONA_AREA.md`), áreas de MANT-02/08/17, regla piso/aéreo de transformadores (el Maestro no alcanza) y probar envío completo con TAG provisional.
 13. **Exportar a Excel desde la bandeja** (pedido 2026-10-30, sin hacer): botón «Descargar Excel» para supervisor, programador y administrador, que respete los filtros de la bandeja (TAG, turno, fechas, estado) y exija rango de fechas. Hojas: Inspecciones (una fila por inspección: folio, fecha, área, TAG y su estado, técnico, turno, estado de revisión, firmas); Respuestas (una fila por ítem: lo marcado BN/ML/NT/NA/NR, valor medido con unidad, observación); Hallazgos; y Mediciones por formato (una fila por inspección y una columna por ítem, para ver la evolución de un TAG). Sin fotos ni firmas, solo su cantidad. **Bloqueado por una decisión:** un `.xlsx` con varias hojas requiere una dependencia nueva (se propuso `exceljs`; `CLAUDE.md` exige preguntar antes); la alternativa sin librería es CSV, un archivo por hoja. Falta autorización del usuario y confirmar si quiere la hoja 4.
 14. **Probar en Vercel + Supabase remoto:** guía actualizada en `docs/DEPLOY_VERCEL.md`. Falta que el usuario cree el proyecto de prueba, aplique las migraciones y el catálogo, cree las 7 cuentas y configure las variables en Vercel (conectar a un Supabase remoto y desplegar requieren su confirmación).
+15. Agregar `.gitattributes` (`* text=auto eol=lf`) para que un clon en Windows no muestre todo como modificado por CRLF, y `next typegen` en el script `typecheck` para que pase en un clon nuevo sin build previo (ver entrada del 2026-10-30 de Manuel).
 11. Plantillas para los otros 4 equipos y el modo Mantenimiento programado (hoy solo existen en el catálogo, sin plantilla).
 
 ## Decisiones
@@ -89,6 +104,13 @@ Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-30 · Equipo de Manuel preparado y regla de sincronizar con GitHub al iniciar sesión
+- **Autor:** Manuel (con Claude) · rama `docs/sincronizar-al-iniciar-sesion`
+- **Qué se hizo:** (1) Nueva sección «Al iniciar cada sesión (obligatorio)»: comparar GitHub con la copia local y bajar lo último antes de trabajar. (2) Se preparó un segundo equipo (Windows 11) desde cero: Node 26.13.0 LTS, corepack 0.36.0 con `npm i -g corepack` (desde Node 25 no viene incluido), pnpm 12.16.1, Python 3.13.16 + openpyxl 3.1.5, Git Credential Manager; Docker Desktop 29.9.2 y WSL2 ya estaban.
+- **Archivos:** `docs/BITACORA.md`.
+- **Verificación (en el equipo nuevo, `main` en `474db23`):** `pnpm install` sin `ERR_PNPM_IGNORED_BUILDS` · `supabase start` y `supabase db reset` aplican 0001–0011 y los dos seeds · `pnpm lint` sin errores · `pnpm test` 101/101 · `pnpm build` correcto · `pnpm typecheck` sin errores **después** del build · `supabase test db` 30/30 · `pnpm dev` responde HTTP 200 en `/login`. **No verificado:** `git pull` desde la terminal de Claude (bloquea el inicio de sesión de GitHub; hay que autenticarse una vez a mano) ni la prueba de extremo a extremo en el navegador en este equipo.
+- **Pendiente / riesgos:** (a) En un clon nuevo, `pnpm typecheck` falla con `Cannot find name 'RouteContext'` en las 3 rutas `pdf/route.ts` hasta que se corre `pnpm build` o `pnpm dev`, porque ese tipo global lo genera Next en `.next/types`; conviene agregar `next typegen` al script `typecheck`. (b) Clonado con GitHub Desktop, `git status` mostraba ~150 archivos «modificados» que solo diferían en CRLF/LF; se resolvió con `git config core.autocrlf true` en el repo local. Falta un `.gitattributes` en el repo para que no le pase a nadie más.
 
 ### 2026-10-30 · Arreglo del build en Vercel: scripts de instalación de pnpm
 - **Autor:** Cristóbal (con Claude) · rama `feat/flujo-4-pasos-tag`

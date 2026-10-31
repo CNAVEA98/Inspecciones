@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Logo de Bbosch arriba en el área del técnico
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** el encabezado del técnico muestra el logo de Bbosch sobre una pastilla blanca (como el de supervisor, planificador y administrador), encima de la línea «Técnico · Turno X».
+- **Archivos:** `src/app/tecnico/layout.tsx`
+- **Verificación:** lint y tsc en verde; vista en pantalla: no verificada (hay que mirarlo a 375 px).
+- **Pendiente / riesgos:** ninguno conocido.
+
 ### 2026-10-31 · El encabezado del técnico muestra su turno
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** la etiqueta de arriba del encabezado del técnico decía solo «Técnico»; ahora dice «Técnico · Turno A» o «Técnico · Turno B» según el turno de la cuenta (usa `roleWithShift`, igual que las otras áreas).

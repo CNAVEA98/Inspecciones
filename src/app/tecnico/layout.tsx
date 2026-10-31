@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { requireRole } from "@/lib/auth/session";
 import { roleWithShift } from "@/lib/auth/roles";
 import { SignOutButton } from "@/components/shared/sign-out-button";
@@ -11,6 +12,10 @@ export default async function TecnicoLayout({ children }: { children: React.Reac
     <TecnicoProvider userId={session.id}>
       <div className="mx-auto flex min-h-[100dvh] w-full max-w-xl flex-col">
         <header className="rounded-b-3xl bg-graf px-5 py-4 text-white">
+          {/* Pastilla blanca: el logo es gris y naranja y no se lee sobre el grafito. */}
+          <span className="mb-3 inline-block rounded-md bg-white px-2 py-1">
+            <Image src="/brand/bbosch-logo.png" alt="BBOSCH" width={1115} height={391} priority className="h-8 w-auto" />
+          </span>
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-lg font-semibold">{roleWithShift("technician", session.shift)}</p>

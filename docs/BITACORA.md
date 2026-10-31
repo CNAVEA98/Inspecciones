@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Word de MANT-18 y MANT-19 unificados (logo Bbosch y bloque de firmantes)
+- **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
+- **Qué se hizo:** los dos Word ya traían el logo Bbosch junto al de Los Pelambres, sin «STN» ni marcas `##`. A MANT-18 se le dejó el bloque de firmantes igual a los demás (Participantes, Encargado de la actividad, Supervisor Bbosch, Planificador Bbosch). MANT-19 no tenía tabla: se reemplazaron sus líneas sueltas (transformador, TAG, horas, ejecutado por, fecha, supervisor) por la tabla estándar (TAG, N° OT, Transformador N°, Fecha, horas y firmantes, ajustada al ancho de su página A4) y se le agregó la leyenda de nomenclatura. Los `.doc` antiguos ya no están en la carpeta (los borró Manuel). MANT-18 y 19 quedan transversales (decisión de Manuel).
+- **Archivos:** fuera del repo, en `Bases de datos generales/Formatos BBOSCH/MANTENCIONES` (`MANT-18 …docx`, `MANT-19 …docx`). Respaldo de los originales en la carpeta temporal de la sesión (no persiste).
+- **Verificación:** ambos `.docx` abren como zip y su XML es válido; el texto extraído muestra el bloque unificado. Regenerar el seed desde los Word da un SQL idéntico (las plantillas no cambian). No verificado: cómo se ven al abrirlos en Word (la tabla de MANT-19 se armó por XML; conviene revisarla a ojo).
+- **Pendiente / riesgos:** revisar en Word el aspecto de MANT-19. Los Word no están en git: quien los edite debe avisar.
+
 ### 2026-10-31 · Plantillas MANT-18 (Celda de piso) y MANT-19 (Instrumentos del transformador principal)
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** con los Word guardados como `.docx` se crearon las plantillas de MANT-18 (8 ítems, estados SI/NO/RL/NR/BN/ML/RMP/NT, cabecera con marca y serie) y MANT-19 (35 ítems en 6 secciones por instrumento: presión súbita, nivel de aceite, válvula de alivio, presión cambiador TAP, temperatura de aceite y de enrollado; los N° de señal del PLC son campos de texto y los enclaves/recepciones son verificaciones). Ambas pasan a «disponible» en el catálogo; ya no quedan mantenciones «próximamente».

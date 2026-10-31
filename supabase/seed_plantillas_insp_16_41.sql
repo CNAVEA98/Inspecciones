@@ -6662,7 +6662,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'ficha_generadores_agk' and wm.code = 'plan_matriz'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- INSP-32 · EST-ELEC-INSP-MLP-Bbosch-32 · Check List de Verificación de Grupo Generador (15 ítems)
+-- INSP-32 · EST-ELEC-INSP-MLP-Bbosch-32 · Check List de Verificación de Grupo Generador (14 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -6789,19 +6789,6 @@ select et.id, wm.id, 1, 'published', $tpl$
           "id": "item_014",
           "type": "verificacion",
           "label": "Equipo tiene instructivo de uso en terreno"
-        }
-      ]
-    },
-    {
-      "id": "galeria_fotografica",
-      "title": "Galería fotográfica",
-      "items": [
-        {
-          "id": "item_015",
-          "type": "photo",
-          "label": "Galería fotográfica",
-          "required": false,
-          "maxPhotos": 6
         }
       ]
     }
@@ -8817,7 +8804,7 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'limpieza_sala_740_er_5002_l4' and wm.code = 'plan_matriz'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- INSP-40 · EST-ELEC-INSP-MLP-Bbosch-40 · Inspección Semanal Grupo Generadores Puerto - Mauro (57 ítems)
+-- INSP-40 · EST-ELEC-INSP-MLP-Bbosch-40 · Inspección Semanal Grupo Generadores Puerto - Mauro (56 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
@@ -9195,19 +9182,6 @@ select et.id, wm.id, 1, 'published', $tpl$
           "label": "Dar aviso a sala eléctrica N°1 las Novedades de las pruebas y el retiro del área"
         }
       ]
-    },
-    {
-      "id": "galeria_fotografica",
-      "title": "Galería fotográfica",
-      "items": [
-        {
-          "id": "item_057",
-          "type": "photo",
-          "label": "Galería fotográfica",
-          "required": false,
-          "maxPhotos": 6
-        }
-      ]
     }
   ],
   "nomenclature": "NT: NO TIENE / BN: BUENO / ML: MALO / NA: NO APLICA / NR: No Realizada / SI / NO (Indicar motivos en observaciones)",
@@ -9218,15 +9192,15 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'pruebas_generadores_puerto_mauro' and wm.code = 'plan_matriz'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- INSP-41 · EST-ELEC-INSP-MLP-Bbosch-41 · Inspección Sala Eléctrica 740-ER-5002 (35 ítems)
+-- INSP-41 · EST-ELEC-INSP-MLP-Bbosch-41 · Inspección Sala Eléctrica 741-ER-5002 STATCOM (35 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
-  "title": "Inspección Sala Eléctrica 740-ER-5002",
+  "title": "Inspección Sala Eléctrica 741-ER-5002 STATCOM",
   "meta": {
     "norma": "EST-ELEC-INSP-MLP-Bbosch-41",
     "revision": "Diciembre 2025",
-    "titulo": "Inspección Sala Eléctrica 740-ER-5002"
+    "titulo": "Inspección Sala Eléctrica 741-ER-5002 STATCOM"
   },
   "header": [
     {

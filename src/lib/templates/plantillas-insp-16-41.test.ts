@@ -38,14 +38,14 @@ const ESPERADO: Record<string, { formato: string; norma: string; items: number }
   switchgear_ppch: { formato: "INSP-29", norma: "EST-ELEC-MLP-Bbosch-29", items: 22 },
   sala_electrica_740_er_5002: { formato: "INSP-30", norma: "EST-ELEC-INSP-MLP-Bbosch-30", items: 163 },
   ficha_generadores_agk: { formato: "INSP-31", norma: "EST-ELEC-INSP-MLP-Bbosch-31", items: 67 },
-  checklist_grupo_generador: { formato: "INSP-32", norma: "EST-ELEC-INSP-MLP-Bbosch-32", items: 15 },
+  checklist_grupo_generador: { formato: "INSP-32", norma: "EST-ELEC-INSP-MLP-Bbosch-32", items: 14 },
   sala_electrica_741_er_5001: { formato: "INSP-33", norma: "EST-ELEC-INSP-MLP-Bbosch-33", items: 169 },
   reles_proteccion: { formato: "INSP-34", norma: "EST-ELEC-INSP-MLP-Bbosch-34", items: 31 },
   banco_condensadores_ppch: { formato: "INSP-35", norma: "EST-ELEC-INSP-MLP-Bbosch-35", items: 19 },
   cerco_perimetral_statcom: { formato: "INSP-37", norma: "EST-ELEC-MLP-Bbosch-37", items: 12 },
   carga_combustible_piuquenes: { formato: "INSP-38", norma: "EST-ELEC-MLP-Bbosch-38", items: 32 },
   limpieza_sala_740_er_5002_l4: { formato: "INSP-39", norma: "EST-ELEC-MLP-Bbosch-39", items: 22 },
-  pruebas_generadores_puerto_mauro: { formato: "INSP-40", norma: "EST-ELEC-INSP-MLP-Bbosch-40", items: 57 },
+  pruebas_generadores_puerto_mauro: { formato: "INSP-40", norma: "EST-ELEC-INSP-MLP-Bbosch-40", items: 56 },
   sala_electrica_741_er_5002: { formato: "INSP-41", norma: "EST-ELEC-INSP-MLP-Bbosch-41", items: 35 },
 };
 

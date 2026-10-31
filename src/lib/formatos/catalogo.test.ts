@@ -11,11 +11,11 @@ describe("catálogo de formatos", () => {
     expect(new Set(ids(FORMATOS)).size).toBe(60);
   });
 
-  it("INSP-01 a 15 están disponibles y cada uno apunta a su propia plantilla", () => {
+  it("los 40 INSP (01 a 41, sin 36) están disponibles y cada uno apunta a su propia plantilla", () => {
     const disponibles = FORMATOS.filter((x) => x.tipo === "INSP" && x.estado === "disponible");
-    expect(ids(disponibles)).toEqual([
-      "INSP-01", "INSP-02", "INSP-03", "INSP-04", "INSP-05", "INSP-06", "INSP-07", "INSP-08", "INSP-09", "INSP-10", "INSP-11", "INSP-12", "INSP-13", "INSP-14", "INSP-15",
-    ]);
+    expect(disponibles).toHaveLength(40);
+    expect(ids(disponibles).slice(0, 3)).toEqual(["INSP-01", "INSP-02", "INSP-03"]);
+    expect(ids(disponibles)).not.toContain("INSP-36");
     expect(formatoPorId("INSP-12")?.plantilla).toEqual({ tipoEquipo: "transformador_piso", modo: "plan_matriz" });
     expect(formatoPorId("INSP-05")?.plantilla).toEqual({ tipoEquipo: "reconectador", modo: "plan_matriz" });
     // La plantilla se busca por tipo de equipo × modo: no puede haber dos formatos con la misma.

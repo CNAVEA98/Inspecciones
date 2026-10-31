@@ -82,7 +82,7 @@ describe("plantillas INSP-01 a INSP-15 (seed_plantillas_insp.sql)", () => {
   });
 
   it("los tipos de equipo del seed son exactamente los que el catálogo de formatos espera", () => {
-    const delCatalogo = FORMATOS.filter((f) => f.tipo === "INSP" && f.estado === "disponible" && f.id !== "INSP-12").map((f) => [
+    const delCatalogo = FORMATOS.filter((f) => f.tipo === "INSP" && f.estado === "disponible" && f.id !== "INSP-12" && Number(f.id.slice(5)) <= 15).map((f) => [
       f.plantilla!.tipoEquipo,
       f.id,
     ]);

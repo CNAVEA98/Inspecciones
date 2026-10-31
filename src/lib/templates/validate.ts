@@ -33,6 +33,7 @@ export function answerIssues(item: TemplateItem, value: unknown): string[] {
       const a = p.data, out: string[] = [];
       if (a.estado === "ML" && !(a.obs ?? "").trim()) out.push("ML exige observación");
       if (a.estado === "NR" && !(a.obs ?? "").trim()) out.push("NR exige el motivo en observaciones");
+      if (a.estado === "RMP" && !(a.obs ?? "").trim()) out.push("RMP exige el motivo en observaciones");
       if (a.valor !== undefined) {
         if (item.unit === undefined) out.push("El ítem no admite valor numérico");
         if (item.min !== undefined && a.valor < item.min) out.push("Valor bajo el mínimo");

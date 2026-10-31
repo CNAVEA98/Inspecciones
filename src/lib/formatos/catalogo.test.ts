@@ -12,7 +12,7 @@ describe("catálogo de formatos", () => {
   });
 
   it("INSP-01 a 15 están disponibles y cada uno apunta a su propia plantilla", () => {
-    const disponibles = FORMATOS.filter((x) => x.estado === "disponible");
+    const disponibles = FORMATOS.filter((x) => x.tipo === "INSP" && x.estado === "disponible");
     expect(ids(disponibles)).toEqual([
       "INSP-01", "INSP-02", "INSP-03", "INSP-04", "INSP-05", "INSP-06", "INSP-07", "INSP-08", "INSP-09", "INSP-10", "INSP-11", "INSP-12", "INSP-13", "INSP-14", "INSP-15",
     ]);

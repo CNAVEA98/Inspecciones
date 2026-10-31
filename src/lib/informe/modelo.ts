@@ -1,10 +1,10 @@
 import { formatFechaHora } from "@/lib/fecha";
 import type { DetalleInspeccion } from "@/lib/revision/queries";
 import { STATUS_LABEL_INFORME } from "@/lib/revision/estado";
-import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
+import { ESTADOS, ESTADOS_CONFORMES, type Estado, type TemplateItem, type VerificationValue } from "@/lib/templates/schema";
 
-export type EstadoVer = "BN" | "ML" | "NT" | "NA" | "NR";
-export const ESTADOS_VER: readonly EstadoVer[] = ["BN", "ML", "NT", "NA", "NR"];
+export type EstadoVer = Estado;
+export const ESTADOS_VER: readonly EstadoVer[] = ESTADOS;
 
 export interface FilaInforme {
   n: number;
@@ -19,7 +19,7 @@ export interface FilaInforme {
 export interface GrupoInforme {
   titulo: string;
   filas: FilaInforme[];
-  /** Ítems de verificación en BN / total de ítems de verificación del grupo. */
+  /** Ítems de verificación conformes (BN, RL o SI) / total de ítems de verificación del grupo. */
   conformes: number;
   total: number;
 }
@@ -67,6 +67,8 @@ export interface Informe {
   specs: { label: string; valor: string }[];
   resumen: {
     cuenta: Record<EstadoVer, number>;
+    /** Ítems conformes (BN, RL o SI). */
+    conformes: number;
     total: number;
     criticos: { n: number; texto: string; obs: string }[];
   };
@@ -152,15 +154,16 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     return {
       titulo: s.title,
       filas,
-      conformes: filas.filter((f) => f.estado === "BN").length,
+      conformes: filas.filter((f) => f.estado !== null && ESTADOS_CONFORMES.includes(f.estado)).length,
       total: ver.length,
     };
   });
 
-  const cuenta: Record<EstadoVer, number> = { BN: 0, ML: 0, NT: 0, NA: 0, NR: 0 };
+  const cuenta = Object.fromEntries(ESTADOS.map((e) => [e, 0])) as Record<EstadoVer, number>;
   const filas = grupos.flatMap((g) => g.filas);
   for (const f of filas) if (f.estado) cuenta[f.estado]++;
   const total = items.filter((it) => it.type === "verificacion").length;
+  const conformes = ESTADOS_CONFORMES.reduce((s, e) => s + cuenta[e], 0);
   const criticos = filas.filter((f) => f.estado === "ML").map((f) => ({ n: f.n, texto: f.texto, obs: f.obs }));
 
   const lecturas = (tpl?.readings ?? []).map((r): LecturaAncha | LecturaChica => {
@@ -233,7 +236,7 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     fecha: header.fecha ? fmtFecha(header.fecha) : "—",
     horario: header.h_inicio && header.h_fin ? `${header.h_inicio} – ${header.h_fin}` : "—",
     specs,
-    resumen: { cuenta, total, criticos },
+    resumen: { cuenta, conformes, total, criticos },
     lecturas,
     grupos,
     nomenclatura: tpl?.nomenclature ?? NOMENCLATURA_POR_DEFECTO,

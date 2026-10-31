@@ -4,9 +4,24 @@ const idSchema = z
   .string()
   .regex(/^[a-z][a-z0-9_]*$/, "El id debe ser snake_case (a-z, 0-9, _)");
 
-/** Estados de la nomenclatura de inspección del estándar. */
-export const ESTADOS = ["BN", "ML", "NT", "NA", "NR"] as const;
+/**
+ * Estados de verificación. BN/ML/NT/NA/NR son los de la nomenclatura de inspección; RL (realizado), RMP (reemplazado),
+ * SI y NO se usan en las mantenciones. Cada plantilla (o ítem) elige cuáles ofrece con `estados`.
+ */
+export const ESTADOS = ["BN", "ML", "NT", "NA", "NR", "RL", "RMP", "SI", "NO"] as const;
 export type Estado = (typeof ESTADOS)[number];
+
+/** Los que se ofrecen cuando la plantilla no dice otra cosa (inspección). */
+export const ESTADOS_INSPECCION: readonly Estado[] = ["BN", "ML", "NT", "NA", "NR"];
+
+/** Estados que cuentan como conformes en el resumen del informe. */
+export const ESTADOS_CONFORMES: readonly Estado[] = ["BN", "RL", "SI"];
+
+/** Estado con que «Marcar pendientes» rellena una sección: RL en las mantenciones, BN en las inspecciones. */
+export const estadoPorDefecto = (estados?: readonly Estado[]): Estado =>
+  !estados ? "BN" : estados.includes("RL") ? "RL" : estados.includes("BN") ? "BN" : estados[0];
+
+const estadosSchema = z.array(z.enum(ESTADOS)).min(2);
 
 const baseItem = {
   id: idSchema,
@@ -25,6 +40,8 @@ export const verificationItemSchema = z.object({
   unit: z.string().optional(),
   min: z.number().optional(),
   max: z.number().optional(),
+  /** Estados que ofrece este ítem; si falta, los de la plantilla (o los de inspección). */
+  estados: estadosSchema.optional(),
 });
 
 export const numberItemSchema = z
@@ -109,6 +126,8 @@ export const templateSchema = z
       .object({ norma: z.string().min(1), revision: z.string().min(1), titulo: z.string().min(1) })
       .optional(),
     nomenclature: z.string().optional(),
+    /** Estados que ofrecen sus ítems de verificación (mantenciones: RL, NR, BN, ML, RMP, NT…). */
+    estados: estadosSchema.optional(),
     header: z.array(headerFieldSchema).default([]),
     roles: z.array(z.string().min(1)).default([]),
     readings: z.array(readingSchema).default([]),

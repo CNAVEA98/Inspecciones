@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { PhotoField } from "./photo-field";
-import type { TemplateItem, VerificationValue, Estado } from "@/lib/templates/schema";
+import { ESTADOS_INSPECCION, type TemplateItem, type VerificationValue, type Estado } from "@/lib/templates/schema";
 import { SEVERIDADES, type Severity } from "@/lib/tecnico/draft";
 
 const ESTADOS: { code: Estado; word: string; on: string }[] = [
@@ -11,7 +11,23 @@ const ESTADOS: { code: Estado; word: string; on: string }[] = [
   { code: "NT", word: "No tiene", on: "bg-[#6a6d70]" },
   { code: "NA", word: "No aplica", on: "bg-[#8a6d00]" },
   { code: "NR", word: "No realizada", on: "bg-[#8a4b1d]" },
+  { code: "RL", word: "Realizado", on: "bg-ok" },
+  { code: "RMP", word: "Reemplazado", on: "bg-[#1f5f8a]" },
+  { code: "SI", word: "Sí", on: "bg-ok" },
+  { code: "NO", word: "No", on: "bg-[#6a6d70]" },
 ];
+
+/** Columnas de la botonera según cuántos estados se ofrecen (clases literales para que Tailwind las genere). */
+const COLUMNAS: Record<number, string> = {
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+  5: "grid-cols-5",
+  6: "grid-cols-3",
+  7: "grid-cols-4",
+  8: "grid-cols-4",
+  9: "grid-cols-3",
+};
 
 const campo =
   "min-h-14 w-full rounded-xl border-[1.5px] border-[#8f897e] bg-white px-4 text-lg text-graf focus:border-cu focus:outline-3 focus:outline-offset-1 focus:outline-cu/40";
@@ -19,6 +35,8 @@ const campo =
 export interface ItemFieldProps {
   item: TemplateItem;
   index: number;
+  /** Estados que se ofrecen en un ítem de verificación (si falta, los de inspección). */
+  estados?: readonly Estado[];
   inspectionId: string;
   value: unknown;
   severity?: Severity;
@@ -122,16 +140,22 @@ function Verificacion({
   onChange,
   severity,
   onSeverity,
+  estados,
 }: ItemFieldProps & { item: Extract<TemplateItem, { type: "verificacion" }>; value: Partial<VerificationValue> | undefined }) {
   const v = value ?? {};
   const set = (patch: Partial<VerificationValue>) => onChange({ ...v, ...patch });
   const critico = v.estado === "ML";
-  const necesitaMotivo = v.estado === "NR";
+  const necesitaMotivo = v.estado === "NR" || v.estado === "RMP";
+  const ofrecidos = (estados ?? ESTADOS_INSPECCION).flatMap((c) => ESTADOS.filter((e) => e.code === c));
 
   return (
     <div className="flex flex-col gap-4">
-      <div role="group" aria-label={`Estado: ${item.label}`} className="grid grid-cols-5 gap-1.5">
-        {ESTADOS.map((e) => {
+      <div
+        role="group"
+        aria-label={`Estado: ${item.label}`}
+        className={`grid ${COLUMNAS[ofrecidos.length] ?? "grid-cols-4"} gap-1.5`}
+      >
+        {ofrecidos.map((e) => {
           const activo = v.estado === e.code;
           return (
             <button

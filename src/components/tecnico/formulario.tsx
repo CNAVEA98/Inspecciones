@@ -11,7 +11,7 @@ import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
 import { enqueueSubmission } from "@/lib/offline/outbox";
 import type { DraftRecord } from "@/lib/offline/db";
-import type { FormTemplateSchema } from "@/lib/templates/schema";
+import { estadoPorDefecto, type FormTemplateSchema } from "@/lib/templates/schema";
 import {
   META,
   allItems,
@@ -275,6 +275,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
                   index={n}
                   inspectionId={id}
                   value={draft.answers[item.id]}
+                  estados={item.type === "verificacion" ? (item.estados ?? template.estados) : undefined}
                   severity={draft.findings.find((f) => f.item_key === item.id)?.severity}
                   onChange={(v) => setAnswer(item.id, v)}
                   onSeverity={(s) => setSeverity(item.id, s)}
@@ -289,7 +290,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
                     const answers = { ...d.answers };
                     for (const i of secciones[paso - 1].items) {
                       if (i.type === "verificacion" && !(answers[i.id] as { estado?: string } | undefined)?.estado) {
-                        answers[i.id] = { ...(answers[i.id] as object), estado: "BN" };
+                        answers[i.id] = { ...(answers[i.id] as object), estado: estadoPorDefecto(i.estados ?? template.estados) };
                       }
                     }
                     return { ...d, answers };
@@ -297,7 +298,13 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 }
                 className="min-h-14 rounded-xl border-[1.5px] border-cu bg-white px-5 text-base font-semibold text-[#9a4519] hover:bg-cu-soft"
               >
-                Marcar pendientes de esta sección como BN
+                Marcar pendientes de esta sección como{" "}
+                {estadoPorDefecto(
+                  (() => {
+                    const v = secciones[paso - 1].items.find((i) => i.type === "verificacion");
+                    return v && v.type === "verificacion" ? (v.estados ?? template.estados) : undefined;
+                  })(),
+                )}
               </button>
             ) : null}
           </div>

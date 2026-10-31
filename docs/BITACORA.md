@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · «Equipos con fallas»: el filtro de área lista todas las áreas
+- **Autor:** Cristóbal (con Claude) · rama `feat/fallas-seguimiento` (sin push)
+- **Qué se hizo:** el filtro «Área» solo mostraba las áreas que ya tenían hallazgos (con los datos de prueba, solo Chacay). Ahora lista siempre las del catálogo, en su orden (Chacay, Mina, Mauro, Puerto, Valle), y suma cualquier área con hallazgos que ya no figure en el catálogo.
+- **Archivos:** `src/lib/revision/queries.ts` (`listarAreas`), `src/components/revision/fallas-equipos.tsx`
+- **Verificación:** lint, tsc y 170 tests en verde; en Chrome con la app local, el desplegable muestra Todas, Chacay, Mina, Mauro, Puerto y Valle. Build no repetido (cambio de una consulta y un desplegable).
+- **Pendiente / riesgos:** ninguno propio; elegir un área sin hallazgos muestra la lista vacía, como corresponde.
+
 ### 2026-10-31 · Equipos con fallas y seguimiento de hallazgos (aviso subsecuente SAP / canalizado con MLP)
 - **Autor:** Cristóbal (con Claude) · rama `feat/fallas-seguimiento` (sale de `fix/ux-terreno-tecnico`; sin push)
 - **Qué se hizo:** a pedido de MLP, cada hallazgo («Malo») puede tener seguimiento de la Supervisión **sin bloquear las firmas**: con alcance Bbosch 23 kV se anota el **N.º de aviso subsecuente** de SAP (lo crea el supervisor en paralelo; la inspección firmada es la evidencia en la OT padre y el informe de mejora de la condición se trabaja aparte, fuera de la app); con alcance «terceros» (extintores, plagas, accesos…) se registra que se **canalizó con MLP** (a quién, cuándo, medio). Nueva pestaña **«Equipos con fallas»** (supervisor, programador y administrador): hallazgos agrupados por equipo y ordenados por severidad (crítica a baja), con filtros de severidad, área y gestión (por defecto, pendientes) y enlace a la inspección. En el detalle de cada inspección, el supervisor y el administrador gestionan cada hallazgo (también con la inspección ya aprobada) y pueden **copiar una ficha para SAP** con los campos del aviso de calidad (Boletín 21: TAG, OT padre, texto breve de 40 caracteres, Circunstancias, prioridad sugerida, autor de 12 caracteres, anexo PDF). El PDF agrega una línea de trazabilidad bajo cada hallazgo ya gestionado.

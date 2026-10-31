@@ -11,7 +11,7 @@ import {
   type FiltroFallas,
   type Severidad,
 } from "@/lib/revision/fallas";
-import { listarFallas } from "@/lib/revision/queries";
+import { listarAreas, listarFallas } from "@/lib/revision/queries";
 
 export const CHIP_SEVERIDAD: Record<Severidad, string> = {
   critica: "bg-bad text-white",
@@ -41,12 +41,13 @@ export async function FallasEquipos({
   filtro: FiltroFallas;
   puedeGestionar: boolean;
 }) {
-  const todos = await listarFallas();
+  const [todos, areasCatalogo] = await Promise.all([listarFallas(), listarAreas()]);
   const abiertosPorSeveridad = (s: Severidad) =>
     filtrarFallas(todos, { gestion: filtro.gestion, severidad: s, area: filtro.area }).length;
   const visibles = filtrarFallas(todos, filtro);
   const equipos = agruparPorEquipo(visibles);
-  const areas = [...new Set(todos.map((h) => h.area))].sort();
+  // Todas las áreas del catálogo, no solo las que hoy tienen hallazgos; se suma cualquier área con hallazgos que ya no esté.
+  const areas = [...new Set([...areasCatalogo, ...todos.map((h) => h.area)])];
   const url = `${base}/fallas`;
 
   return (

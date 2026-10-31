@@ -83,6 +83,14 @@ const aSeguimiento = (r: { scope: unknown; sap_notice: unknown; channel_note: un
   channelNote: (r.channel_note as string | null) ?? null,
 });
 
+/** Áreas del catálogo en su orden (Chacay, Mina, Mauro, Puerto, Valle…), tengan o no hallazgos. */
+export async function listarAreas(): Promise<string[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("areas").select("name").order("sort");
+  if (error) throw new Error(`No se pudieron cargar las áreas: ${error.message}`);
+  return (data ?? []).map((a) => a.name as string);
+}
+
 const ESTADOS_CON_HALLAZGOS = ["submitted", "supervisor_signed", "approved"];
 const LOTE = 100;
 

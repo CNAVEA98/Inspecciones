@@ -146,7 +146,7 @@ export const FORMATOS: Formato[] = [
   f("MANT", 6, "Reconectador", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "mant_reconectador", modo: "mantenimiento_programado" } }),
   f("MANT", 7, "Switchgear Sala 12 23 kV", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_12", modo: "mantenimiento_programado" } }),
   f("MANT", 8, "Switchgear Estaciones 23 kV", "F1", "MI", ["SG"], { porConfirmar: true, disponible: { tipoEquipo: "mant_switchgear_estaciones", modo: "mantenimiento_programado" } }),
-  f("MANT", 9, "Switchgear Sala 1 y Sala 12", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_1_y_12", modo: "mantenimiento_programado" } }),
+  f("MANT", 9, "Switchgear Sala 1", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_1_y_12", modo: "mantenimiento_programado" } }),
   f("MANT", 10, "Switchgear SE El Mauro 23 kV", "F1", "MA", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_mauro", modo: "mantenimiento_programado" } }),
   f("MANT", 11, "Transformador Aéreo", "F3", "T", ["XF"], { disponible: { tipoEquipo: "mant_transformador_aereo", modo: "mantenimiento_programado" } }),
   f("MANT", 12, "Filtro Armónico Chancado", "F6", "MI", ["HF"], { disponible: { tipoEquipo: "mant_filtro_chancado", modo: "mantenimiento_programado" } }),

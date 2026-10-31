@@ -35,7 +35,7 @@ values ('mant_switchgear_estaciones', 'Mantención · Switchgear estaciones 23 k
 on conflict (code) do nothing;
 
 insert into public.equipment_types (code, name, sort)
-values ('mant_switchgear_sala_1_y_12', 'Mantención · Switchgear sala 1 y sala 12', 28)
+values ('mant_switchgear_sala_1_y_12', 'Mantención · Switchgear sala 1', 28)
 on conflict (code) do nothing;
 
 insert into public.equipment_types (code, name, sort)
@@ -3488,11 +3488,11 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_switchgear_estaciones' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-09 · EST-ELEC-MANT-MLP-BBOSCH-09 · Mantención Switchgear 23 Kv Sala 1 y 12 (113 ítems)
+-- MANT-09 · EST-ELEC-MANT-MLP-BBOSCH-09 · Mantención Switchgear 23 Kv Sala 1 (113 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
-  "title": "Mantención Switchgear 23 Kv Sala 1 y 12",
+  "title": "Mantención Switchgear 23 Kv Sala 1",
   "meta": {
     "norma": "EST-ELEC-MANT-MLP-BBOSCH-09",
     "revision": "Junio 2026",
@@ -4015,96 +4015,6 @@ select et.id, wm.id, 1, 'published', $tpl$
           "id": "item_074",
           "type": "number",
           "label": "Interruptor 52-41 (1200 A · serie 98040217 · IN 1 - 39): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        }
-      ]
-    },
-    {
-      "id": "interruptores_sala_electrica_1_2",
-      "title": "Interruptores Sala Eléctrica 12",
-      "items": [
-        {
-          "id": "item_075",
-          "type": "number",
-          "label": "Interruptor 52-1 (1200 A · serie 98050240 · IN 12 - 01): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_076",
-          "type": "number",
-          "label": "Interruptor 52-2 (1200 A · serie 98070287 · IN 12 - 02): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_077",
-          "type": "number",
-          "label": "Interruptor 52-3 (1200 A · serie 98050241 · IN 12 - 03): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_078",
-          "type": "number",
-          "label": "Interruptor 52-4 (1200 A · serie 98070289 · IN 12 - 04): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_079",
-          "type": "number",
-          "label": "Interruptor 52-5 (1200 A · serie 5102050 · IN 12 - 05): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_080",
-          "type": "number",
-          "label": "Interruptor 52-6 (1200 A · serie 98050229 · IN 12 - 06): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_081",
-          "type": "number",
-          "label": "Interruptor 52-7 (1200 A · serie 98050235 · IN 12 - 07): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_082",
-          "type": "number",
-          "label": "Interruptor 52-8 (1200 A · serie 98040218 · IN 12 - 08): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_083",
-          "type": "number",
-          "label": "Interruptor 52-9 (1200 A · serie 98050238 · IN 12 - 09): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_084",
-          "type": "number",
-          "label": "Interruptor 52-10 (1200 A · serie 98050233 · IN 12 - 10): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_085",
-          "type": "number",
-          "label": "Interruptor 52-11 (1200 A · serie 98070288 · IN 12 - 11): N° de operaciones",
-          "required": false,
-          "unit": "operaciones"
-        },
-        {
-          "id": "item_086",
-          "type": "number",
-          "label": "Interruptor 52-12 (1200 A · serie 140101026 · IN 12 - 12): N° de operaciones",
           "required": false,
           "unit": "operaciones"
         }

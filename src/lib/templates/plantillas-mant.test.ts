@@ -30,7 +30,7 @@ const ESPERADO: Record<string, { mant: string; items: number; estados: "A" | "B"
   mant_reconectador: { mant: "MANT-06", items: 21, estados: "inspeccion" },
   mant_switchgear_sala_12: { mant: "MANT-07", items: 57, estados: "B" },
   mant_switchgear_estaciones: { mant: "MANT-08", items: 58, estados: "B" },
-  mant_switchgear_sala_1_y_12: { mant: "MANT-09", items: 113, estados: "B" },
+  mant_switchgear_sala_1_y_12: { mant: "MANT-09", items: 101, estados: "B" },
   mant_switchgear_mauro: { mant: "MANT-10", items: 58, estados: "B" },
   mant_transformador_aereo: { mant: "MANT-11", items: 17, estados: "B" },
   mant_filtro_chancado: { mant: "MANT-12", items: 56, estados: "B" },
@@ -98,15 +98,15 @@ describe("plantillas de mantención (seed_plantillas_mant.sql)", () => {
       items(plantilla(tipo)).filter((i) => i.type === "nameplate" && i.label.startsWith("Protocolo de torque"));
     expect(torque("mant_switchgear_sala_12")).toHaveLength(12);
     expect(torque("mant_switchgear_estaciones")).toHaveLength(14);
-    expect(torque("mant_switchgear_sala_1_y_12")).toHaveLength(26); // ítems 1–14 y 30–41 que quedaron en el Word
+    expect(torque("mant_switchgear_sala_1_y_12")).toHaveLength(26); // ítems 1–14 y 30–41 que quedaron en el Word (por confirmar con la sala 1)
     expect(torque("mant_switchgear_mauro")).toHaveLength(14);
     const fila = torque("mant_switchgear_sala_12")[0];
     if (fila.type !== "nameplate") throw new Error("ficha de torque");
     expect(fila.fields.map((f) => f.key)).toEqual(["cubiculo", "revision", "torque", "f1", "f2", "f3", "pernos", "observaciones"]);
     expect(fila.fields.find((f) => f.key === "torque")?.unit).toBe("Nm");
-    // Sala 12: 12 circuitos con su N° de operaciones; Sala 1 + Sala 12 de MANT-09: 39 + 12
+    // Sala 12: 12 circuitos con su N° de operaciones; MANT-09 solo trae la sala 1: 39 (la sala 12 es MANT-07)
     expect(items(plantilla("mant_switchgear_sala_12")).filter((i) => i.type === "number")).toHaveLength(12);
-    expect(items(plantilla("mant_switchgear_sala_1_y_12")).filter((i) => i.type === "number")).toHaveLength(51);
+    expect(items(plantilla("mant_switchgear_sala_1_y_12")).filter((i) => i.type === "number")).toHaveLength(39);
   });
 
   it("los filtros armónicos preguntan el estado (Bueno/Malo) y si se realizó mantención (Sí/No) por componente", () => {

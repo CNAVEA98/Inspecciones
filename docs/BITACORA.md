@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Skills de React y de interfaz instaladas y auditoría de solo lectura del técnico
+- **Autor:** Cristóbal (con Claude) · rama `chore/skills-react-best-practices`
+- **Qué se hizo:** se copiaron al proyecto las skills `react-best-practices` (70 reglas de rendimiento de Vercel para React/Next) y `web-design-guidelines` (revisión de interfaz; baja las reglas de GitHub en cada uso) desde `agent-skills-main`, para que las use todo el equipo. Con ellas se auditó, sin cambiar código, `src/components/tecnico/` (5 archivos) y se dejó el informe.
+- **Archivos:** `.claude/skills/react-best-practices/`, `.claude/skills/web-design-guidelines/`, `docs/AUDITORIA_REACT_UI_TECNICO.md`
+- **Verificación:** lint, tsc, 150 tests (18 archivos) y build en verde (2026-10-31). La auditoría es por lectura de código; no se midió rendimiento ni se probó en teléfono.
+- **Pendiente / riesgos:** los hallazgos no están aplicados (ver el informe; los de más valor en terreno: botón «Quitar foto» de 24 px, acciones destructivas sin confirmar, texto de 11 px). No se auditaron `tecnico-provider`, `nueva-inspeccion`, `tarjeta-borrador`, `sync-indicator`, `signature-field` ni el área del supervisor. `web-design-guidelines` necesita internet al usarla. Las skills no reemplazan `docs/DESIGN.md` ni `AGENTS.md`: si chocan con la documentación de Next 16 o con el sistema «Cobre», mandan estos.
+
 ### 2026-10-31 · Inicio del técnico rediseñado, logo nuevo y nombre «Inspección Eléctrica Bbosch-MLP»
 - **Autor:** Manuel (con Claude) · rama `feat/plantillas-mantenciones`
 - **Qué se hizo:** (1) Logo nuevo de Bbosch (solo la palabra, sin la frase) en la portada y en el encabezado del técnico, sin pastilla blanca. (2) Inicio del técnico rediseñado: encabezado con logo, «Salir», «Técnico · Turno A/B» (turno de la cuenta) e indicador de sincronización, borde cobre; botón «Nuevo Standard» (antes «Nueva inspección») con ícono; tres recuadros **Enviadas / Aceptadas / Rechazadas** (Rechazadas en tono cobre si hay); lista vacía con título y ayuda. (3) El nombre de la app pasa a «Inspección Eléctrica Bbosch-MLP» en la portada, el encabezado de supervisor/planificador/administrador, el título general y el manifest. (4) Manuel renombró la familia F2 a «Salas eléctricas y túnel de cables» en el catálogo.

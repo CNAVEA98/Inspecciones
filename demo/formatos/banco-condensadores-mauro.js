@@ -1,9 +1,9 @@
-// Formato EST-ELEC-INSP-MLP-STN-02 · Origen: docs/formatos/EST-ELEC-INSP-MLP-STN-02_INSPECCION BANCO CONDENSADORES MAURO (ASÍ QUEDA).docx
+// Formato EST-ELEC-INSP-MLP-Bbosch-02 · Origen: docs/formatos/inspecciones/INSP-02 Banco de Condensadores Mauro.docx
 const ABIERTO_CERRADO = ["Abierto", "Cerrado"];
 window.FORMATO = {
   id: "banco-condensadores-mauro",
   nombre: "Insp. Banco de Condensadores Mauro",
-  norma: "EST-ELEC-INSP-MLP-STN-02",
+  norma: "EST-ELEC-INSP-MLP-Bbosch-02",
   revision: "Agosto 2025",
   titulo: "Inspección Banco de Condensadores Mauro",
   cabecera: [

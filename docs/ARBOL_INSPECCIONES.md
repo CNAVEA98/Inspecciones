@@ -62,7 +62,7 @@ Transversales, a habilitar donde existan: 01 desconectador, 05 y 34 reconectador
 - Un mismo tipo de equipo en distintos sitios **no es el mismo formulario**: switchgear 23 kV 32 % a 77 % de líneas iguales; pruebas de generadores 53 % a 69 %; banco de condensadores 17 %. Por eso existe el nivel «Variante».
 - Hay tres formas de inspección: un equipo con TAG (la mayoría), varios equipos en una visita (pruebas de generadores 03, 18, 24, 40) y tramo o circuito sin TAG (11, 15, 19). El esquema actual solo cubre la primera.
 - Falta el n.º 36; el 34 está duplicado en `.doc` y `.docx`; el 41 se titula «740-ER-5002» pero su archivo dice 741-ER-5002.
-- Los formatos 01 a 03 usan código `Bbosch` y el resto `STN`; falta definir el número BBOSCH definitivo de cada uno.
+- Todos los formatos usan el código `Bbosch` (antes los 04 en adelante decían `STN`, el contratista anterior); falta definir el número BBOSCH definitivo de cada uno.
 - Los formatos 16, 24, 31 y 32 son cuatro formatos distintos de grupo generador (6 % a 22 % iguales entre sí).
 
 ## Pendientes de decisión

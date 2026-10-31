@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Se repone la fila «Participantes» en INSP-19 e INSP-20 (Word)
+- **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
+- **Qué se hizo:** INSP-19 e INSP-20 habían perdido la fila «Participantes» con el primer cambio de firmas (y se guardaron en Word después). Con ambos cerrados, se les agregó la fila antes de «Encargado…», con su espacio y **sin celda de firma** («Participantes de la tarea:» en INSP-19, «Participantes:» en INSP-20), tomada del respaldo con las mismas medidas de celda y sin las marcas `##…##`. Se conservan las ediciones de Manuel (la copia previa quedó en el scratchpad de la sesión, fuera del repositorio).
+- **Archivos:** `Bases de datos generales\Formatos BBOSCH\Inspeciones\INSP-19 …docx` e `INSP-20 …docx` (fuera del repositorio; estos dos formatos aún no están en `docs/formatos/inspecciones`).
+- **Verificación:** el XML es válido y las tablas quedan con 7 y 9 filas: Participantes, Encargado, Supervisor Bbosch y Planificador Bbosch. **No verificado:** el aspecto al abrirlos en Word.
+- **Pendiente / riesgos:** INSP-18 se dejó como lo editó Manuel; los 3 `.doc` antiguos siguen sin convertir.
+
 ### 2026-10-31 · Corrección: los participantes se siguen anotando, pero ya no firman
 - **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
 - **Qué se hizo:** la entrada anterior («Firman solo el encargado…») había **quitado por completo** «Participantes» (campo, firma y fila del Word), y lo pedido era conservar el espacio para anotarlos y solo quitar su firma. Se corrigió: **App:** el cierre del formulario vuelve a tener «Participantes (opcional)» (texto libre; no se exige y no lleva firma); se envía como respuesta `_lista_participantes` y se muestra en el detalle de supervisión y en los datos del informe PDF solo si se anotó; también se copia al corregir una inspección rechazada. La única firma del técnico sigue siendo la del encargado de la actividad. **Word:** en los formatos se restituyó la fila «Participantes» con su espacio y **sin la celda de firma** (la celda de «Firma» queda vacía; los «Cargo» se dejaron), y se mantienen los firmantes «Supervisor Bbosch:» y «Planificador Bbosch:». Se partió del respaldo (que aún tenía «Participantes») para no perder nada.

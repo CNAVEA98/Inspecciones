@@ -126,6 +126,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-10-31 · Decisión: `Insp_Relés…doc` se descarta y se conserva INSP-34; Manuel revisa las mantenciones
+- **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
+- **Qué se decidió:** el archivo suelto `Bases de datos generales\Inspeciones\Insp_Relés de proteccion y controladores de reconectadores.doc` era una versión antigua y sin número de INSP-34; **se conserva solo `INSP-34 …docx`** y el `.doc` no se convierte ni se corrige. No se borró el archivo (borrar requiere confirmación). Quedan 2 `.doc` por convertir, ambos mantenciones: **MANT-18** (`Celda de Piso 23 kV`) y **MANT-19** (`Prueba de Instrumentos Transformador Principal`); cuando Manuel los revise hay que guardarlos como `.docx` y aplicarles logo de BBOSCH, «STN» → «Bbosch», el bloque de firmantes estándar y la limpieza de marcas `##`. Manuel empieza a revisar las mantenciones (MANT-01 a 20): no se modifican esos archivos mientras tanto.
+- **Archivos:** ninguno del repositorio (solo esta bitácora).
+- **Verificación:** no aplica (decisión).
+- **Pendiente / riesgos:** el `.doc` descartado sigue en la carpeta.
+
 ### 2026-10-31 · Word INSP-24 a 41: se quitan las marcas de relleno ##…##
 - **Autor:** Manuel (con Claude) · rama `feat/firmas-sin-participantes`
 - **Qué se hizo:** los 17 formatos INSP-24 a 41 (no existe el 36) traían las marcas de la plantilla de relleno automático (`##nombre_parque_de_generacion##`, `##fecha##`, `##foto_1##`…). Se quitaron **todas (1.407)**, junto con el espacio que las precedía («Fecha: ##fecha##» queda «Fecha:»; las celdas que solo tenían una marca quedan vacías), incluso las que Word había partido en varios trozos de texto. No se tocó ninguna otra cosa: ni textos, ni imágenes, ni filas ni tablas (las galerías y los títulos siguen como estaban hasta que Manuel los revise).

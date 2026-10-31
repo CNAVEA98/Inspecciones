@@ -11,10 +11,16 @@ describe("catálogo de formatos", () => {
     expect(new Set(ids(FORMATOS)).size).toBe(60);
   });
 
-  it("solo INSP-12 está disponible y apunta a su plantilla", () => {
-    const disponibles = FORMATOS.filter((x) => x.estado === "disponible");
-    expect(ids(disponibles)).toEqual(["INSP-12"]);
-    expect(disponibles[0].plantilla).toEqual({ tipoEquipo: "transformador_piso", modo: "plan_matriz" });
+  it("los 40 INSP (01 a 41, sin 36) están disponibles y cada uno apunta a su propia plantilla", () => {
+    const disponibles = FORMATOS.filter((x) => x.tipo === "INSP" && x.estado === "disponible");
+    expect(disponibles).toHaveLength(40);
+    expect(ids(disponibles).slice(0, 3)).toEqual(["INSP-01", "INSP-02", "INSP-03"]);
+    expect(ids(disponibles)).not.toContain("INSP-36");
+    expect(formatoPorId("INSP-12")?.plantilla).toEqual({ tipoEquipo: "transformador_piso", modo: "plan_matriz" });
+    expect(formatoPorId("INSP-05")?.plantilla).toEqual({ tipoEquipo: "reconectador", modo: "plan_matriz" });
+    // La plantilla se busca por tipo de equipo × modo: no puede haber dos formatos con la misma.
+    const claves = disponibles.map((x) => `${x.plantilla!.tipoEquipo}/${x.plantilla!.modo}`);
+    expect(new Set(claves).size).toBe(disponibles.length);
   });
 
   it("Mauro → Mantención: 5 familias y 11 formatos, sin MANT-07/09 ni filtros de otras áreas", () => {

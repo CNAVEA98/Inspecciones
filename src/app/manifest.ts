@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Inspecciones MLP",
+    name: "Inspección Eléctrica Bbosch-MLP",
     short_name: "Inspecciones",
     description: "Inspecciones de terreno de infraestructura eléctrica",
     lang: "es-CL",

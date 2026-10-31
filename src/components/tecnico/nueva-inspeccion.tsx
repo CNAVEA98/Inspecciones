@@ -23,7 +23,7 @@ const PASOS: Paso[] = ["area", "trabajo", "familia", "formato"];
 const TITULO: Record<Paso, string> = {
   area: "¿En qué área está?",
   trabajo: "¿Qué tipo de trabajo es?",
-  familia: "¿Qué familia de equipo?",
+  familia: "¿Qué equipo?",
   formato: "¿Qué formato va a llenar?",
 };
 

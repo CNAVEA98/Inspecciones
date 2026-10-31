@@ -101,6 +101,13 @@ describe("armarInforme", () => {
     expect(r.specs.find((s) => s.label === "Cuenta de envío")?.valor).toBe("Técnico Turno A · Turno A");
   });
 
+  it("muestra los participantes (si se anotaron) como dato, sin firma", () => {
+    expect(armarInforme(detalle()).specs.some((s) => s.label === "Participantes")).toBe(false);
+    const r = armarInforme(detalle({ respuestas: { ...detalle().respuestas, _lista_participantes: "Ana Pérez, Luis Soto" } }));
+    expect(r.specs.find((s) => s.label === "Participantes")?.valor).toBe("Ana Pérez, Luis Soto");
+    expect(r.firmas.some((f) => /participante/i.test(f.rol))).toBe(false);
+  });
+
   it("formatea fecha y horario de Chile", () => {
     const r = armarInforme(detalle());
     expect(r.fecha).toBe("17-10-2026");
@@ -111,10 +118,10 @@ describe("armarInforme", () => {
   it("relaciona las firmas por rol: supervisor firmado, planificador pendiente", () => {
     const r = armarInforme(detalle());
     const por = (rol: string) => r.firmas.find((f) => f.rol === rol)!;
-    expect(por("Participantes").imagenUrl).toBe("http://x/firma.png");
+    expect(r.firmas.map((f) => f.rol)).toEqual(["Encargado de la actividad", "Supervisor Bbosch", "Planificador Bbosch"]);
+    expect(por("Encargado de la actividad")).toMatchObject({ nombre: "Pedro Soto", imagenUrl: "http://x/firma.png" });
     expect(por("Supervisor Bbosch")).toMatchObject({ nombre: "Supervisor Turno B", imagenUrl: "http://x/sup.png", detalle: "Conforme" });
     expect(por("Planificador Bbosch")).toMatchObject({ nombre: "", imagenUrl: null });
-    expect(por("Encargado de la actividad").nombre).toBe("Pedro Soto");
   });
 
   it("marca el rechazo en el detalle de la firma", () => {

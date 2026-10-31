@@ -2,7 +2,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { DraftRecord, MlpDB } from "@/lib/offline/db";
 import type { FormTemplateSchema, VerificationValue } from "@/lib/templates/schema";
 import type { InspectionStatus } from "@/lib/revision/estado";
-import { META, allItems, newDraft, type Participantes } from "./draft";
+import { CLAVE_REPETICIONES, expandirPlantilla, leerRepeticiones } from "@/lib/templates/repetir";
+import { META, allItems, newDraft } from "./draft";
 import { hoyIso } from "@/lib/fecha";
 
 /** Inspección ya enviada, tal como la ve el técnico dueño (RLS: solo las suyas). */
@@ -67,8 +68,8 @@ export async function cargarEnviadas(
 
 /**
  * Borrador nuevo a partir de una inspección rechazada. Una inspección rechazada es definitiva: la corrección
- * se envía como inspección nueva (otro folio). Se copian cabecera, respuestas y hallazgos; las fotos y la firma
- * del participante NO se copian (viven en el servidor, no en este equipo) y hay que volver a tomarlas.
+ * se envía como inspección nueva (otro folio). Se copian cabecera, respuestas, hallazgos y los nombres de los firmantes;
+ * las fotos y la firma del encargado NO se copian (viven en el servidor, no en este equipo) y hay que volver a tomarlas.
  */
 export function borradorDeCorreccion(input: {
   userId: string;
@@ -93,7 +94,9 @@ export function borradorDeCorreccion(input: {
     fecha: hoyIso(),
   };
 
-  for (const item of allItems(template)) {
+  const repeticiones = leerRepeticiones(porClave.get(CLAVE_REPETICIONES));
+  if (Object.keys(repeticiones).length) draft.answers[META.repeticiones] = repeticiones;
+  for (const item of allItems(expandirPlantilla(template, repeticiones))) {
     const v = porClave.get(item.id);
     if (v === undefined) continue;
     if (item.type === "verificacion") {
@@ -116,12 +119,10 @@ export function borradorDeCorreccion(input: {
     }
   }
 
-  for (const key of [META.ejecutor, META.diagnostico, META.roles]) {
+  for (const key of [META.ejecutor, META.diagnostico, META.roles, META.participantes]) {
     const v = porClave.get(key);
     if (v !== undefined) draft.answers[key] = v;
   }
-  const part = porClave.get(META.participantes) as Participantes | undefined;
-  if (part) draft.answers[META.participantes] = { nombres: part.nombres };
 
   draft.correccion = {
     de: rechazada.id,

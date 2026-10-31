@@ -20,7 +20,8 @@ function completo(): DraftRecord {
   d.header.tag = "740XF001";
   for (const item of allItems(template)) d.answers[item.id] = { estado: "BN" };
   d.answers[META.ejecutor] = "Pedro Soto";
-  d.answers[META.participantes] = { nombres: "Manuel Aguilar", firmaId: FIRMA, firmaDataUrl: "data:image/png;base64,AA" };
+  d.answers[META.roles] = { "Encargado de la actividad": "Manuel Aguilar", "Supervisor Bbosch": "", "Planificador Bbosch": "" };
+  d.answers[META.firmaEncargado] = { firmaId: FIRMA, firmaDataUrl: "data:image/png;base64,AA" };
   return d;
 }
 
@@ -69,12 +70,32 @@ describe("validateDraft", () => {
     expect(msgs).toContain("Falta el nombre de quien realiza la inspección");
   });
 
-  it("exige firma y nombre del participante", () => {
+  it("exige el nombre y la firma del encargado de la actividad, y ya no pide participantes", () => {
     const d = completo();
-    d.answers[META.participantes] = { nombres: "" };
+    d.answers[META.roles] = {};
+    d.answers[META.firmaEncargado] = {};
     const msgs = validateDraft(d, template).map((i) => i.message);
-    expect(msgs).toContain("Falta el nombre de los participantes");
-    expect(msgs).toContain("Falta la firma del participante");
+    expect(msgs).toContain("Falta el nombre del encargado de la actividad");
+    expect(msgs).toContain("Falta la firma del encargado de la actividad");
+    expect(msgs.join(" ")).not.toMatch(/participante/i);
+  });
+
+  it("los participantes son opcionales, no firman y viajan como texto si se anotan", () => {
+    const d = completo();
+    expect(validateDraft(d, template)).toEqual([]);
+    expect(buildSubmission(d, template, [foto(FIRMA, "png")]).payload.answers.map((a) => a.item_key)).not.toContain(META.participantes);
+
+    d.answers[META.participantes] = "  Ana Pérez, Luis Soto  ";
+    expect(validateDraft(d, template)).toEqual([]);
+    const { payload } = buildSubmission(d, template, [foto(FIRMA, "png")]);
+    expect(payload.answers.find((a) => a.item_key === META.participantes)?.value).toBe("Ana Pérez, Luis Soto");
+    expect(payload.attachments.filter((a) => a.kind === "participant_signature")).toHaveLength(1); // solo la del encargado
+  });
+
+  it("no pide el nombre del supervisor ni del planificador: firman al revisar", () => {
+    const d = completo();
+    d.answers[META.roles] = { "Encargado de la actividad": "Manuel Aguilar" };
+    expect(validateDraft(d, template)).toEqual([]);
   });
 });
 
@@ -106,10 +127,10 @@ describe("buildSubmission", () => {
     expect(photoIds).toEqual([FOTO, FIRMA]);
     const keys = payload.answers.map((a) => a.item_key);
     expect(keys).toContain(META.header);
-    expect(keys).toContain(META.participantes);
-    // la firma como imagen local no viaja en el payload
-    const part = payload.answers.find((a) => a.item_key === META.participantes)!.value as Record<string, unknown>;
-    expect(part).toEqual({ nombres: "Manuel Aguilar", firmaId: FIRMA });
+    expect(keys).toContain(META.firmaEncargado);
+    // la firma como imagen local no viaja en el payload; el nombre sale del rol «Encargado de la actividad»
+    const firma = payload.answers.find((a) => a.item_key === META.firmaEncargado)!.value as Record<string, unknown>;
+    expect(firma).toEqual({ nombres: "Manuel Aguilar", firmaId: FIRMA });
   });
 
   it("usa severidad media por defecto y genera un id de hallazgo", () => {

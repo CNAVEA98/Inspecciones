@@ -3,6 +3,7 @@ import { formatFechaHora } from "@/lib/fecha";
 import { STATUS_LABEL } from "@/lib/revision/estado";
 import { ETIQUETA_ESTADO, extrasDe, seleccionDeCabecera } from "@/lib/formatos/tags";
 import type { Adjunto, DetalleInspeccion } from "@/lib/revision/queries";
+import { expandirPlantilla } from "@/lib/templates/repetir";
 import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
 
 const ESTADO_NOMBRE: Record<string, string> = {
@@ -98,9 +99,12 @@ export function Detalle({
   const seleccion = seleccionDeCabecera(header);
   const avisoTag = seleccion ? ETIQUETA_ESTADO[seleccion.estado] : null;
   const extras = extrasDe(header);
-  const participantes = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
+  // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
+  const plantilla = d.plantilla ? expandirPlantilla(d.plantilla, d.respuestas._repeticiones) : d.plantilla;
+  const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diagnostico = d.respuestas._diagnostico as { observaciones?: string; consideraciones?: string } | undefined;
-  const firmaParticipante = participantes?.firmaId ? adjuntos.get(participantes.firmaId) : undefined;
+  const participantes = typeof d.respuestas._lista_participantes === "string" ? d.respuestas._lista_participantes.trim() : "";
+  const firmaEncargado = encargado?.firmaId ? adjuntos.get(encargado.firmaId) : undefined;
 
   return (
     <div className="space-y-5">
@@ -176,7 +180,7 @@ export function Detalle({
         </p>
       )}
 
-      {d.plantilla?.sections.map((s) => (
+      {plantilla?.sections.map((s) => (
         <section key={s.id} className="rounded-2xl border border-hair bg-white">
           <h2 className="border-b border-hair px-5 py-3 font-bold">{s.title}</h2>
           <ul>
@@ -197,7 +201,7 @@ export function Detalle({
         ) : (
           <ul className="mt-2 space-y-2">
             {d.hallazgos.map((h) => {
-              const item = d.plantilla?.sections.flatMap((s) => s.items).find((i) => i.id === h.itemKey);
+              const item = plantilla?.sections.flatMap((s) => s.items).find((i) => i.id === h.itemKey);
               return (
                 <li key={h.id} className="rounded-lg bg-cu-soft px-3 py-2 text-sm">
                   <span className="font-semibold">{SEVERIDAD_NOMBRE[h.severity]}</span> · {item?.label ?? h.itemKey}
@@ -220,11 +224,17 @@ export function Detalle({
       )}
 
       <section className="rounded-2xl border border-hair bg-white p-5 text-sm">
-        <h2 className="font-bold">Participantes</h2>
-        <p className="mt-1">{participantes?.nombres || "—"}</p>
-        {firmaParticipante?.url && (
+        {participantes ? (
+          <>
+            <h2 className="font-bold">Participantes</h2>
+            <p className="mb-4 mt-1 whitespace-pre-wrap">{participantes}</p>
+          </>
+        ) : null}
+        <h2 className="font-bold">Encargado de la actividad</h2>
+        <p className="mt-1">{encargado?.nombres?.trim() || d.realizadoPor || "—"}</p>
+        {firmaEncargado?.url && (
           // eslint-disable-next-line @next/next/no-img-element -- URL firmada temporal de Storage
-          <img src={firmaParticipante.url} alt="Firma del participante" className="mt-2 h-20 rounded-lg border border-hair bg-white" />
+          <img src={firmaEncargado.url} alt="Firma del encargado de la actividad" className="mt-2 h-20 rounded-lg border border-hair bg-white" />
         )}
       </section>
 

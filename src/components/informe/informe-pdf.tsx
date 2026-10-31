@@ -33,6 +33,10 @@ const PILL: Record<EstadoVer, { bg: string; fg: string }> = {
   NT: { bg: "#e9ebed", fg: "#4a525a" },
   NA: { bg: "#f4ecce", fg: "#6e5700" },
   NR: { bg: "#f3e1d3", fg: "#7a3d12" },
+  RL: { bg: "#e1f2e8", fg: "#0b6b3a" },
+  RMP: { bg: "#dbe9f4", fg: "#1f4f73" },
+  SI: { bg: "#e1f2e8", fg: "#0b6b3a" },
+  NO: { bg: "#e9ebed", fg: "#4a525a" },
 };
 
 const SEGMENTO: Record<EstadoVer, string> = {
@@ -41,6 +45,10 @@ const SEGMENTO: Record<EstadoVer, string> = {
   NT: "#9aa1a8",
   NA: "#c9a227",
   NR: "#b8651b",
+  RL: "#1d7a46",
+  RMP: "#2f78ad",
+  SI: "#1d7a46",
+  NO: "#9aa1a8",
 };
 
 const MARGEN = 31; // 11 mm
@@ -158,15 +166,15 @@ function Specs({ r }: { r: Informe }) {
 }
 
 function Resumen({ r }: { r: Informe }) {
-  const { cuenta, total, criticos } = r.resumen;
+  const { cuenta, conformes, total, criticos } = r.resumen;
   const presentes = ESTADOS_VER.filter((e) => cuenta[e] > 0);
   return (
     <View wrap={false} style={{ flexDirection: "row", marginHorizontal: MARGEN, marginTop: 14 }}>
       <View style={{ flex: 1.4, paddingRight: 18 }}>
         <Text style={etiqueta}>Resultado de la inspección</Text>
         <View style={{ flexDirection: "row", alignItems: "flex-end", marginTop: 2 }}>
-          <Text style={{ fontFamily: MONO_B, fontSize: 20 }}>{cuenta.BN}</Text>
-          <Text style={{ fontSize: 8.5, color: C.sub, marginLeft: 5, marginBottom: 3 }}>de {total} ítems en buen estado</Text>
+          <Text style={{ fontFamily: MONO_B, fontSize: 20 }}>{conformes}</Text>
+          <Text style={{ fontSize: 8.5, color: C.sub, marginLeft: 5, marginBottom: 3 }}>de {total} ítems conformes</Text>
         </View>
         <View style={{ flexDirection: "row", height: 8, borderRadius: 4, overflow: "hidden", backgroundColor: C.hair, marginTop: 5, marginBottom: 5 }}>
           {presentes.map((e) => (
@@ -309,7 +317,7 @@ function Grupos({ r }: { r: Informe }) {
           <View wrap={false}>
             <View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 3 }}>
               <Text style={{ fontFamily: TEXTO_B, fontSize: 9.5 }}>{g.titulo}</Text>
-              <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.total} BN` : `${g.filas.length} ítems`}</Text>
+              <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.total} conformes` : `${g.filas.length} ítems`}</Text>
             </View>
             {g.filas[0] ? <FilaItem f={g.filas[0]} ultima={g.filas.length === 1} /> : null}
           </View>

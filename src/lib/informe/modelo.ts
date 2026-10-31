@@ -1,10 +1,11 @@
 import { formatFechaHora } from "@/lib/fecha";
 import type { DetalleInspeccion } from "@/lib/revision/queries";
 import { STATUS_LABEL_INFORME } from "@/lib/revision/estado";
-import type { TemplateItem, VerificationValue } from "@/lib/templates/schema";
+import { expandirPlantilla } from "@/lib/templates/repetir";
+import { ESTADOS, ESTADOS_CONFORMES, type Estado, type TemplateItem, type VerificationValue } from "@/lib/templates/schema";
 
-export type EstadoVer = "BN" | "ML" | "NT" | "NA" | "NR";
-export const ESTADOS_VER: readonly EstadoVer[] = ["BN", "ML", "NT", "NA", "NR"];
+export type EstadoVer = Estado;
+export const ESTADOS_VER: readonly EstadoVer[] = ESTADOS;
 
 export interface FilaInforme {
   n: number;
@@ -19,7 +20,7 @@ export interface FilaInforme {
 export interface GrupoInforme {
   titulo: string;
   filas: FilaInforme[];
-  /** Ítems de verificación en BN / total de ítems de verificación del grupo. */
+  /** Ítems de verificación conformes (BN, RL o SI) / total de ítems de verificación del grupo. */
   conformes: number;
   total: number;
 }
@@ -67,6 +68,8 @@ export interface Informe {
   specs: { label: string; valor: string }[];
   resumen: {
     cuenta: Record<EstadoVer, number>;
+    /** Ítems conformes (BN, RL o SI). */
+    conformes: number;
     total: number;
     criticos: { n: number; texto: string; obs: string }[];
   };
@@ -134,9 +137,10 @@ function filaDe(item: TemplateItem, n: number, valor: unknown): FilaInforme {
 
 /** Convierte una inspección leída de la base en el contenido del PDF. Función pura (sin red). */
 export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): Informe {
-  const tpl = d.plantilla;
+  const tpl = d.plantilla ? expandirPlantilla(d.plantilla, d.respuestas._repeticiones) : d.plantilla;
   const header = (d.respuestas._header ?? {}) as Record<string, string>;
-  const part = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
+  // La clave `_participantes` es heredada: hoy guarda la firma del encargado de la actividad.
+  const encargado = d.respuestas._participantes as { nombres?: string; firmaId?: string } | undefined;
   const diag = (d.respuestas._diagnostico ?? {}) as { observaciones?: string; consideraciones?: string };
   const roles = (d.respuestas._roles ?? {}) as Record<string, string>;
   const urlDe = new Map(d.adjuntos.map((a) => [a.id, a.url]));
@@ -151,15 +155,16 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     return {
       titulo: s.title,
       filas,
-      conformes: filas.filter((f) => f.estado === "BN").length,
+      conformes: filas.filter((f) => f.estado !== null && ESTADOS_CONFORMES.includes(f.estado)).length,
       total: ver.length,
     };
   });
 
-  const cuenta: Record<EstadoVer, number> = { BN: 0, ML: 0, NT: 0, NA: 0, NR: 0 };
+  const cuenta = Object.fromEntries(ESTADOS.map((e) => [e, 0])) as Record<EstadoVer, number>;
   const filas = grupos.flatMap((g) => g.filas);
   for (const f of filas) if (f.estado) cuenta[f.estado]++;
   const total = items.filter((it) => it.type === "verificacion").length;
+  const conformes = ESTADOS_CONFORMES.reduce((s, e) => s + cuenta[e], 0);
   const criticos = filas.filter((f) => f.estado === "ML").map((f) => ({ n: f.n, texto: f.texto, obs: f.obs }));
 
   const lecturas = (tpl?.readings ?? []).map((r): LecturaAncha | LecturaChica => {
@@ -176,7 +181,9 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     ...(tpl?.header ?? [])
       .filter((h) => !CABECERA_EN_HERO.has(h.key) && header[h.key])
       .map((h) => ({ label: h.label, valor: h.input === "date" ? fmtFecha(header[h.key]) : header[h.key] })),
-    { label: "Participantes", valor: part?.nombres?.trim() || "—" },
+    ...(typeof d.respuestas._lista_participantes === "string" && d.respuestas._lista_participantes.trim()
+      ? [{ label: "Participantes", valor: d.respuestas._lista_participantes.trim() }]
+      : []),
     { label: "Realizado por", valor: d.realizadoPor },
     { label: "Cuenta de envío", valor: `${d.tecnico}${d.turno ? ` · Turno ${d.turno}` : ""}` },
   ];
@@ -189,18 +196,21 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     return { rol, nombre: f.firmante, fecha: formatFechaHora(f.signedAt), imagenUrl: f.url, detalle };
   };
 
+  // Firman el encargado de la actividad (al enviar), el supervisor y el planificador (al revisar).
+  const tarjetaEncargado = (rol: string): TarjetaFirma => ({
+    rol,
+    nombre: roles[rol]?.trim() || encargado?.nombres?.trim() || d.realizadoPor,
+    fecha: null,
+    imagenUrl: encargado?.firmaId ? (urlDe.get(encargado.firmaId) ?? null) : null,
+    detalle: null,
+  });
+  const rolesPlantilla = tpl?.roles ?? [];
   const firmas: TarjetaFirma[] = [
-    {
-      rol: "Participantes",
-      nombre: part?.nombres?.trim() ?? "",
-      fecha: null,
-      imagenUrl: part?.firmaId ? (urlDe.get(part.firmaId) ?? null) : null,
-      detalle: null,
-    },
-    ...(tpl?.roles ?? []).map((rol): TarjetaFirma => {
+    ...(rolesPlantilla.some((r) => /encargado/i.test(r)) ? [] : [tarjetaEncargado("Encargado de la actividad")]),
+    ...rolesPlantilla.map((rol): TarjetaFirma => {
       if (/supervisor/i.test(rol)) return tarjetaDeEtapa(rol, "supervisor");
       if (/planificador/i.test(rol)) return tarjetaDeEtapa(rol, "planner");
-      return { rol, nombre: roles[rol]?.trim() || d.realizadoPor, fecha: null, imagenUrl: null, detalle: null };
+      return tarjetaEncargado(rol);
     }),
   ];
 
@@ -227,7 +237,7 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     fecha: header.fecha ? fmtFecha(header.fecha) : "—",
     horario: header.h_inicio && header.h_fin ? `${header.h_inicio} – ${header.h_fin}` : "—",
     specs,
-    resumen: { cuenta, total, criticos },
+    resumen: { cuenta, conformes, total, criticos },
     lecturas,
     grupos,
     nomenclatura: tpl?.nomenclature ?? NOMENCLATURA_POR_DEFECTO,

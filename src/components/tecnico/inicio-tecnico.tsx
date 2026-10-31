@@ -84,25 +84,56 @@ export function InicioTecnico() {
 
   const clase = "block rounded-2xl border border-hair bg-white p-4";
 
+  const aceptadas = enviadas.filter((e) => e.status === "approved").length;
+  const rechazadas = enviadas.filter((e) => e.status === "rejected").length;
+  const resumen = [
+    { valor: enviadas.length, texto: "Enviadas", alerta: false },
+    { valor: aceptadas, texto: "Aceptadas", alerta: false },
+    { valor: rechazadas, texto: "Rechazadas", alerta: rechazadas > 0 },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <Link
         href="/tecnico/nueva"
-        className="flex min-h-16 items-center justify-center rounded-2xl bg-graf px-6 text-xl font-semibold text-white transition-transform hover:bg-graf-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-cu active:scale-[0.98]"
+        className="flex min-h-20 items-center gap-4 rounded-2xl bg-graf p-4 text-white transition-transform hover:bg-graf-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-cu active:scale-[0.98]"
       >
-        Nueva inspección
+        <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-cu">
+          <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </span>
+        <span className="flex flex-col">
+          <span className="text-xl font-semibold leading-tight">Nuevo Standard</span>
+          <span className="text-sm text-[#c9d0d6]">Elija área, trabajo y formato</span>
+        </span>
       </Link>
+
+      <ul className="grid grid-cols-3 gap-3" aria-label="Resumen">
+        {resumen.map((r) => (
+          <li
+            key={r.texto}
+            className={`rounded-2xl border p-3 ${r.alerta ? "border-cu bg-cu-soft" : "border-hair bg-white"}`}
+          >
+            <p className="font-mono text-3xl font-semibold leading-none">{r.valor}</p>
+            <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.08em] text-sub">{r.texto}</p>
+          </li>
+        ))}
+      </ul>
 
       <section aria-labelledby="titulo-lista">
         <h1 id="titulo-lista" className="mb-3 text-2xl font-bold tracking-tight">
           Mis inspecciones
         </h1>
         {locales.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[#9a9488] bg-white p-6 text-lg text-sub">
-            {enviadas.length === 0
-              ? "Aún no tiene inspecciones en este equipo. Toque \"Nueva inspección\" para empezar."
-              : "No tiene inspecciones en curso."}
-          </p>
+          <div className="rounded-2xl border border-dashed border-[#9a9488] bg-white p-6 text-center">
+            <p className="text-lg font-semibold">
+              {enviadas.length === 0 ? "Aún no tiene inspecciones en este equipo" : "No tiene inspecciones en curso"}
+            </p>
+            {enviadas.length === 0 ? (
+              <p className="mt-1 text-base text-sub">Toque «Nuevo Standard» para empezar.</p>
+            ) : null}
+          </div>
         ) : (
           <ul className="flex flex-col gap-3">
             {locales.map((d) => {

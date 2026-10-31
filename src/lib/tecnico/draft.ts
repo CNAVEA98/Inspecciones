@@ -1,11 +1,17 @@
 import type { DraftRecord, PhotoRecord, SubmitPayload } from "@/lib/offline/db";
 import type { FormTemplateSchema, TemplateItem, VerificationValue } from "@/lib/templates/schema";
+import { CLAVE_REPETICIONES, expandirPlantilla, expandirSecciones, leerRepeticiones } from "@/lib/templates/repetir";
 import { answerIssues } from "@/lib/templates/validate";
 
 /** Claves de respuestas "meta" (no son ítems de la plantilla). */
 export const META = {
   header: "_header",
-  participantes: "_participantes",
+  /** Firma del encargado de la actividad. La clave es heredada (antes eran los «participantes»): no se cambia para no tocar los registros existentes. */
+  firmaEncargado: "_participantes",
+  /** Nombres de los participantes (texto libre, opcional). Participan pero no firman. */
+  participantes: "_lista_participantes",
+  /** Copias de cada sección repetible (sección → cantidad). */
+  repeticiones: CLAVE_REPETICIONES,
   diagnostico: "_diagnostico",
   roles: "_roles",
   ejecutor: "_ejecutor",
@@ -17,11 +23,30 @@ export const getEjecutor = (answers: Record<string, unknown>): string => {
   return typeof v === "string" ? v : "";
 };
 
-export interface Participantes {
-  nombres: string;
+/** Firma del encargado de la actividad (el técnico que ejecuta). El supervisor y el planificador firman después, al revisar. */
+export interface FirmaEncargado {
+  /** Nombre del encargado; se completa al enviar con el rol «Encargado de la actividad». */
+  nombres?: string;
   firmaId?: string;
   /** Solo local, para volver a dibujar la firma; no se envía. */
   firmaDataUrl?: string;
+}
+
+/** Rol de la plantilla que corresponde al encargado de la actividad («Encargado de la actividad», «Encargado actividad»…). */
+export const rolEncargado = (template: FormTemplateSchema): string | undefined =>
+  template.roles.find((r) => /encargado/i.test(r));
+
+/** Nombres de los participantes escritos en el formulario (vacío si no se anotó ninguno). */
+export function nombresParticipantes(answers: Record<string, unknown>): string {
+  const v = answers[META.participantes];
+  return typeof v === "string" ? v.trim() : "";
+}
+
+/** Nombre escrito para el encargado de la actividad (vacío si la plantilla no tiene ese rol o no se escribió). */
+export function nombreEncargado(answers: Record<string, unknown>, template: FormTemplateSchema): string {
+  const rol = rolEncargado(template);
+  const roles = (answers[META.roles] as Record<string, string> | undefined) ?? {};
+  return rol ? (roles[rol] ?? "").trim() : "";
 }
 
 export interface Diagnostico {
@@ -80,7 +105,7 @@ export interface Issue {
   message: string;
 }
 
-/** Reglas de envío: obligatorios, ML con observación, NR con motivo (foto opcional), firma del participante. */
+/** Reglas de envío: obligatorios, ML con observación, NR con motivo (foto opcional), nombre y firma del encargado de la actividad. */
 export function validateDraft(draft: DraftRecord, template: FormTemplateSchema): Issue[] {
   const issues: Issue[] = [];
 
@@ -94,23 +119,28 @@ export function validateDraft(draft: DraftRecord, template: FormTemplateSchema):
     }
   }
 
-  template.sections.forEach((section, si) => {
+  // Las secciones repetibles se validan copia por copia; `section` es el índice de la sección original (paso del formulario).
+  for (const section of expandirSecciones(template, leerRepeticiones(draft.answers[META.repeticiones]))) {
+    const si = section.origen;
+    const prefijo = section.repetible ? `${section.title} · ` : "";
     for (const item of section.items) {
       const value = draft.answers[item.id];
       const requerido = item.type === "verificacion" || ("required" in item && item.required);
       if (value === undefined || (item.type === "verificacion" && !(value as Partial<VerificationValue>).estado)) {
-        if (requerido) issues.push({ section: si, area: "item", itemId: item.id, message: `Sin responder: ${item.label}` });
+        if (requerido) issues.push({ section: si, area: "item", itemId: item.id, message: `Sin responder: ${prefijo}${item.label}` });
         continue;
       }
       for (const m of answerIssues(item, value)) {
-        issues.push({ section: si, area: "item", itemId: item.id, message: `${item.label} (${m})` });
+        issues.push({ section: si, area: "item", itemId: item.id, message: `${prefijo}${item.label} (${m})` });
       }
     }
-  });
+  }
 
-  const part = draft.answers[META.participantes] as Participantes | undefined;
-  if (!part?.nombres?.trim()) issues.push({ section: null, area: "closing", message: "Falta el nombre de los participantes" });
-  if (!part?.firmaId) issues.push({ section: null, area: "closing", message: "Falta la firma del participante" });
+  if (rolEncargado(template) && !nombreEncargado(draft.answers, template)) {
+    issues.push({ section: null, area: "closing", message: "Falta el nombre del encargado de la actividad" });
+  }
+  const firma = draft.answers[META.firmaEncargado] as FirmaEncargado | undefined;
+  if (!firma?.firmaId) issues.push({ section: null, area: "closing", message: "Falta la firma del encargado de la actividad" });
   return issues;
 }
 
@@ -125,7 +155,8 @@ export function buildSubmission(
   const findings: SubmitPayload["findings"] = [];
   const used = new Map<string, "photo" | "finding_photo" | "participant_signature">();
 
-  for (const item of allItems(template)) {
+  const repeticiones = leerRepeticiones(draft.answers[META.repeticiones]);
+  for (const item of allItems(expandirPlantilla(template, repeticiones))) {
     const value = draft.answers[item.id];
     if (value === undefined) continue;
     answers.push({ item_key: item.id, value });
@@ -148,12 +179,15 @@ export function buildSubmission(
     }
   }
 
+  if (Object.keys(repeticiones).length) answers.push({ item_key: META.repeticiones, value: repeticiones });
   answers.push({ item_key: META.header, value: draft.header });
   answers.push({ item_key: META.ejecutor, value: getEjecutor(draft.answers).trim() });
-  const part = draft.answers[META.participantes] as Participantes | undefined;
-  if (part) {
-    answers.push({ item_key: META.participantes, value: { nombres: part.nombres, firmaId: part.firmaId } });
-    if (part.firmaId) used.set(part.firmaId, "participant_signature");
+  const participantes = nombresParticipantes(draft.answers);
+  if (participantes) answers.push({ item_key: META.participantes, value: participantes });
+  const firma = draft.answers[META.firmaEncargado] as FirmaEncargado | undefined;
+  if (firma?.firmaId) {
+    answers.push({ item_key: META.firmaEncargado, value: { nombres: nombreEncargado(draft.answers, template), firmaId: firma.firmaId } });
+    used.set(firma.firmaId, "participant_signature");
   }
   for (const key of [META.diagnostico, META.roles]) {
     if (draft.answers[key] !== undefined) answers.push({ item_key: key, value: draft.answers[key] });

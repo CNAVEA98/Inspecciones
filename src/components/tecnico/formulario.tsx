@@ -11,15 +11,16 @@ import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
 import { enqueueSubmission } from "@/lib/offline/outbox";
 import type { DraftRecord } from "@/lib/offline/db";
-import type { FormTemplateSchema } from "@/lib/templates/schema";
+import { MAX_REPETICIONES, expandirSecciones, idEnCopia, leerRepeticiones } from "@/lib/templates/repetir";
+import { estadoPorDefecto, type FormTemplateSchema } from "@/lib/templates/schema";
 import {
   META,
-  allItems,
   buildSubmission,
   getEjecutor,
   validateDraft,
   type Diagnostico,
-  type Participantes,
+  type FirmaEncargado,
+  rolEncargado,
   type Severity,
 } from "@/lib/tecnico/draft";
 import { deletePhoto, saveSignature } from "@/lib/tecnico/photos";
@@ -120,6 +121,10 @@ export function Formulario({ id: idInicial }: { id: string }) {
   }
 
   const secciones = template.sections;
+  // Secciones repetibles ya desplegadas (p. ej. «Estructura 1», «Estructura 2»): cada paso muestra sus copias.
+  const reps = leerRepeticiones(draft.answers[META.repeticiones]);
+  const seccionesX = expandirSecciones(template, reps);
+  const itemsX = seccionesX.flatMap((s) => s.items);
   const total = secciones.length + 3; // datos + secciones + cierre + revisar
   const iCierre = secciones.length + 1;
   const iRevisar = secciones.length + 2;
@@ -132,13 +137,36 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const tipoEquipo = catalog.catalog?.equipmentTypes.find((e) => e.id === draft.equipmentTypeId)?.code ?? "";
   const designadores = formato?.designadores ?? DESIGNADORES_POR_TIPO_EQUIPO[tipoEquipo] ?? [];
 
-  const part = (draft.answers[META.participantes] as Participantes | undefined) ?? { nombres: "" };
+  const participantes = typeof draft.answers[META.participantes] === "string" ? (draft.answers[META.participantes] as string) : "";
+  const firmaEncargado = (draft.answers[META.firmaEncargado] as FirmaEncargado | undefined) ?? {};
   const diag = (draft.answers[META.diagnostico] as Diagnostico | undefined) ?? { observaciones: "", consideraciones: "" };
   const roles = (draft.answers[META.roles] as Record<string, string> | undefined) ?? {};
   const issues = validateDraft(draft, template);
 
   const setAnswer = (key: string, value: unknown) =>
     actualizar((d) => ({ ...d, answers: { ...d.answers, [key]: value } }));
+
+  /** Agrega (+1) o quita (-1) la última copia de una sección repetible; al quitarla se descartan sus respuestas y hallazgos. */
+  const cambiarCopias = (seccionId: string, delta: 1 | -1) =>
+    actualizar((d) => {
+      const actuales = leerRepeticiones(d.answers[META.repeticiones]);
+      const n = actuales[seccionId] ?? 1;
+      const nuevo = Math.min(Math.max(n + delta, 1), MAX_REPETICIONES);
+      if (nuevo === n) return d;
+      const answers = { ...d.answers };
+      let findings = d.findings;
+      if (delta === -1) {
+        const origen = template.sections.find((s) => s.id === seccionId);
+        const claves = new Set((origen?.items ?? []).map((i) => idEnCopia(i.id, n)));
+        for (const k of claves) delete answers[k];
+        findings = findings.filter((f) => !claves.has(f.item_key));
+      }
+      const siguientes = { ...actuales, [seccionId]: nuevo };
+      if (nuevo === 1) delete siguientes[seccionId];
+      if (Object.keys(siguientes).length) answers[META.repeticiones] = siguientes;
+      else delete answers[META.repeticiones];
+      return { ...d, answers, findings };
+    });
 
   const setSeverity = (itemId: string, severity: Severity) =>
     actualizar((d) => {
@@ -154,15 +182,14 @@ export function Formulario({ id: idInicial }: { id: string }) {
     });
 
   const firmar = async (png: Blob | null, dataUrl: string | null) => {
-    const anterior = (draftRef.current?.answers[META.participantes] as Participantes | undefined)?.firmaId;
+    const anterior = (draftRef.current?.answers[META.firmaEncargado] as FirmaEncargado | undefined)?.firmaId;
     if (anterior) await deletePhoto(db, anterior);
     if (!png) {
-      setAnswer(META.participantes, { ...part, firmaId: undefined, firmaDataUrl: undefined });
+      setAnswer(META.firmaEncargado, { firmaId: undefined, firmaDataUrl: undefined });
       return;
     }
     const firmaId = await saveSignature(db, userId, id, png);
-    const actual = (draftRef.current?.answers[META.participantes] as Participantes | undefined) ?? { nombres: "" };
-    setAnswer(META.participantes, { ...actual, firmaId, firmaDataUrl: dataUrl ?? undefined });
+    setAnswer(META.firmaEncargado, { firmaId, firmaDataUrl: dataUrl ?? undefined });
   };
 
   const enviar = async () => {
@@ -183,7 +210,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
     else window.scrollTo({ top: 0 });
   };
 
-  const respondidos = allItems(template).filter((i) => {
+  const respondidos = itemsX.filter((i) => {
     const v = draft.answers[i.id];
     return v !== undefined && (i.type !== "verificacion" || (v as { estado?: string }).estado);
   }).length;
@@ -209,7 +236,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             <p className="text-sm font-semibold text-[#8a0000]">Corrección de {draft.correccion.folio}</p>
             <p className="mt-1 text-base">Motivo del rechazo: {draft.correccion.motivo || "sin comentario"}</p>
             <p className="mt-1 text-sm text-sub">
-              Se copiaron los datos y respuestas. Las fotos y la firma del participante hay que tomarlas de nuevo.
+              Se copiaron los datos y respuestas. Las fotos y la firma del encargado de la actividad hay que tomarlas de nuevo.
             </p>
           </div>
         ) : null}
@@ -265,30 +292,60 @@ export function Formulario({ id: idInicial }: { id: string }) {
 
         {paso >= 1 && paso <= secciones.length && (
           <div className="flex flex-col gap-4">
-            {secciones[paso - 1].items.map((item) => {
-              const n = allItems(template).findIndex((i) => i.id === item.id) + 1;
-              return (
-                <ItemField
-                  key={item.id}
-                  item={item}
-                  index={n}
-                  inspectionId={id}
-                  value={draft.answers[item.id]}
-                  severity={draft.findings.find((f) => f.item_key === item.id)?.severity}
-                  onChange={(v) => setAnswer(item.id, v)}
-                  onSeverity={(s) => setSeverity(item.id, s)}
-                />
-              );
-            })}
-            {secciones[paso - 1].items.some((i) => i.type === "verificacion") ? (
+            {seccionesX
+              .filter((s) => s.origen === paso - 1)
+              .map((inst) => (
+                <div key={inst.id} className="flex flex-col gap-4">
+                  {inst.repetible ? (
+                    <h2 className="border-b-2 border-cu pb-1 text-xl font-bold">{inst.title}</h2>
+                  ) : null}
+                  {inst.items.map((item, k) => {
+                    const n = k + 1; // la numeración parte en 1 en cada sección
+                    return (
+                      <ItemField
+                        key={item.id}
+                        item={item}
+                        index={n}
+                        inspectionId={id}
+                        value={draft.answers[item.id]}
+                        estados={item.type === "verificacion" ? (item.estados ?? template.estados) : undefined}
+                        severity={draft.findings.find((f) => f.item_key === item.id)?.severity}
+                        onChange={(v) => setAnswer(item.id, v)}
+                        onSeverity={(s) => setSeverity(item.id, s)}
+                      />
+                    );
+                  })}
+                </div>
+              ))}
+            {secciones[paso - 1].repetible && !bloqueado ? (
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={() => cambiarCopias(secciones[paso - 1].id, 1)}
+                  className="min-h-14 rounded-xl border-[1.5px] border-graf bg-white px-5 text-base font-semibold hover:bg-paper"
+                >
+                  + Agregar {secciones[paso - 1].title.toLowerCase()}
+                </button>
+                {(reps[secciones[paso - 1].id] ?? 1) > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => cambiarCopias(secciones[paso - 1].id, -1)}
+                    className="min-h-14 rounded-xl border-[1.5px] border-[#bb0000] bg-white px-5 text-base font-semibold text-[#7a0000] hover:bg-[#fdecec]"
+                  >
+                    Quitar {secciones[paso - 1].title.toLowerCase()} {reps[secciones[paso - 1].id]}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+            {seccionesX.some((s) => s.origen === paso - 1 && s.items.some((i) => i.type === "verificacion")) ? (
               <button
                 type="button"
                 onClick={() =>
                   actualizar((d) => {
                     const answers = { ...d.answers };
-                    for (const i of secciones[paso - 1].items) {
+                    for (const i of seccionesX.filter((s) => s.origen === paso - 1).flatMap((s) => s.items)) {
                       if (i.type === "verificacion" && !(answers[i.id] as { estado?: string } | undefined)?.estado) {
-                        answers[i.id] = { ...(answers[i.id] as object), estado: "BN" };
+                        answers[i.id] = { ...(answers[i.id] as object), estado: estadoPorDefecto(i.estados ?? template.estados) };
                       }
                     }
                     return { ...d, answers };
@@ -296,7 +353,13 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 }
                 className="min-h-14 rounded-xl border-[1.5px] border-cu bg-white px-5 text-base font-semibold text-[#9a4519] hover:bg-cu-soft"
               >
-                Marcar pendientes de esta sección como BN
+                Marcar pendientes de esta sección como{" "}
+                {estadoPorDefecto(
+                  (() => {
+                    const v = secciones[paso - 1].items.find((i) => i.type === "verificacion");
+                    return v && v.type === "verificacion" ? (v.estados ?? template.estados) : undefined;
+                  })(),
+                )}
               </button>
             ) : null}
           </div>
@@ -320,18 +383,15 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 className={`${campo} py-3`}
               />
             </Campo>
-            <Campo label="Participantes">
-              <input
-                value={part.nombres}
-                onChange={(e) => setAnswer(META.participantes, { ...part, nombres: e.target.value })}
-                className={campo}
-                autoComplete="off"
+            <Campo label="Participantes (opcional)">
+              <textarea
+                rows={2}
+                value={participantes}
+                onChange={(e) => setAnswer(META.participantes, e.target.value)}
+                placeholder="Nombres de quienes participaron. No firman."
+                className={`${campo} py-3`}
               />
             </Campo>
-            <div>
-              <p className="mb-2 text-sm font-semibold">Firma del participante</p>
-              <SignatureField initialDataUrl={part.firmaDataUrl} onChange={(png, url) => void firmar(png, url)} />
-            </div>
             {template.roles.length ? (
               <div className="grid gap-4">
                 {template.roles.map((r) => (
@@ -346,6 +406,11 @@ export function Formulario({ id: idInicial }: { id: string }) {
                 ))}
               </div>
             ) : null}
+            <div>
+              <p className="mb-2 text-sm font-semibold">Firma de {rolEncargado(template) ?? "encargado de la actividad"}</p>
+              <p className="mb-2 text-sm text-sub">El supervisor y el planificador firman después, al revisar la inspección.</p>
+              <SignatureField initialDataUrl={firmaEncargado.firmaDataUrl} onChange={(png, url) => void firmar(png, url)} />
+            </div>
           </div>
         )}
       </fieldset>
@@ -353,7 +418,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
       {paso === iRevisar && (
         <div className="flex flex-col gap-4">
           <p className="rounded-2xl border border-hair bg-white p-4 text-lg">
-            {respondidos} de {allItems(template).length} ítems respondidos.
+            {respondidos} de {itemsX.length} ítems respondidos.
           </p>
           {issues.length ? (
             <div role="alert" className="rounded-2xl border border-[#bb0000] bg-[#fdecec] p-4">

@@ -139,10 +139,10 @@ select throws_ok(
 
 select tap_as('supervisor_a@mlp.local');
 select throws_ok(
-  format($$select public.review_inspection(%L, 'approved', '   ', 'x/firma.png')$$, (select a from ids)),
-  'P0001', 'El comentario es obligatorio', 'el comentario es obligatorio');
-select is((select public.review_inspection((select a from ids), 'approved', 'Conforme', 'x/sup.png') ->> 'status'),
-          'supervisor_signed', 'supervisor firma la 1.ª etapa');
+  format($$select public.review_inspection(%L, 'rejected', '   ', 'x/firma.png')$$, (select a from ids)),
+  'P0001', 'El comentario es obligatorio al rechazar', 'rechazar exige comentario');
+select is((select public.review_inspection((select a from ids), 'approved', '', 'x/sup.png') ->> 'status'),
+          'supervisor_signed', 'aprobar no exige comentario: supervisor firma la 1.ª etapa');
 select throws_ok(
   format($$select public.review_inspection(%L, 'approved', 'otra vez', 'x/sup2.png')$$, (select a from ids)),
   '42501', null, 'supervisor no firma dos veces');

@@ -1,8 +1,8 @@
-// Formato EST-ELEC-INSP-MLP-STN-01 · Origen: docs/formatos/EST-ELEC-INSP-MLP-STN-01_INSPECCION DESCONECTADOR SECCIONADOR MANIOBRA 23KV (ASÍ QUEDA).docx
+// Formato EST-ELEC-INSP-MLP-Bbosch-01 · Origen: docs/formatos/inspecciones/INSP-01 Desconectador Seccionador Maniobra 23 kV.docx
 window.FORMATO = {
   id: "desconectador-23kv",
   nombre: "Insp. Desconectador / Seccionador 23 kV",
-  norma: "EST-ELEC-INSP-MLP-STN-01",
+  norma: "EST-ELEC-INSP-MLP-Bbosch-01",
   revision: "Abril 2024",
   titulo: "Inspección Desconectador / Seccionador de Maniobra 23 kV",
   cabecera: [

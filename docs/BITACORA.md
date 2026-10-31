@@ -40,7 +40,7 @@ GitHub con la copia local y baje lo último:
 - `main` en GitHub ya tiene todo el trabajo (PR #1 unido el 2026-10-30). Siga el flujo de `CLAUDE.md`: rama nueva, bitácora en el mismo commit, PR.
 - **Local:** `corepack pnpm install`, `corepack pnpm supabase start` (Docker), `corepack pnpm dev`. Entre con **usuario** (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); las contraseñas de prueba están en `supabase/seed_usuarios_dev.sql`.
 - **En línea (prueba):** app en https://inspecciones-bbosch.vercel.app (proyecto de Vercel `inspecciones-bbosch`, equipo `cnv10`) y base en el proyecto de Supabase `inspecciones-bbosch` (referencia `etdeiyjzibgihqtvdrpt`, São Paulo, plan Free). Las 7 cuentas existen allí con **contraseñas que eligió el usuario y no están en el repositorio**: pídaselas a Cristóbal.
-- Lo que falta cargar es sobre todo **las plantillas de los otros 27 formatos** (hoy abren formulario INSP-01 a 15 y MANT-01 a 17 y 20) y el resto de «Pendientes».
+- **Plantillas:** las 60 están cargadas en local y, desde el 2026-10-31, también en el Supabase remoto (20 de mantención + 40 de inspección, verificado por conteo). Falta revisarlas en pantalla en el sitio publicado y el resto de «Pendientes». Las plantillas son datos de Supabase: `git push` no las actualiza.
 
 | Área | Estado |
 |---|---|
@@ -102,6 +102,10 @@ Verificación global más reciente (2026-10-31, rama `feat/fallas-seguimiento`, 
 31. **Subir la rama `docs/bitacora-migraciones-remotas`** (commit con la entrada de las migraciones remotas y la actualización de esta lista) y abrir su PR hacia `main`. Solo con confirmación del usuario; hoy está solo en el equipo local.
 32. **Opcional, a decisión del usuario:** renombrar el repositorio de GitHub (por ejemplo a `pwa-inspecciones`; después actualizar `git remote set-url origin …`, revisar que Vercel siga desplegando y cambiar el nombre en `CLAUDE.md`, esta bitácora y `docs/DEPLOY_VERCEL.md`); y borrar la carpeta `.fcc` del perfil de Windows, que dejó el intento fallido de instalar «Free Claude Code» (solo contiene un registro).
 33. **Al retomar tras reiniciar el PC (entorno local):** abrir Docker Desktop, `corepack pnpm supabase start`, `corepack pnpm dev` y entrar a `http://localhost:3000`. La base local conserva los datos de prueba (inspecciones `INS-2026-000007` a `000009`) mientras no se corra `supabase db reset`. El servidor de desarrollo y las ventanas de la prueba por Wi-Fi se pierden al reiniciar; hay que volver a lanzarlos.
+34. **Hacer repetible `seed_catalogo.sql`** (agregar `on conflict (code) do nothing` a `equipment_types` y `work_modes`, y evitar duplicar la plantilla de transformador de piso). Hoy falla si se ejecuta dos veces en el remoto.
+35. **Procedimiento de «versión 2» de una plantilla** para cambiar un formato ya publicado en el remoto sin tocar las inspecciones antiguas (hoy no existe; los seeds no sobrescriben). Documentarlo en `docs/` o automatizarlo.
+36. **Revisar las 60 plantillas en el sitio publicado:** abrir al menos unos formatos de cada familia como técnico y comparar con el Word; opcionalmente listar títulos y secciones con una consulta a `form_templates` (`schema->>'title'`). Si la PWA está instalada, abrirla con red para que baje el catálogo.
+37. **Respaldo de las inspecciones reales:** Supabase Free no respalda a diario (ver pendiente 17); pasar a Pro o exportar antes de usar con datos reales.
 
 ## Decisiones
 
@@ -145,6 +149,13 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-10-31 · Las 60 plantillas cargadas en el Supabase remoto (el sitio publicado ya muestra todos los formatos)
+- **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-migraciones-remotas`
+- **Qué se hizo:** el sitio de Vercel mostraba pocos formatos porque las plantillas viven en la tabla `form_templates` de Supabase y no viajan con `git push`; en el remoto solo estaba la de `seed_catalogo.sql`. Cristóbal ejecutó en el SQL Editor (superusuario `postgres`) `seed_plantillas_insp.sql`, `seed_plantillas_insp_16_41.sql` y `seed_plantillas_mant.sql`. Como el editor rechazó los archivos grandes («request entity too large»: 100, 253 y 283 KB), se partieron en 19 trozos de menos de 45 KB cada uno (cortados en sentencias completas; unidos dan el contenido idéntico al original) y se ejecutaron en orden.
+- **Archivos:** ninguno del repositorio (solo datos en Supabase remoto; los trozos quedaron en el directorio temporal de la sesión y no se versionan).
+- **Verificación:** consulta de solo lectura en el Supabase remoto (`inspecciones-bbosch`): `mantenimiento_programado` = 20 plantillas publicadas en 20 tipos de equipo y `plan_matriz` = 40 en 40 (60 en total, sin duplicados). **No verificado:** que el contenido de cada plantilla coincida ítem por ítem con el Word, ni que cada formato abra en el sitio publicado.
+- **Pendiente / riesgos:** (1) `seed_catalogo.sql` **no se puede repetir** aunque su cabecera diga lo contrario: los `insert` de `equipment_types` y `work_modes` no llevan `on conflict` y la plantilla de transformador de piso se duplicaría; al reejecutarlo dio `equipment_types_code_key` (no cambió nada, falló entero). (2) El seed no sobrescribe plantillas ya publicadas: para cambiar un formato en el remoto hace falta una **versión 2** (no hay procedimiento automatizado). (3) Cada vez que se agreguen formatos hay que cargar su seed en el remoto a mano; `git push` no lo hace.
 
 ### 2026-10-31 · Cierre de la jornada: lo pendiente queda anotado antes de reiniciar el equipo
 - **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-migraciones-remotas` (sin push)

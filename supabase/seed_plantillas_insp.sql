@@ -1,4 +1,4 @@
--- Plantillas INSP-01 a INSP-10 × Plan Matriz (Word revisados de «Bases de datos generales/Formatos BBOSCH/Inspeciones»).
+-- Plantillas INSP-01 a INSP-15 (salvo INSP-12, que está en seed_catalogo.sql) × Plan Matriz (Word revisados de «Bases de datos generales/Formatos BBOSCH/Inspeciones»).
 -- Es seguro ejecutarlo más de una vez y también en un Supabase remoto: no crea usuarios y no repite lo ya cargado.
 -- En el SQL Editor remoto elegir «postgres (Superuser)» junto a «Run».
 -- Cada formato tiene su propio tipo de equipo (la plantilla se busca por tipo de equipo × modo de trabajo).
@@ -41,6 +41,22 @@ on conflict (code) do nothing;
 
 insert into public.equipment_types (code, name, sort)
 values ('sistema_presurizado_sala_12', 'Sistema presurizado sala 12', 13)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('inspeccion_lineas', 'Inspección de líneas', 4)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('switchgear_23kv', 'Switchgear 23 kV', 14)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('switchgear_tranque_mauro', 'Switchgear principal Tranque Mauro', 15)
+on conflict (code) do nothing;
+
+insert into public.equipment_types (code, name, sort)
+values ('tunel_cables_stmg', 'Túnel de cables STMG', 16)
 on conflict (code) do nothing;
 
 -- EST-ELEC-MLP-Bbosch-01 · Desconectador/seccionador de maniobra 23 kV - Inspección según Plan Matriz (24 ítems)
@@ -2843,5 +2859,665 @@ select et.id, wm.id, 1, 'published', $tpl$
 $tpl$::jsonb
 from public.equipment_types et, public.work_modes wm
 where et.code = 'sistema_presurizado_sala_12' and wm.code = 'plan_matriz'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- EST-ELEC-INSP-MLP-Bbosch-11 · Línea aérea 23 kV - Inspección según Plan Matriz (15 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Línea aérea 23 kV - Inspección según Plan Matriz",
+  "meta": {
+    "norma": "EST-ELEC-INSP-MLP-Bbosch-11",
+    "revision": "Agosto 2024",
+    "titulo": "Inspección Línea aérea 23 kV"
+  },
+  "nomenclature": "NT: No tiene / BN: Bueno / ML: Malo / NA: No aplica / NR: No realizada (indicar motivos en observaciones). En caso de observaciones críticas, se adjunta registro fotográfico con la referencia.",
+  "header": [
+    {
+      "key": "tag",
+      "label": "Circuito",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text"
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora inicio",
+      "input": "time"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora término",
+      "input": "time"
+    },
+    {
+      "key": "tramo_desde",
+      "label": "Tramo desde",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "tramo_hasta",
+      "label": "Hasta",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "ubicacion",
+      "label": "Ubicación / Sector",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "estructura",
+      "label": "Estructura N°",
+      "input": "text"
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "estructura",
+      "title": "Estructura",
+      "items": [
+        {
+          "id": "item_01",
+          "type": "verificacion",
+          "label": "Identificación."
+        },
+        {
+          "id": "item_02",
+          "type": "verificacion",
+          "label": "Equipo de maniobra (GVR/NOVA)."
+        },
+        {
+          "id": "item_03",
+          "type": "verificacion",
+          "label": "Desconectador (cuchillo/fusible)."
+        },
+        {
+          "id": "item_04",
+          "type": "verificacion",
+          "label": "Cable guardia."
+        },
+        {
+          "id": "item_05",
+          "type": "verificacion",
+          "label": "Poste."
+        },
+        {
+          "id": "item_06",
+          "type": "verificacion",
+          "label": "Tirantes."
+        },
+        {
+          "id": "item_07",
+          "type": "verificacion",
+          "label": "Puentes."
+        },
+        {
+          "id": "item_08",
+          "type": "verificacion",
+          "label": "Puesta a tierra."
+        },
+        {
+          "id": "item_09",
+          "type": "verificacion",
+          "label": "Acceso."
+        },
+        {
+          "id": "item_10",
+          "type": "verificacion",
+          "label": "Aisladores."
+        },
+        {
+          "id": "item_11",
+          "type": "verificacion",
+          "label": "Crucetas."
+        },
+        {
+          "id": "item_12",
+          "type": "verificacion",
+          "label": "Templado."
+        },
+        {
+          "id": "item_13",
+          "type": "verificacion",
+          "label": "Contaminación."
+        },
+        {
+          "id": "item_14",
+          "type": "verificacion",
+          "label": "Necesita desmalezado cercano a equipo de maniobra."
+        },
+        {
+          "id": "item_15",
+          "type": "verificacion",
+          "label": "Necesita poda o roce de árbol cercano a la línea."
+        }
+      ]
+    }
+  ],
+  "note": "Una inspección registra una estructura (su número va en «Estructura N°»): para revisar otra se envía otra inspección. Completar con valor, N° o sigla según corresponda. En caso de observaciones críticas, adjuntar registro fotográfico con la referencia. En estructuras como desconectadores, seccionadores y S/E aéreas se debe realizar el desmalezado de un radio de 2 m."
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'inspeccion_lineas' and wm.code = 'plan_matriz'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- EST-ELEC-MLP-Bbosch-13 · Switchgear 23 kV - Inspección según Plan Matriz (17 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Switchgear 23 kV - Inspección según Plan Matriz",
+  "meta": {
+    "norma": "EST-ELEC-MLP-Bbosch-13",
+    "revision": "Abril 2024",
+    "titulo": "Inspección Switchgear 23 kV"
+  },
+  "nomenclature": "NT: No tiene / BN: Bueno / ML: Malo / NA: No aplica / NR: No realizada (indicar motivos en observaciones). En caso de observaciones críticas, se adjunta registro fotográfico con la referencia.",
+  "header": [
+    {
+      "key": "tag",
+      "label": "TAG Equipo",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text"
+    },
+    {
+      "key": "ubicacion",
+      "label": "Ubicación",
+      "input": "text"
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora inicio",
+      "input": "time"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora término",
+      "input": "time"
+    },
+    {
+      "key": "serie",
+      "label": "N° Serie",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "marca",
+      "label": "Marca",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "tension",
+      "label": "Tensión",
+      "input": "text",
+      "required": false
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "switchgear",
+      "title": "Switchgear 23 kV",
+      "items": [
+        {
+          "id": "item_01",
+          "type": "verificacion",
+          "label": "Luces pilotos encendidas."
+        },
+        {
+          "id": "item_02",
+          "type": "verificacion",
+          "label": "Amperímetros análogos funcionando."
+        },
+        {
+          "id": "item_03",
+          "type": "verificacion",
+          "label": "Verificar funcionamiento de selector de amperímetros."
+        },
+        {
+          "id": "item_04",
+          "type": "verificacion",
+          "label": "Verificar funcionamiento de voltímetros."
+        },
+        {
+          "id": "item_05",
+          "type": "verificacion",
+          "label": "Verificar funcionamiento de selector de voltímetros."
+        },
+        {
+          "id": "item_06",
+          "type": "verificacion",
+          "label": "Relé de bloqueo 86 (bandera negra)."
+        },
+        {
+          "id": "item_07",
+          "type": "verificacion",
+          "label": "Selector Local Remoto (Local)."
+        },
+        {
+          "id": "item_08",
+          "type": "verificacion",
+          "label": "Carga de resortes (amarillo)."
+        },
+        {
+          "id": "item_09",
+          "type": "verificacion",
+          "label": "Realizar descarga de ajustes y eventos de Multilin."
+        },
+        {
+          "id": "item_10",
+          "type": "verificacion",
+          "label": "Panel de alarmas funcionando, poner en Test."
+        },
+        {
+          "id": "item_11",
+          "type": "verificacion",
+          "label": "Interruptores de control (cerrados)."
+        },
+        {
+          "id": "item_12",
+          "type": "verificacion",
+          "label": "Verificar limpieza de los equipos."
+        },
+        {
+          "id": "item_13",
+          "type": "verificacion",
+          "label": "Estado de los conductores de control."
+        },
+        {
+          "id": "item_14",
+          "type": "verificacion",
+          "label": "Está operativa manivela extracción de carros."
+        },
+        {
+          "id": "item_15",
+          "type": "verificacion",
+          "label": "Revisar barra para cierre manual carros."
+        },
+        {
+          "id": "item_16",
+          "type": "verificacion",
+          "label": "Existencia de planos de cubículo."
+        },
+        {
+          "id": "item_17",
+          "type": "nameplate",
+          "label": "Horómetro y operaciones carro interruptor",
+          "required": false,
+          "fields": [
+            {
+              "key": "horometro",
+              "label": "Horómetro",
+              "unit": "h"
+            },
+            {
+              "key": "operaciones",
+              "label": "Operaciones"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'switchgear_23kv' and wm.code = 'plan_matriz'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- EST-ELEC-MLP-Bbosch-14 · Switchgear principal Tranque Mauro 23 kV - Inspección según Plan Matriz (18 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Switchgear principal Tranque Mauro 23 kV - Inspección según Plan Matriz",
+  "meta": {
+    "norma": "EST-ELEC-MLP-Bbosch-14",
+    "revision": "Abril 2024",
+    "titulo": "Inspección Switchgear principal Tranque Mauro 23 kV"
+  },
+  "nomenclature": "NT: No tiene / BN: Bueno / ML: Malo / NA: No aplica / NR: No realizada (indicar motivos en observaciones). En caso de observaciones críticas, se adjunta registro fotográfico con la referencia.",
+  "header": [
+    {
+      "key": "tag",
+      "label": "TAG Equipo",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text"
+    },
+    {
+      "key": "ubicacion",
+      "label": "Ubicación",
+      "input": "text"
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora inicio",
+      "input": "time"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora término",
+      "input": "time"
+    },
+    {
+      "key": "serie",
+      "label": "N° Serie",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "marca",
+      "label": "Marca",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "tension",
+      "label": "Tensión",
+      "input": "text",
+      "required": false
+    },
+    {
+      "key": "cubiculo",
+      "label": "Cubículo",
+      "input": "text",
+      "required": false
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "cubiculo",
+      "title": "Cubículo",
+      "items": [
+        {
+          "id": "item_01",
+          "type": "verificacion",
+          "label": "Luces pilotos encendidas."
+        },
+        {
+          "id": "item_02",
+          "type": "verificacion",
+          "label": "Amperímetros análogos funcionando."
+        },
+        {
+          "id": "item_03",
+          "type": "verificacion",
+          "label": "Funcionamiento de selector de amperímetros."
+        },
+        {
+          "id": "item_04",
+          "type": "verificacion",
+          "label": "Funcionamiento de voltímetros."
+        },
+        {
+          "id": "item_05",
+          "type": "verificacion",
+          "label": "Funcionamiento de selector de voltímetros."
+        },
+        {
+          "id": "item_06",
+          "type": "verificacion",
+          "label": "Relé de bloqueo 86 (bandera negra)."
+        },
+        {
+          "id": "item_07",
+          "type": "verificacion",
+          "label": "Selector Local Remoto (Local)."
+        },
+        {
+          "id": "item_08",
+          "type": "verificacion",
+          "label": "Carga de resortes (amarillo)."
+        },
+        {
+          "id": "item_09",
+          "type": "verificacion",
+          "label": "Descargar ajustes y eventos de Multilins."
+        },
+        {
+          "id": "item_10",
+          "type": "verificacion",
+          "label": "Panel de alarmas funcionando, poner en Test."
+        },
+        {
+          "id": "item_11",
+          "type": "verificacion",
+          "label": "Interruptores de control (cerrados)."
+        },
+        {
+          "id": "item_12",
+          "type": "verificacion",
+          "label": "Verificar limpieza de los equipos."
+        },
+        {
+          "id": "item_13",
+          "type": "verificacion",
+          "label": "Estado de los conductores de control."
+        },
+        {
+          "id": "item_14",
+          "type": "verificacion",
+          "label": "Está operativa manivela extracción de carros."
+        },
+        {
+          "id": "item_15",
+          "type": "verificacion",
+          "label": "Barra para cierre manual carros."
+        },
+        {
+          "id": "item_16",
+          "type": "verificacion",
+          "label": "Existencia de planos de cubículo."
+        },
+        {
+          "id": "item_17",
+          "type": "nameplate",
+          "label": "Horómetro y operaciones carro interruptor",
+          "required": false,
+          "fields": [
+            {
+              "key": "horometro",
+              "label": "Horómetro",
+              "unit": "h"
+            },
+            {
+              "key": "operaciones",
+              "label": "Operaciones"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fotos",
+      "title": "Galería fotográfica",
+      "items": [
+        {
+          "id": "item_18",
+          "type": "photo",
+          "label": "Galería fotográfica",
+          "required": false,
+          "maxPhotos": 6
+        }
+      ]
+    }
+  ]
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'switchgear_tranque_mauro' and wm.code = 'plan_matriz'
+on conflict (equipment_type_id, work_mode_id, version) do nothing;
+
+-- EST-ELEC-INSP-MLP-Bbosch-15 · Túnel de cables STMG - Inspección según Plan Matriz (13 ítems)
+insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
+select et.id, wm.id, 1, 'published', $tpl$
+{
+  "title": "Túnel de cables STMG - Inspección según Plan Matriz",
+  "meta": {
+    "norma": "EST-ELEC-INSP-MLP-Bbosch-15",
+    "revision": "Abril 2024",
+    "titulo": "Inspección Túnel de cables STMG"
+  },
+  "nomenclature": "NT: No tiene / BN: Bueno / ML: Malo / NA: No aplica / NR: No realizada (indicar motivos en observaciones). En caso de observaciones críticas, se adjunta registro fotográfico con la referencia.",
+  "header": [
+    {
+      "key": "tag",
+      "label": "Tramo",
+      "input": "text"
+    },
+    {
+      "key": "ot",
+      "label": "N° OT",
+      "input": "text"
+    },
+    {
+      "key": "fecha",
+      "label": "Fecha",
+      "input": "date"
+    },
+    {
+      "key": "h_inicio",
+      "label": "Hora inicio",
+      "input": "time"
+    },
+    {
+      "key": "h_fin",
+      "label": "Hora término",
+      "input": "time"
+    },
+    {
+      "key": "correa",
+      "label": "Correa",
+      "input": "text",
+      "required": false
+    }
+  ],
+  "roles": [
+    "Encargado de la actividad",
+    "Supervisor Bbosch",
+    "Planificador Bbosch"
+  ],
+  "sections": [
+    {
+      "id": "recorrido",
+      "title": "Recorrido del túnel",
+      "items": [
+        {
+          "id": "item_01",
+          "type": "verificacion",
+          "label": "Verificar los accesos al túnel."
+        },
+        {
+          "id": "item_02",
+          "type": "verificacion",
+          "label": "Verificar el estado de los conductores."
+        },
+        {
+          "id": "item_03",
+          "type": "verificacion",
+          "label": "Verificar las amarras de los conductores."
+        },
+        {
+          "id": "item_04",
+          "type": "verificacion",
+          "label": "Verificar cable guía porta conductor."
+        },
+        {
+          "id": "item_05",
+          "type": "verificacion",
+          "label": "Verificar el revestimiento contra llama si aplica."
+        },
+        {
+          "id": "item_06",
+          "type": "verificacion",
+          "label": "Verificar estado de las escalerillas o ganchos."
+        },
+        {
+          "id": "item_07",
+          "type": "verificacion",
+          "label": "Verificar conexión de escalerillas a tierra."
+        },
+        {
+          "id": "item_08",
+          "type": "verificacion",
+          "label": "Verificar iluminación."
+        },
+        {
+          "id": "item_09",
+          "type": "verificacion",
+          "label": "Existen equipos para amago de incendio."
+        },
+        {
+          "id": "item_10",
+          "type": "verificacion",
+          "label": "Verificar si existen filtraciones de agua."
+        },
+        {
+          "id": "item_11",
+          "type": "verificacion",
+          "label": "Vías de escape señalizadas."
+        },
+        {
+          "id": "item_12",
+          "type": "verificacion",
+          "label": "¿Existe roce con escalerillas de estaciones pull cord u otro elemento?"
+        },
+        {
+          "id": "item_13",
+          "type": "text",
+          "label": "Observaciones con referencia: ítem, pata o distancia de referencia y observación.",
+          "required": false,
+          "multiline": true
+        }
+      ]
+    }
+  ],
+  "note": "Durante el recorrido, si se encuentra alguna observación, indicarla en el último punto con el ítem y la pata o distancia de referencia. En caso de observaciones críticas, adjuntar registro fotográfico con la referencia."
+}
+$tpl$::jsonb
+from public.equipment_types et, public.work_modes wm
+where et.code = 'tunel_cables_stmg' and wm.code = 'plan_matriz'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 

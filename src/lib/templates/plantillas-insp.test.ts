@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { FORMATOS } from "@/lib/formatos/catalogo";
 import { validateTemplate } from "./validate";
 
-const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed_plantillas_insp_01_10.sql"), "utf8");
+const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed_plantillas_insp.sql"), "utf8");
 
 interface Cargada {
   codigoTipo: string;
@@ -34,12 +34,16 @@ const ESPERADO: Record<string, { formato: string; norma: string; items: number }
   switchgear_sala_12: { formato: "INSP-08", norma: "EST-ELEC-MLP-Bbosch-08", items: 28 },
   parron_maniobra: { formato: "INSP-09", norma: "EST-ELEC-MLP-Bbosch-09", items: 39 },
   sistema_presurizado_sala_12: { formato: "INSP-10", norma: "EST-ELEC-MLP-Bbosch-10", items: 6 },
+  inspeccion_lineas: { formato: "INSP-11", norma: "EST-ELEC-INSP-MLP-Bbosch-11", items: 15 },
+  switchgear_23kv: { formato: "INSP-13", norma: "EST-ELEC-MLP-Bbosch-13", items: 17 },
+  switchgear_tranque_mauro: { formato: "INSP-14", norma: "EST-ELEC-MLP-Bbosch-14", items: 18 },
+  tunel_cables_stmg: { formato: "INSP-15", norma: "EST-ELEC-INSP-MLP-Bbosch-15", items: 13 },
 };
 
-describe("plantillas INSP-01 a INSP-10 (seed_plantillas_insp_01_10.sql)", () => {
+describe("plantillas INSP-01 a INSP-15 (seed_plantillas_insp.sql)", () => {
   const cargadas = plantillasDelSeed();
 
-  it("carga las 10 plantillas y cada una pasa el validador de la app", () => {
+  it("carga las 14 plantillas (INSP-12 vive en seed_catalogo.sql) y cada una pasa el validador de la app", () => {
     expect(cargadas.map((c) => c.codigoTipo).sort()).toEqual(Object.keys(ESPERADO).sort());
     for (const c of cargadas) {
       const res = validateTemplate(c.json);
@@ -67,12 +71,13 @@ describe("plantillas INSP-01 a INSP-10 (seed_plantillas_insp_01_10.sql)", () => 
     }
   });
 
-  it("ninguna menciona STN y ninguna trae galería de fotos (se quitó de los Word)", () => {
+  it("ninguna menciona STN y solo INSP-14 conserva la galería de fotos (se quitó de los demás Word)", () => {
     expect(sql).not.toMatch(/\bSTN\b/);
     for (const c of cargadas) {
       const res = validateTemplate(c.json);
       if (!res.ok) throw new Error(c.codigoTipo);
-      expect(res.template.sections.flatMap((s) => s.items).some((i) => i.type === "photo"), c.codigoTipo).toBe(false);
+      const conFotos = res.template.sections.flatMap((s) => s.items).some((i) => i.type === "photo");
+      expect(conFotos, c.codigoTipo).toBe(c.codigoTipo === "switchgear_tranque_mauro");
     }
   });
 
@@ -87,7 +92,7 @@ describe("plantillas INSP-01 a INSP-10 (seed_plantillas_insp_01_10.sql)", () => 
   });
 
   it("es repetible: tipos con on conflict y plantillas con on conflict do nothing", () => {
-    expect((sql.match(/on conflict \(code\) do nothing/g) ?? []).length).toBe(10);
-    expect((sql.match(/on conflict \(equipment_type_id, work_mode_id, version\) do nothing/g) ?? []).length).toBe(10);
+    expect((sql.match(/on conflict \(code\) do nothing/g) ?? []).length).toBe(14);
+    expect((sql.match(/on conflict \(equipment_type_id, work_mode_id, version\) do nothing/g) ?? []).length).toBe(14);
   });
 });

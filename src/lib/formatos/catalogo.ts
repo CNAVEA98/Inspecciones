@@ -97,13 +97,19 @@ export const FORMATOS: Formato[] = [
     tramo: true,
     disponible: { tipoEquipo: "sistema_presurizado_sala_12", modo: "plan_matriz" },
   }),
-  f("INSP", 11, "Líneas Aéreas 23 kV", "F4", "T", ["LI"], { tramo: true }),
+  f("INSP", 11, "Líneas Aéreas 23 kV", "F4", "T", ["LI"], {
+    tramo: true,
+    disponible: { tipoEquipo: "inspeccion_lineas", modo: "plan_matriz" },
+  }),
   f("INSP", 12, "Transformadores de Piso", "F3", "T", ["XF"], {
     disponible: { tipoEquipo: "transformador_piso", modo: "plan_matriz" },
   }),
-  f("INSP", 13, "Switchgears 23 kV", "F1", "T", ["SG"]),
-  f("INSP", 14, "Switchgear Principal Tranque Mauro 23 kV", "F1", "MA", ["SG"]),
-  f("INSP", 15, "Túnel de Cables STMG", "F2", "MI", ["TU"], { tramo: true }),
+  f("INSP", 13, "Switchgears 23 kV", "F1", "T", ["SG"], { disponible: { tipoEquipo: "switchgear_23kv", modo: "plan_matriz" } }),
+  f("INSP", 14, "Switchgear Principal Tranque Mauro 23 kV", "F1", "MA", ["SG"], { disponible: { tipoEquipo: "switchgear_tranque_mauro", modo: "plan_matriz" } }),
+  f("INSP", 15, "Túnel de Cables STMG", "F2", "MI", ["TU"], {
+    tramo: true,
+    disponible: { tipoEquipo: "tunel_cables_stmg", modo: "plan_matriz" },
+  }),
   f("INSP", 16, "Grupos Generadores (Kizeo)", "F5", "T", GEN, { varios: true }),
   f("INSP", 17, "Cargador y Banco de Baterías", "F7", "T", ["BC", "BA"]),
   f("INSP", 18, "Pruebas Grupos Generadores Chacay-Mina", "F5", "CH,MI", GEN, { varios: true }),

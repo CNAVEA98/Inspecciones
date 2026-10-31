@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTecnico } from "./tecnico-provider";
 import { ItemField } from "./item-field";
 import { SelectorTag } from "./selector-tag";
+import { EnvioListo } from "./envio-listo";
 import { formatoPorId, type CodigoArea } from "@/lib/formatos/catalogo";
 import { DESIGNADORES_POR_TIPO_EQUIPO } from "@/lib/formatos/tags";
 import { SignatureField } from "@/components/shared/signature-field";
@@ -54,13 +54,13 @@ function useIdDeUrl(idInicial: string): string {
 /** Formulario de inspección: una sección por pantalla, guardado automático en el equipo. */
 export function Formulario({ id: idInicial }: { id: string }) {
   const id = useIdDeUrl(idInicial);
-  const router = useRouter();
   const { db, userId, catalog, sync } = useTecnico();
   const [draft, setDraft] = useState<DraftRecord | null | undefined>(undefined);
   const [paso, setPaso] = useState(0);
   const [guardado, setGuardado] = useState<"ok" | "guardando">("ok");
   const [enviando, setEnviando] = useState(false);
   const [confirmandoQuitar, setConfirmandoQuitar] = useState(false);
+  const [enviado, setEnviado] = useState(false);
   const draftRef = useRef<DraftRecord | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -120,6 +120,8 @@ export function Formulario({ id: idInicial }: { id: string }) {
       </p>
     );
   }
+
+  if (enviado) return <EnvioListo id={id} />;
 
   const secciones = template.sections;
   // Secciones repetibles ya desplegadas (p. ej. «Estructura 1», «Estructura 2»): cada paso muestra sus copias.
@@ -202,7 +204,8 @@ export function Formulario({ id: idInicial }: { id: string }) {
     const { payload, photoIds } = buildSubmission(draftRef.current!, template, fotos);
     await enqueueSubmission(db, { payload, photoIds });
     void sync.notifyQueued();
-    router.replace("/tecnico");
+    setEnviado(true);
+    window.scrollTo({ top: 0 });
   };
 
   const irA = (n: number, itemId?: string) => {

@@ -4,8 +4,11 @@ import { generarPdf } from "./generar";
 import { armarInforme } from "./modelo";
 import { contentDisposition, nombrePdf } from "./nombre-archivo";
 
-/** Roles que pueden descargar el informe de cualquier inspección (el técnico no). */
-const ROLES_CON_PDF = new Set(["admin", "supervisor", "planner"]);
+/**
+ * Roles que pueden descargar informes. El personal descarga cualquiera; el técnico solo las suyas,
+ * porque la lectura pasa por RLS con su sesión (una inspección ajena no se ve y responde 404).
+ */
+const ROLES_CON_PDF = new Set(["admin", "supervisor", "planner", "technician"]);
 
 const texto = (mensaje: string, status: number) =>
   new Response(mensaje, { status, headers: { "Content-Type": "text/plain; charset=utf-8" } });

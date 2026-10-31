@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(30);
+select plan(32);
 
 -- ---------- Ayuda: actuar como un usuario del seed ----------
 -- tap_as('correo') cambia al rol "authenticated" con el JWT de ese usuario; tap_as(null) vuelve a postgres.
@@ -156,6 +156,14 @@ update public.inspections set equipment_tag = 'HACK' where id = (select a from i
 select tap_as(null);
 select is((select equipment_tag from public.inspections where id = (select a from ids)), 'RLS-A',
           'una inspección aprobada es inmutable (el técnico no la modifica)');
+
+-- El técnico lee el perfil de quienes firmaron SUS inspecciones (para el PDF), y nada más.
+select tap_as('tecnico_a@mlp.local');
+select is((select count(*) from public.profiles where id <> auth.uid()), 2::bigint,
+          'técnico A lee solo el perfil de quienes firmaron su inspección');
+select tap_as('tecnico_b@mlp.local');
+select is((select count(*) from public.profiles where id <> auth.uid()), 0::bigint,
+          'técnico B no lee perfiles ajenos (nadie firmó lo suyo)');
 
 -- Rechazo en la 1.ª etapa: cierra la inspección.
 select tap_as('supervisor_b@mlp.local');

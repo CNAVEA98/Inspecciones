@@ -2,7 +2,7 @@ import Link from "next/link";
 import { BotonActualizar } from "@/components/revision/boton-actualizar";
 import { TablaBandeja } from "@/components/revision/tabla-bandeja";
 import { MigasCarpeta, TarjetaCarpeta } from "@/components/revision/carpetas-bandeja";
-import { SIN_TURNO, ZONAS, coincideTurno, contarCarpeta, nombreTurno, nombreZona, zonaDeArea } from "@/lib/revision/carpetas";
+import { SIN_TURNO, ZONAS, coincideTurno, contarCarpeta, nombreTurno, nombreZona, zonaDeArea, type ConteoCarpeta } from "@/lib/revision/carpetas";
 import { CONSULTA_VACIA, consultaAQuery, filtrarFilas, hayBusqueda, tagsDe, type Consulta } from "@/lib/revision/consulta";
 import { FILTROS, estadosDelFiltro, etapaPendiente, type Filtro } from "@/lib/revision/estado";
 import { listarBandeja } from "@/lib/revision/queries";
@@ -39,6 +39,8 @@ export async function Bandeja({
     // Los conteos de las carpetas cuentan todo, sin importar el filtro de estado.
     const todas = await listarBandeja(estadosDelFiltro("todas", rol));
     const leTocaFirmar = (f: (typeof todas)[number]) => etapaPendiente(f.status, rol) !== null;
+    const detalle = (c: ConteoCarpeta) => `${c.total} ${c.total === 1 ? "inspección" : "inspecciones"}`;
+    const pendiente = (c: ConteoCarpeta) => (c.porFirmar > 0 ? `${c.porFirmar} por firmar` : undefined);
     const turnos = (["A", "B", SIN_TURNO] as const).filter((t) => t !== SIN_TURNO || todas.some((f) => f.turno === null));
     return (
       <section className="rounded-2xl border border-hair bg-white">
@@ -56,24 +58,25 @@ export async function Bandeja({
           )}
           <ul className="grid gap-3 sm:grid-cols-2">
             {nivel === "turnos"
-              ? turnos.map((t) => (
-                  <li key={t}>
-                    <TarjetaCarpeta
-                      href={url({ turno: t })}
-                      nombre={nombreTurno(t)}
-                      conteo={contarCarpeta(todas.filter((f) => coincideTurno(f, t)), leTocaFirmar)}
-                    />
-                  </li>
-                ))
+              ? turnos.map((t) => {
+                  const c = contarCarpeta(todas.filter((f) => coincideTurno(f, t)), leTocaFirmar);
+                  return (
+                    <li key={t}>
+                      <TarjetaCarpeta href={url({ turno: t })} nombre={nombreTurno(t)} detalle={detalle(c)} pendiente={pendiente(c)} />
+                    </li>
+                  );
+                })
               : ZONAS.map((z) => {
                   const dentro = todas.filter((f) => coincideTurno(f, consulta.turno) && zonaDeArea(f.area) === z.id);
                   if (z.id === "otras" && dentro.length === 0) return null; // solo aparece si hay algo (p. ej. Valle)
+                  const c = contarCarpeta(dentro, leTocaFirmar);
                   return (
                     <li key={z.id}>
                       <TarjetaCarpeta
                         href={url({ turno: consulta.turno, zona: z.id })}
                         nombre={z.nombre}
-                        conteo={contarCarpeta(dentro, leTocaFirmar)}
+                        detalle={detalle(c)}
+                        pendiente={pendiente(c)}
                       />
                     </li>
                   );

@@ -1,8 +1,16 @@
 import Link from "next/link";
-import type { ConteoCarpeta } from "@/lib/revision/carpetas";
-
-/** Tarjeta de una carpeta: nombre y cuántas hay en total y cuántas le tocan firmar a quien mira. */
-export function TarjetaCarpeta({ href, nombre, conteo }: { href: string; nombre: string; conteo: ConteoCarpeta }) {
+/** Tarjeta de una carpeta: nombre, qué hay dentro y, si corresponde, una etiqueta de lo que está pendiente. */
+export function TarjetaCarpeta({
+  href,
+  nombre,
+  detalle,
+  pendiente,
+}: {
+  href: string;
+  nombre: string;
+  detalle: string;
+  pendiente?: string;
+}) {
   return (
     <Link
       href={href}
@@ -16,13 +24,11 @@ export function TarjetaCarpeta({ href, nombre, conteo }: { href: string; nombre:
       <span className="min-w-0 flex-1">
         <span className="block text-xl font-bold tracking-tight">{nombre}</span>
         <span className="mt-1 block font-mono text-xs uppercase tracking-[0.08em] text-sub">
-          {conteo.total} {conteo.total === 1 ? "inspección" : "inspecciones"}
+          {detalle}
         </span>
       </span>
-      {conteo.porFirmar > 0 ? (
-        <span className="shrink-0 rounded-full bg-cu-soft px-3 py-1 text-sm font-semibold text-[#7a3d12]">
-          {conteo.porFirmar} por firmar
-        </span>
+      {pendiente ? (
+        <span className="shrink-0 rounded-full bg-cu-soft px-3 py-1 text-sm font-semibold text-[#7a3d12]">{pendiente}</span>
       ) : null}
     </Link>
   );

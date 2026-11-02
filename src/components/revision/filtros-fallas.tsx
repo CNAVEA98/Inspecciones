@@ -34,6 +34,9 @@ export function FiltrosFallas({
   return (
     <form method="get" action={url} role="search" className="mt-3 flex flex-wrap items-end gap-3" aria-busy={cargando}>
       {filtro.severidad ? <input type="hidden" name="severidad" value={filtro.severidad} /> : null}
+      {filtro.turno ? <input type="hidden" name="turno" value={filtro.turno} /> : null}
+      {filtro.zona ? <input type="hidden" name="zona" value={filtro.zona} /> : null}
+      {filtro.vista ? <input type="hidden" name="vista" value={filtro.vista} /> : null}
       <label className="grid gap-1 text-xs font-semibold text-sub">
         Área
         <select name="area" value={filtro.area} onChange={(e) => aplicar({ area: e.target.value })} className={campo}>

@@ -1,4 +1,5 @@
 import { formatFechaHora } from "@/lib/fecha";
+import { SIN_TURNO, coincideTurno, parseZona, zonaDeArea, type Zona } from "./carpetas";
 import type { InspectionStatus } from "./estado";
 
 export type Severidad = "baja" | "media" | "alta" | "critica";
@@ -59,6 +60,8 @@ export interface HallazgoFalla {
   ot: string;
   /** Quien realizó la inspección según el formulario. */
   realizadoPor: string;
+  /** Turno de la cuenta de técnico que envió la inspección. */
+  turno: "A" | "B" | null;
   seguimiento: Seguimiento | null;
 }
 
@@ -106,16 +109,22 @@ export interface FiltroFallas {
   gestion: "abiertos" | "todos";
   severidad: Severidad | "";
   area: string;
+  /** Carpeta de turno y de área (supervisor y planificador); «vista» = lista sin pasar por las carpetas. */
+  turno: "" | "A" | "B" | typeof SIN_TURNO;
+  zona: "" | Zona;
+  vista: "" | "lista";
 }
 
-export const FILTRO_FALLAS_INICIAL: FiltroFallas = { gestion: "abiertos", severidad: "", area: "" };
+export const FILTRO_FALLAS_INICIAL: FiltroFallas = { gestion: "abiertos", severidad: "", area: "", turno: "", zona: "", vista: "" };
 
 export function filtrarFallas(hallazgos: HallazgoFalla[], f: FiltroFallas): HallazgoFalla[] {
   return hallazgos.filter(
     (h) =>
       (f.gestion === "todos" || estadoGestion(h.seguimiento) === "pendiente") &&
       (!f.severidad || h.severidad === f.severidad) &&
-      (!f.area || h.area === f.area),
+      (!f.area || h.area === f.area) &&
+      coincideTurno(h, f.turno) &&
+      (!f.zona || zonaDeArea(h.area) === f.zona),
   );
 }
 
@@ -126,6 +135,9 @@ export function queryFallas(f: FiltroFallas, cambio: Partial<FiltroFallas> = {})
   if (x.gestion === "todos") p.set("gestion", "todos");
   if (x.severidad) p.set("severidad", x.severidad);
   if (x.area) p.set("area", x.area);
+  if (x.turno) p.set("turno", x.turno);
+  if (x.zona) p.set("zona", x.zona);
+  if (x.vista) p.set("vista", x.vista);
   return p.toString();
 }
 
@@ -134,10 +146,14 @@ const esSeveridad = (v: unknown): v is Severidad => v === "baja" || v === "media
 export function parseFiltroFallas(sp: Record<string, string | string[] | undefined>): FiltroFallas {
   const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
   const sev = uno(sp.severidad);
+  const turno = uno(sp.turno);
   return {
     gestion: uno(sp.gestion) === "todos" ? "todos" : "abiertos",
     severidad: esSeveridad(sev) ? sev : "",
     area: uno(sp.area).slice(0, 60),
+    turno: turno === "A" || turno === "B" || turno === SIN_TURNO ? turno : "",
+    zona: parseZona(uno(sp.zona)),
+    vista: uno(sp.vista) === "lista" ? "lista" : "",
   };
 }
 

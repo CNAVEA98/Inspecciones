@@ -27,7 +27,7 @@ const ids = (r: FilaBandeja[]) => r.map((f) => f.id);
 describe("parseConsulta", () => {
   it("descarta valores inválidos y recorta espacios", () => {
     expect(parseConsulta({ q: "  mauro ", turno: "C", desde: "ayer", hasta: "2026-10-31" })).toEqual({
-      q: "mauro", tag: "", turno: "", zona: "", vista: "", desde: "", hasta: "2026-10-31",
+      q: "mauro", tag: "", turno: "", zona: "", tipo: "", vista: "", desde: "", hasta: "2026-10-31",
     });
   });
   it("toma el primer valor si viene repetido", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SIN_TURNO, coincideTurno, contarCarpeta, nombreTurno, nombreZona, parseZona, zonaDeArea } from "./carpetas";
+import { SIN_TURNO, coincideTipo, coincideTurno, contarCarpeta, nombreTurno, nombreZona, parseTipo, parseZona, tipoDeModo, zonaDeArea } from "./carpetas";
 import { CONSULTA_VACIA, filtrarFilas, hayBusqueda, parseConsulta } from "./consulta";
 import type { FilaBandeja } from "./queries";
 
@@ -61,3 +61,29 @@ describe("carpetas de la bandeja", () => {
     expect(contarCarpeta([], () => true)).toEqual({ total: 0, porFirmar: 0 });
   });
 });
+
+describe("tipo de trabajo", () => {
+  it("el modo «Mantenimiento programado» es mantención y lo demás es inspección", () => {
+    expect(tipoDeModo("Mantenimiento programado")).toBe("mantencion");
+    expect(tipoDeModo("Inspección según Plan Matriz")).toBe("inspeccion");
+    expect(tipoDeModo("")).toBe("inspeccion");
+    expect(parseTipo("mantencion")).toBe("mantencion");
+    expect(parseTipo("x")).toBe("");
+    expect(coincideTipo({ modo: "Mantenimiento programado" }, "inspeccion")).toBe(false);
+    expect(coincideTipo({ modo: "Mantenimiento programado" }, "")).toBe(true);
+  });
+
+  it("la bandeja filtra por tipo", () => {
+    const filas = [fila({ id: "1", modo: "Inspección según Plan Matriz" }), fila({ id: "2", modo: "Mantenimiento programado" })];
+    const ids = (tipo: "" | "inspeccion" | "mantencion") =>
+      filtrarFallasBandeja(filas, tipo);
+    expect(ids("mantencion")).toEqual(["2"]);
+    expect(ids("inspeccion")).toEqual(["1"]);
+    expect(ids("")).toEqual(["1", "2"]);
+    expect(parseConsulta({ tipo: "mantencion" }).tipo).toBe("mantencion");
+    expect(parseConsulta({ tipo: "otro" }).tipo).toBe("");
+  });
+});
+
+const filtrarFallasBandeja = (filas: FilaBandeja[], tipo: "" | "inspeccion" | "mantencion") =>
+  filtrarFilas(filas, { ...CONSULTA_VACIA, tipo }).map((f) => f.id);

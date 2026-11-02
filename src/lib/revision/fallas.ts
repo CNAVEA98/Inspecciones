@@ -1,5 +1,5 @@
 import { formatFechaHora } from "@/lib/fecha";
-import { SIN_TURNO, coincideTurno, parseZona, zonaDeArea, type Zona } from "./carpetas";
+import { SIN_TURNO, coincideTipo, coincideTurno, parseTipo, parseZona, zonaDeArea, type Tipo, type Zona } from "./carpetas";
 import type { InspectionStatus } from "./estado";
 
 export type Severidad = "baja" | "media" | "alta" | "critica";
@@ -62,6 +62,8 @@ export interface HallazgoFalla {
   realizadoPor: string;
   /** Turno de la cuenta de técnico que envió la inspección. */
   turno: "A" | "B" | null;
+  /** Nombre del modo de trabajo (inspección o mantención). */
+  modo: string;
   seguimiento: Seguimiento | null;
 }
 
@@ -113,9 +115,11 @@ export interface FiltroFallas {
   turno: "" | "A" | "B" | typeof SIN_TURNO;
   zona: "" | Zona;
   vista: "" | "lista";
+  /** Inspecciones o mantenciones. */
+  tipo: "" | Tipo;
 }
 
-export const FILTRO_FALLAS_INICIAL: FiltroFallas = { gestion: "abiertos", severidad: "", area: "", turno: "", zona: "", vista: "" };
+export const FILTRO_FALLAS_INICIAL: FiltroFallas = { gestion: "abiertos", severidad: "", area: "", turno: "", zona: "", vista: "", tipo: "" };
 
 export function filtrarFallas(hallazgos: HallazgoFalla[], f: FiltroFallas): HallazgoFalla[] {
   return hallazgos.filter(
@@ -124,7 +128,8 @@ export function filtrarFallas(hallazgos: HallazgoFalla[], f: FiltroFallas): Hall
       (!f.severidad || h.severidad === f.severidad) &&
       (!f.area || h.area === f.area) &&
       coincideTurno(h, f.turno) &&
-      (!f.zona || zonaDeArea(h.area) === f.zona),
+      (!f.zona || zonaDeArea(h.area) === f.zona) &&
+      coincideTipo(h, f.tipo),
   );
 }
 
@@ -138,6 +143,7 @@ export function queryFallas(f: FiltroFallas, cambio: Partial<FiltroFallas> = {})
   if (x.turno) p.set("turno", x.turno);
   if (x.zona) p.set("zona", x.zona);
   if (x.vista) p.set("vista", x.vista);
+  if (x.tipo) p.set("tipo", x.tipo);
   return p.toString();
 }
 
@@ -154,6 +160,7 @@ export function parseFiltroFallas(sp: Record<string, string | string[] | undefin
     turno: turno === "A" || turno === "B" || turno === SIN_TURNO ? turno : "",
     zona: parseZona(uno(sp.zona)),
     vista: uno(sp.vista) === "lista" ? "lista" : "",
+    tipo: parseTipo(uno(sp.tipo)),
   };
 }
 

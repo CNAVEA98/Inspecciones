@@ -29,6 +29,7 @@ const h = (p: Partial<HallazgoFalla> = {}): HallazgoFalla => ({
   ot: "3504667",
   realizadoPor: "Pedro Soto",
   turno: "A",
+  modo: "Inspección según Plan Matriz",
   seguimiento: null,
   ...p,
 });
@@ -173,5 +174,26 @@ describe("carpetas de equipos con fallas", () => {
     expect(queryFallas({ ...FILTRO_FALLAS_INICIAL, turno: "A", zona: "chacay-mina" })).toBe("turno=A&zona=chacay-mina");
     expect(parseFiltroFallas({ turno: "C", zona: "x", vista: "y" })).toEqual(FILTRO_FALLAS_INICIAL);
     expect(parseFiltroFallas({ turno: "-", vista: "lista" })).toMatchObject({ turno: "-", vista: "lista" });
+  });
+});
+
+describe("filtro por tipo (inspecciones y mantenciones)", () => {
+  const lista = [
+    h({ id: "i", modo: "Inspección según Plan Matriz" }),
+    h({ id: "m", modo: "Mantenimiento programado" }),
+  ];
+  const ids = (tipo: "" | "inspeccion" | "mantencion") =>
+    filtrarFallas(lista, { ...FILTRO_FALLAS_INICIAL, tipo }).map((x) => x.id);
+
+  it("separa las inspecciones de las mantenciones y sin filtro trae ambas", () => {
+    expect(ids("inspeccion")).toEqual(["i"]);
+    expect(ids("mantencion")).toEqual(["m"]);
+    expect(ids("")).toEqual(["i", "m"]);
+  });
+
+  it("viaja en la URL y se lee de vuelta; lo inválido se descarta", () => {
+    expect(queryFallas({ ...FILTRO_FALLAS_INICIAL, tipo: "mantencion" })).toBe("tipo=mantencion");
+    expect(parseFiltroFallas({ tipo: "mantencion" }).tipo).toBe("mantencion");
+    expect(parseFiltroFallas({ tipo: "otro" }).tipo).toBe("");
   });
 });

@@ -13,6 +13,27 @@ export const ZONAS: { id: Zona; nombre: string }[] = [
   { id: "otras", nombre: "Otras áreas" },
 ];
 
+/** Tipo de trabajo del formato: «Inspección según Plan Matriz» o «Mantenimiento programado». */
+export type Tipo = "inspeccion" | "mantencion";
+
+export const TIPOS: { id: Tipo; nombre: string }[] = [
+  { id: "inspeccion", nombre: "Inspecciones" },
+  { id: "mantencion", nombre: "Mantenciones" },
+];
+
+/** El modo de trabajo se guarda con su nombre; «Mantenimiento programado» es la mantención, lo demás es inspección. */
+export function tipoDeModo(modo: string): Tipo {
+  return /mantenimiento|mantencion/.test(modo.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase())
+    ? "mantencion"
+    : "inspeccion";
+}
+
+export function parseTipo(v: string): "" | Tipo {
+  return TIPOS.some((t) => t.id === v) ? (v as Tipo) : "";
+}
+
+export const coincideTipo = (f: { modo: string }, tipo: "" | Tipo) => tipo === "" || tipoDeModo(f.modo) === tipo;
+
 /** Valor de `turno` en la URL para las inspecciones sin turno (cuentas viejas o sin turno). */
 export const SIN_TURNO = "-";
 

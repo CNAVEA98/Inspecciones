@@ -150,6 +150,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-01 · Filtro «Tipo» (inspecciones / mantenciones) en la bandeja y en «Equipos con fallas»
+- **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
+- **Qué se hizo:** nuevo filtro **Tipo** con tres opciones, «Inspecciones y mantenciones», «Inspecciones» y «Mantenciones», junto a «Gestión» en «Equipos con fallas» (se aplica al elegir) y en el buscador de la bandeja del supervisor y del planificador (se aplica con «Buscar»). Funciona dentro de cada carpeta de turno y de área y también en la lista completa. El tipo sale del modo de trabajo del formato: «Mantenimiento programado» es mantención; «Inspección según Plan Matriz», inspección. El filtro viaja en la URL.
+- **Archivos:** `src/lib/revision/carpetas.ts`, `consulta.ts`, `fallas.ts`, `queries.ts` (lee el modo de los hallazgos), `src/components/revision/filtros-fallas.tsx`, `bandeja.tsx`, `detalle.tsx`, y sus tests.
+- **Verificación:** lint, tsc, 184 tests (4 nuevos) y build en verde; la consulta de hallazgos con el modo devuelve datos reales contra el Supabase local («Mantenimiento programado» en el hallazgo de MANT-20). Vista en pantalla: no verificada (la hace Manuel).
+- **Pendiente / riesgos:** el tipo se deduce del **nombre** del modo de trabajo; si se renombra un modo y deja de decir «Mantenimiento», sus formatos contarían como inspecciones. En la bandeja, elegir un tipo cuenta como búsqueda («Limpiar búsqueda» lo quita y vuelve a la carpeta).
+
 ### 2026-11-01 · «Equipos con fallas» también con carpetas por turno y por área
 - **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
 - **Qué se hizo:** la pestaña «Equipos con fallas» del supervisor y del planificador se abre ahora igual que la bandeja: carpetas **Turno A** y **Turno B** y, dentro, **Chacay-Mina** y **Puerto-Mauro**. Cada tarjeta muestra cuántos equipos y hallazgos hay y cuántos están pendientes de gestión. Dentro de la carpeta siguen los filtros de severidad, área (solo las de esa carpeta) y gestión; «Ver todos en una lista» los junta. Cada hallazgo cae en la carpeta del turno de la cuenta de técnico que envió la inspección. El administrador conserva la lista plana. Antes, en el equipo de Manuel, la pestaña daba «Could not find a relationship between findings and finding_followups»: faltaba aplicar las migraciones `0013` y `0014` en su Supabase local (se aplicaron a mano, sin borrar datos).

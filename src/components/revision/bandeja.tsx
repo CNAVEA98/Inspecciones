@@ -162,6 +162,14 @@ export async function Bandeja({
               ))}
             </datalist>
           </label>
+          <label className="grid gap-1 text-xs font-semibold text-sub">
+            Tipo
+            <select name="tipo" defaultValue={consulta.tipo} className={campo}>
+              <option value="">Inspecciones y mantenciones</option>
+              <option value="inspeccion">Inspecciones</option>
+              <option value="mantencion">Mantenciones</option>
+            </select>
+          </label>
           {!dentroDeCarpeta && (
             <label className="grid gap-1 text-xs font-semibold text-sub">
               Turno

@@ -60,6 +60,19 @@ export function FiltrosFallas({
           <option value="todos">Todos (incluye los ya gestionados)</option>
         </select>
       </label>
+      <label className="grid gap-1 text-xs font-semibold text-sub">
+        Tipo
+        <select
+          name="tipo"
+          value={filtro.tipo}
+          onChange={(e) => aplicar({ tipo: e.target.value === "inspeccion" || e.target.value === "mantencion" ? e.target.value : "" })}
+          className={campo}
+        >
+          <option value="">Inspecciones y mantenciones</option>
+          <option value="inspeccion">Inspecciones</option>
+          <option value="mantencion">Mantenciones</option>
+        </select>
+      </label>
       <noscript>
         <button type="submit" className="rounded-lg bg-graf px-4 py-2 text-sm font-semibold text-white">
           Filtrar

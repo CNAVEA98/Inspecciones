@@ -105,7 +105,7 @@ export async function listarFallas(): Promise<HallazgoFalla[]> {
     .select(
       `id, item_key, severity, inspection_id,
        inspections!inner(id, folio, status, equipment_tag, submitted_at, template_id, performed_by, technician_shift,
-         area:areas(name), equipo:equipment_types(name)),
+         area:areas(name), equipo:equipment_types(name), modo:work_modes(name)),
        finding_followups(scope, sap_notice, channel_note)`,
     )
     .in("inspections.status", ESTADOS_CON_HALLAZGOS)
@@ -135,7 +135,7 @@ export async function listarFallas(): Promise<HallazgoFalla[]> {
   const unaRel = <T,>(rel: unknown): T | null => ((Array.isArray(rel) ? rel[0] : rel) as T | null | undefined) ?? null;
   type Insp = {
     id: string; folio: string | null; status: InspectionStatus; equipment_tag: string; submitted_at: string | null;
-    template_id: string; performed_by: string | null; technician_shift: string | null; area: unknown; equipo: unknown;
+    template_id: string; performed_by: string | null; technician_shift: string | null; area: unknown; equipo: unknown; modo: unknown;
   };
   const templateIds = [...new Set(filas.map((f) => unaRel<Insp>(f.inspections)?.template_id).filter((x): x is string => !!x))];
   const { data: plantillas } = await supabase.from("form_templates").select("id, schema").in("id", templateIds);
@@ -177,6 +177,7 @@ export async function listarFallas(): Promise<HallazgoFalla[]> {
         ot: header.ot ?? "",
         realizadoPor: insp.performed_by || "",
         turno: insp.technician_shift === "A" || insp.technician_shift === "B" ? insp.technician_shift : null,
+        modo: nombre(insp.modo),
         seguimiento: seg ? aSeguimiento(seg) : null,
       },
     ];

@@ -16,6 +16,7 @@ export default async function BandejaPlanificadorPage({
       rol="planner"
       filtro={parseFiltro(sp.estado)}
       consulta={parseConsulta(sp)}
+      carpetas
       titulo="Inspecciones por firmar"
     />
   );

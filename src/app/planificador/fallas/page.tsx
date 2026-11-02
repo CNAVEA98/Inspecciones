@@ -8,5 +8,5 @@ export default async function FallasPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return <FallasEquipos base="/planificador" filtro={parseFiltroFallas(await searchParams)} puedeGestionar={false} />;
+  return <FallasEquipos base="/planificador" filtro={parseFiltroFallas(await searchParams)} puedeGestionar={false} carpetas />;
 }

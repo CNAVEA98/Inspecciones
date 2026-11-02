@@ -34,6 +34,9 @@ export function FiltrosFallas({
   return (
     <form method="get" action={url} role="search" className="mt-3 flex flex-wrap items-end gap-3" aria-busy={cargando}>
       {filtro.severidad ? <input type="hidden" name="severidad" value={filtro.severidad} /> : null}
+      {filtro.turno ? <input type="hidden" name="turno" value={filtro.turno} /> : null}
+      {filtro.zona ? <input type="hidden" name="zona" value={filtro.zona} /> : null}
+      {filtro.vista ? <input type="hidden" name="vista" value={filtro.vista} /> : null}
       <label className="grid gap-1 text-xs font-semibold text-sub">
         Área
         <select name="area" value={filtro.area} onChange={(e) => aplicar({ area: e.target.value })} className={campo}>
@@ -55,6 +58,19 @@ export function FiltrosFallas({
         >
           <option value="abiertos">Pendientes</option>
           <option value="todos">Todos (incluye los ya gestionados)</option>
+        </select>
+      </label>
+      <label className="grid gap-1 text-xs font-semibold text-sub">
+        Tipo de trabajo
+        <select
+          name="tipo"
+          value={filtro.tipo}
+          onChange={(e) => aplicar({ tipo: e.target.value === "inspeccion" || e.target.value === "mantencion" ? e.target.value : "" })}
+          className={`${filtro.tipo ? campo.replace("border-hair bg-white", "border-cu bg-cu-soft text-[#7a3d12]") : campo} font-semibold`}
+        >
+          <option value="">Inspecciones y mantenciones</option>
+          <option value="inspeccion">Solo inspecciones</option>
+          <option value="mantencion">Solo mantenciones</option>
         </select>
       </label>
       <noscript>

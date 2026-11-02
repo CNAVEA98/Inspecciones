@@ -1,26 +1,19 @@
-import type { GrupoInforme } from "./modelo";
-
-/** Alto útil de una página A4 del informe (842 pt menos márgenes superior e inferior) con un margen de seguridad. */
-const ALTO_UTIL = 700;
-
 /**
- * Altura aproximada (pt) de un grupo del informe: título, filas de una o dos líneas y observaciones.
- * Solo sirve para decidir si el grupo cabe en una página; no necesita ser exacta, pero sí no quedarse corta.
+ * Paginado de las tablas del informe en dos pasadas: la primera anota en qué página cae cada fila y la segunda
+ * dibuja un recuadro cerrado por página («tramo»), en vez de un marco abierto cortado por el salto de página.
  */
-export function alturaEstimadaGrupo(g: GrupoInforme): number {
-  let alto = 40; // marco, título y espacios
-  for (const f of g.filas) {
-    alto += 21 + (f.texto.length > 85 ? 11 : 0) + (f.texto.length > 170 ? 11 : 0);
-    if (f.obs) alto += 18 + 11 * Math.floor(f.obs.length / 100);
-    if (f.traza) alto += 12;
-  }
-  return alto;
+
+/** Por grupo, la página donde quedó cada fila en la pasada de medición. */
+export type PaginasPorGrupo = number[][];
+
+/** Índice de la primera fila de cada tramo: empieza uno nuevo cada vez que la fila cae en otra página. */
+export function inicioDeTramos(paginas: number[]): number[] {
+  const inicios = [0];
+  for (let i = 1; i < paginas.length; i++) if (paginas[i] !== paginas[i - 1]) inicios.push(i);
+  return inicios;
 }
 
-/**
- * Un grupo (tabla) se mantiene entero en una sola página si cabe en una; si es más alto que una página
- * no hay otra salida que dejarlo partirse. Así ninguna tabla queda cortada a la mitad por el salto de página.
- */
-export function grupoSinCortes(g: GrupoInforme): boolean {
-  return alturaEstimadaGrupo(g) <= ALTO_UTIL;
+/** Corta las filas en tramos según sus inicios. */
+export function cortarEnTramos<T>(filas: T[], inicios: number[]): T[][] {
+  return inicios.map((desde, k) => filas.slice(desde, inicios[k + 1] ?? filas.length)).filter((t) => t.length > 0);
 }

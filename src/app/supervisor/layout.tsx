@@ -7,7 +7,7 @@ export default async function SupervisorLayout({ children }: { children: React.R
   return (
     <StaffShell session={session} nav={[
         { href: "/supervisor", label: "Bandeja" },
-        { href: "/supervisor/fallas", label: "Equipos con fallas" },
+        { href: "/supervisor/fallas", label: "Fallas" },
       ]}>
       {children}
     </StaffShell>

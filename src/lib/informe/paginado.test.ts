@@ -1,28 +1,19 @@
 import { describe, expect, it } from "vitest";
-import type { FilaInforme, GrupoInforme } from "./modelo";
-import { alturaEstimadaGrupo, grupoSinCortes } from "./paginado";
-
-const fila = (n: number, texto = "Verificar estado general del equipo.", obs = ""): FilaInforme => ({
-  n,
-  texto,
-  valor: "",
-  estado: "BN",
-  obs,
-});
-const grupo = (filas: FilaInforme[]): GrupoInforme => ({ titulo: "G", filas, conformes: filas.length, total: filas.length });
+import { cortarEnTramos, inicioDeTramos } from "./paginado";
 
 describe("paginado del informe", () => {
-  it("un grupo de tamaño normal se mantiene entero", () => {
-    expect(grupoSinCortes(grupo(Array.from({ length: 12 }, (_, i) => fila(i + 1))))).toBe(true);
+  it("una tabla que cabe en una página es un solo tramo", () => {
+    expect(inicioDeTramos([1, 1, 1])).toEqual([0]);
+    expect(inicioDeTramos([])).toEqual([0]);
   });
 
-  it("un grupo más alto que una página puede partirse (no hay otra salida)", () => {
-    expect(grupoSinCortes(grupo(Array.from({ length: 60 }, (_, i) => fila(i + 1))))).toBe(false);
+  it("empieza un tramo nuevo en cada cambio de página", () => {
+    expect(inicioDeTramos([1, 1, 2, 2, 3])).toEqual([0, 2, 4]);
   });
 
-  it("las observaciones y los textos largos aumentan la altura estimada", () => {
-    const base = alturaEstimadaGrupo(grupo([fila(1)]));
-    expect(alturaEstimadaGrupo(grupo([fila(1, "x".repeat(200))]))).toBeGreaterThan(base);
-    expect(alturaEstimadaGrupo(grupo([fila(1, undefined, "o".repeat(250))]))).toBeGreaterThan(base + 18);
+  it("corta las filas en tramos sin perder ni repetir ninguna", () => {
+    expect(cortarEnTramos(["a", "b", "c", "d", "e"], [0, 2, 4])).toEqual([["a", "b"], ["c", "d"], ["e"]]);
+    expect(cortarEnTramos(["a"], [0])).toEqual([["a"]]);
+    expect(cortarEnTramos([], [0])).toEqual([]);
   });
 });

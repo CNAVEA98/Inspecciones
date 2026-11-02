@@ -222,6 +222,8 @@ export function Detalle({
                 equipo: d.equipo,
                 ot: header.ot ?? "",
                 realizadoPor: d.realizadoPor === "—" ? "" : d.realizadoPor,
+                turno: null,
+                modo: d.modo,
                 seguimiento: h.seguimiento,
               };
               return (

@@ -1,4 +1,5 @@
 import { fechaIso } from "@/lib/fecha";
+import { SIN_TURNO, coincideTipo, coincideTurno, parseTipo, parseZona, zonaDeArea, type Tipo, type Zona } from "./carpetas";
 import type { FilaBandeja } from "./queries";
 
 /** Búsqueda y consulta de la bandeja; viaja en la URL para poder compartir o volver a una consulta. */
@@ -7,13 +8,19 @@ export interface Consulta {
   q: string;
   /** TAG exacto (consulta de un solo equipo). */
   tag: string;
-  turno: "" | "A" | "B";
+  turno: "" | "A" | "B" | typeof SIN_TURNO;
+  /** Carpeta de área dentro del turno (solo supervisor y planificador). */
+  zona: "" | Zona;
+  /** Inspecciones o mantenciones. */
+  tipo: "" | Tipo;
+  /** «lista» = ver todas las inspecciones juntas, sin pasar por las carpetas. */
+  vista: "" | "lista";
   /** Fechas de envío (yyyy-mm-dd, horario de Chile), ambas inclusive. */
   desde: string;
   hasta: string;
 }
 
-export const CONSULTA_VACIA: Consulta = { q: "", tag: "", turno: "", desde: "", hasta: "" };
+export const CONSULTA_VACIA: Consulta = { q: "", tag: "", turno: "", zona: "", tipo: "", vista: "", desde: "", hasta: "" };
 
 type Params = Record<string, string | string[] | undefined>;
 
@@ -27,13 +34,19 @@ export function parseConsulta(sp: Params): Consulta {
   return {
     q: uno(sp.q).trim().slice(0, 100),
     tag: uno(sp.tag).trim().slice(0, 60),
-    turno: turno === "A" || turno === "B" ? turno : "",
+    turno: turno === "A" || turno === "B" || turno === SIN_TURNO ? turno : "",
+    zona: parseZona(uno(sp.zona)),
+    tipo: parseTipo(uno(sp.tipo)),
+    vista: uno(sp.vista) === "lista" ? "lista" : "",
     desde: esFecha(desde) ? desde : "",
     hasta: esFecha(hasta) ? hasta : "",
   };
 }
 
 export const hayConsulta = (c: Consulta) => Object.values(c).some((v) => v !== "");
+
+/** Búsqueda propiamente dicha: texto, TAG o fechas (el turno, la carpeta y la vista solo ubican dónde se mira). */
+export const hayBusqueda = (c: Consulta) => !!(c.q || c.tag || c.desde || c.hasta || c.tipo);
 
 /** Minúsculas y sin tildes, para que «Estacion» encuentre «Estación». */
 const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
@@ -43,7 +56,9 @@ export function filtrarFilas(filas: FilaBandeja[], c: Consulta): FilaBandeja[] {
   const tag = norm(c.tag);
   return filas.filter((f) => {
     if (tag && norm(f.equipmentTag) !== tag) return false;
-    if (c.turno && f.turno !== c.turno) return false;
+    if (!coincideTurno(f, c.turno)) return false;
+    if (c.zona && zonaDeArea(f.area) !== c.zona) return false;
+    if (!coincideTipo(f, c.tipo)) return false;
     if (c.desde || c.hasta) {
       if (!f.submittedAt) return false;
       const dia = fechaIso(f.submittedAt);

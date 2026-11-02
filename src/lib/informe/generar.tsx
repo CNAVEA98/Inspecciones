@@ -3,6 +3,7 @@ import path from "node:path";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InformePdf, type ImagenPdf, type RecursosPdf } from "@/components/informe/informe-pdf";
 import type { Informe } from "./modelo";
+import { inicioDeTramos, type PaginasPorGrupo } from "./paginado";
 
 const ALTO_LOGO = 24;
 
@@ -45,5 +46,13 @@ export async function generarPdf(informe: Informe): Promise<Buffer> {
   ]);
   const imagenes = new Map<string, ImagenPdf>();
   for (const [url, img] of descargas) if (img) imagenes.set(url, img);
-  return renderToBuffer(<InformePdf informe={informe} recursos={{ logo, imagenes }} />);
+  const recursos = { logo, imagenes };
+
+  // Primera pasada: en qué página cae cada fila de cada tabla. Segunda: un recuadro cerrado por página.
+  const paginas: PaginasPorGrupo = informe.grupos.map(() => []);
+  await renderToBuffer(
+    <InformePdf informe={informe} recursos={recursos} paginado={{ medir: (g, i, p) => (paginas[g][i] = p) }} />,
+  );
+  const tramos = paginas.map((p) => inicioDeTramos(p));
+  return renderToBuffer(<InformePdf informe={informe} recursos={recursos} paginado={{ tramos }} />);
 }

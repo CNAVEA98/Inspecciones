@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { BotonActualizar } from "@/components/revision/boton-actualizar";
+import { MigasCarpeta, TarjetaCarpeta } from "@/components/revision/carpetas-bandeja";
 import { FiltrosFallas } from "@/components/revision/filtros-fallas";
 import { SeguimientoHallazgo } from "@/components/revision/seguimiento-hallazgo";
 import { formatFechaHora } from "@/lib/fecha";
+import { SIN_TURNO, ZONAS, coincideTurno, nombreTurno, nombreZona, tipoDeModo, zonaDeArea } from "@/lib/revision/carpetas";
 import {
+  FILTRO_FALLAS_INICIAL,
   SEVERIDADES_ORDENADAS,
   SEVERIDAD_NOMBRE,
   agruparPorEquipo,
+  estadoGestion,
   fichaSap,
   filtrarFallas,
   queryFallas,
@@ -22,24 +26,94 @@ export const CHIP_SEVERIDAD: Record<Severidad, string> = {
   baja: "bg-[#f1f0ec] text-sub",
 };
 
-/** Pestaña «Equipos con fallas»: los hallazgos en «Malo» agrupados por equipo y ordenados por severidad. */
+/**
+ * Pestaña «Equipos con fallas»: los hallazgos en «Malo» agrupados por equipo y ordenados por severidad.
+ * Con `carpetas` (supervisor y planificador) se entra por Turno A / Turno B y, dentro, Chacay-Mina y Puerto-Mauro,
+ * igual que en la bandeja; «Ver todos en una lista» los muestra juntos.
+ */
 export async function FallasEquipos({
   base,
   filtro,
   puedeGestionar,
+  carpetas = false,
 }: {
   base: "/supervisor" | "/planificador" | "/admin";
   filtro: FiltroFallas;
   puedeGestionar: boolean;
+  carpetas?: boolean;
 }) {
   const [todos, areasCatalogo] = await Promise.all([listarFallas(), listarAreas()]);
+  const usaCarpetas = carpetas && filtro.vista !== "lista";
+  const nivel = !usaCarpetas ? "lista" : !filtro.turno ? "turnos" : !filtro.zona ? "zonas" : "lista";
+  const dentroDeCarpeta = usaCarpetas && !!filtro.turno && !!filtro.zona;
+  const urlFallas = `${base}/fallas`;
+  const aCarpeta = (c: Partial<FiltroFallas>) => {
+    const q = queryFallas({ ...FILTRO_FALLAS_INICIAL, ...c });
+    return q ? `${urlFallas}?${q}` : urlFallas;
+  };
+
+  if (nivel !== "lista") {
+    const turnos = (["A", "B", SIN_TURNO] as const).filter((t) => t !== SIN_TURNO || todos.some((h) => h.turno === null));
+    const resumenDe = (hs: typeof todos) => ({
+      equipos: agruparPorEquipo(hs).length,
+      hallazgos: hs.length,
+      pendientes: hs.filter((h) => estadoGestion(h.seguimiento) === "pendiente").length,
+    });
+    const tarjeta = (href: string, nombre: string, hs: typeof todos) => {
+      const r = resumenDe(hs);
+      return (
+        <TarjetaCarpeta
+          href={href}
+          nombre={nombre}
+          detalle={`${r.equipos} ${r.equipos === 1 ? "equipo" : "equipos"} · ${r.hallazgos} ${r.hallazgos === 1 ? "hallazgo" : "hallazgos"}`}
+          pendiente={r.pendientes > 0 ? `${r.pendientes} pendientes` : undefined}
+        />
+      );
+    };
+    return (
+      <section className="rounded-2xl border border-hair bg-white">
+        <div className="border-b border-hair px-5 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-xl font-bold tracking-tight">Equipos con fallas</h1>
+            <BotonActualizar />
+          </div>
+        </div>
+        <div className="px-5 py-5">
+          {nivel === "zonas" ? (
+            <MigasCarpeta migas={[{ texto: "Equipos con fallas", href: aCarpeta({}) }, { texto: nombreTurno(filtro.turno) }]} />
+          ) : (
+            <MigasCarpeta migas={[{ texto: "Equipos con fallas" }]} />
+          )}
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {nivel === "turnos"
+              ? turnos.map((t) => (
+                  <li key={t}>{tarjeta(aCarpeta({ turno: t }), nombreTurno(t), todos.filter((h) => coincideTurno(h, t)))}</li>
+                ))
+              : ZONAS.map((z) => {
+                  const dentro = todos.filter((h) => coincideTurno(h, filtro.turno) && zonaDeArea(h.area) === z.id);
+                  if (z.id === "otras" && dentro.length === 0) return null; // solo aparece si hay algo (p. ej. Valle)
+                  return <li key={z.id}>{tarjeta(aCarpeta({ turno: filtro.turno, zona: z.id }), z.nombre, dentro)}</li>;
+                })}
+          </ul>
+          <p className="mt-5 text-sm text-sub">
+            Cada hallazgo queda en la carpeta del turno del técnico que envió la inspección y de su área.{" "}
+            <Link href={aCarpeta({ vista: "lista" })} className="font-semibold text-cu underline-offset-2 hover:underline">
+              Ver todos en una lista
+            </Link>
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const abiertosPorSeveridad = (s: Severidad) =>
-    filtrarFallas(todos, { gestion: filtro.gestion, severidad: s, area: filtro.area }).length;
+    filtrarFallas(todos, { ...filtro, severidad: s }).length;
   const visibles = filtrarFallas(todos, filtro);
   const equipos = agruparPorEquipo(visibles);
   // Todas las áreas del catálogo, no solo las que hoy tienen hallazgos; se suma cualquier área con hallazgos que ya no esté.
-  const areas = [...new Set([...areasCatalogo, ...todos.map((h) => h.area)])];
-  const url = `${base}/fallas`;
+  const areasTodas = [...new Set([...areasCatalogo, ...todos.map((h) => h.area)])];
+  const areas = filtro.zona ? areasTodas.filter((a) => zonaDeArea(a) === filtro.zona) : areasTodas;
+  const url = urlFallas;
 
   return (
     <section className="rounded-2xl border border-hair bg-white">
@@ -54,6 +128,17 @@ export async function FallasEquipos({
           afecta las firmas.
         </p>
 
+        {dentroDeCarpeta && (
+          <div className="mt-3">
+            <MigasCarpeta
+              migas={[
+                { texto: "Equipos con fallas", href: aCarpeta({}) },
+                { texto: nombreTurno(filtro.turno), href: aCarpeta({ turno: filtro.turno }) },
+                { texto: nombreZona(filtro.zona || "otras") },
+              ]}
+            />
+          </div>
+        )}
         <nav aria-label="Filtro por severidad" className="mt-3 flex flex-wrap gap-2">
           <Link
             href={`${url}?${queryFallas(filtro, { severidad: "" })}`}
@@ -116,6 +201,9 @@ export async function FallasEquipos({
                     </p>
                     {h.observacion ? <p className="mt-1 text-sm text-sub">{h.observacion}</p> : null}
                     <p className="mt-1 font-mono text-xs text-sub">
+                      <span className="mr-2 rounded bg-paper px-1.5 py-0.5 font-sans font-semibold uppercase tracking-wide text-graf">
+                        {tipoDeModo(h.modo) === "mantencion" ? "Mantención" : "Inspección"}
+                      </span>
                       <Link href={`${base}/${h.inspeccionId}`} className="font-semibold text-cu hover:underline">
                         {h.folio ?? "Inspección"}
                       </Link>

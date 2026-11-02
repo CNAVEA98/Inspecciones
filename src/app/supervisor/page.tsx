@@ -16,6 +16,7 @@ export default async function BandejaPage({
       rol="supervisor"
       filtro={parseFiltro(sp.estado)}
       consulta={parseConsulta(sp)}
+      carpetas
       titulo="Bandeja de inspecciones"
     />
   );

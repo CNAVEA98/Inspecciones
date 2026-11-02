@@ -4,7 +4,7 @@ import { MigasCarpeta, TarjetaCarpeta } from "@/components/revision/carpetas-ban
 import { FiltrosFallas } from "@/components/revision/filtros-fallas";
 import { SeguimientoHallazgo } from "@/components/revision/seguimiento-hallazgo";
 import { formatFechaHora } from "@/lib/fecha";
-import { SIN_TURNO, ZONAS, coincideTurno, nombreTurno, nombreZona, zonaDeArea } from "@/lib/revision/carpetas";
+import { SIN_TURNO, ZONAS, coincideTurno, nombreTurno, nombreZona, tipoDeModo, zonaDeArea } from "@/lib/revision/carpetas";
 import {
   FILTRO_FALLAS_INICIAL,
   SEVERIDADES_ORDENADAS,
@@ -201,6 +201,9 @@ export async function FallasEquipos({
                     </p>
                     {h.observacion ? <p className="mt-1 text-sm text-sub">{h.observacion}</p> : null}
                     <p className="mt-1 font-mono text-xs text-sub">
+                      <span className="mr-2 rounded bg-paper px-1.5 py-0.5 font-sans font-semibold uppercase tracking-wide text-graf">
+                        {tipoDeModo(h.modo) === "mantencion" ? "Mantención" : "Inspección"}
+                      </span>
                       <Link href={`${base}/${h.inspeccionId}`} className="font-semibold text-cu hover:underline">
                         {h.folio ?? "Inspección"}
                       </Link>

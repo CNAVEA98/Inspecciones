@@ -2,13 +2,14 @@ import Link from "next/link";
 import { BotonActualizar } from "@/components/revision/boton-actualizar";
 import { TablaBandeja } from "@/components/revision/tabla-bandeja";
 import { MigasCarpeta, TarjetaCarpeta } from "@/components/revision/carpetas-bandeja";
+import { SelectAuto } from "@/components/revision/select-auto";
 import { SIN_TURNO, ZONAS, coincideTurno, contarCarpeta, nombreTurno, nombreZona, zonaDeArea, type ConteoCarpeta } from "@/lib/revision/carpetas";
 import { CONSULTA_VACIA, consultaAQuery, filtrarFilas, hayBusqueda, tagsDe, type Consulta } from "@/lib/revision/consulta";
 import { FILTROS, estadosDelFiltro, etapaPendiente, type Filtro } from "@/lib/revision/estado";
 import { listarBandeja } from "@/lib/revision/queries";
 
 const campo =
-  "rounded-lg border border-hair bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-cu";
+  "w-full min-w-0 rounded-lg border border-hair bg-white px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-cu";
 
 /**
  * Bandeja compartida por supervisor, planificador y administrador; solo el administrador elimina.
@@ -131,12 +132,12 @@ export async function Bandeja({
         </nav>
 
         {/* GET sin JavaScript: la consulta queda en la URL y se puede compartir. */}
-        <form method="get" action={base} role="search" className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <form method="get" action={base} role="search" className="mt-4 flex flex-wrap items-end gap-3">
           <input type="hidden" name="estado" value={filtro} />
           {consulta.vista && <input type="hidden" name="vista" value={consulta.vista} />}
           {dentroDeCarpeta && <input type="hidden" name="zona" value={consulta.zona} />}
           {dentroDeCarpeta && <input type="hidden" name="turno" value={consulta.turno} />}
-          <label className="grid gap-1 text-xs font-semibold text-sub lg:col-span-2">
+          <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-72">
             Buscar
             <input
               type="search"
@@ -146,7 +147,7 @@ export async function Bandeja({
               className={campo}
             />
           </label>
-          <label className="grid gap-1 text-xs font-semibold text-sub">
+          <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-40">
             TAG del equipo
             <input
               type="text"
@@ -162,34 +163,51 @@ export async function Bandeja({
               ))}
             </datalist>
           </label>
-          <label className="grid gap-1 text-xs font-semibold text-sub">
-            Tipo
-            <select name="tipo" defaultValue={consulta.tipo} className={campo}>
-              <option value="">Inspecciones y mantenciones</option>
-              <option value="inspeccion">Inspecciones</option>
-              <option value="mantencion">Mantenciones</option>
-            </select>
+          <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-64">
+            Tipo de trabajo
+            <span className="relative">
+              <SelectAuto
+                key={consulta.tipo}
+                name="tipo"
+                defaultValue={consulta.tipo}
+                className={`${consulta.tipo ? campo.replace("border-hair bg-white", "border-cu bg-cu-soft text-[#7a3d12]") : campo} w-full appearance-none pr-9 font-semibold`}
+              >
+                <option value="">Inspecciones y mantenciones</option>
+                <option value="inspeccion">Solo inspecciones</option>
+                <option value="mantencion">Solo mantenciones</option>
+              </SelectAuto>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 20 20"
+                className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-sub"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="m5 8 5 5 5-5" />
+              </svg>
+            </span>
           </label>
           {!dentroDeCarpeta && (
-            <label className="grid gap-1 text-xs font-semibold text-sub">
+            <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-36">
               Turno
-              <select name="turno" defaultValue={consulta.turno} className={campo}>
+              <SelectAuto key={consulta.turno} name="turno" defaultValue={consulta.turno} className={campo}>
                 <option value="">Ambos</option>
                 <option value="A">Turno A</option>
                 <option value="B">Turno B</option>
                 <option value={SIN_TURNO}>Sin turno</option>
-              </select>
+              </SelectAuto>
             </label>
           )}
-          <label className="grid gap-1 text-xs font-semibold text-sub">
+          <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-40">
             Enviada desde
             <input type="date" name="desde" defaultValue={consulta.desde} className={campo} />
           </label>
-          <label className="grid gap-1 text-xs font-semibold text-sub">
+          <label className="grid w-full gap-1 text-xs font-semibold text-sub sm:w-40">
             Hasta
             <input type="date" name="hasta" defaultValue={consulta.hasta} className={campo} />
           </label>
-          <div className="flex items-center gap-3 sm:col-span-2 lg:col-span-6">
+          <div className="flex w-full items-center gap-3">
             <button
               type="submit"
               className="rounded-lg bg-graf px-4 py-2 text-sm font-semibold text-white hover:bg-graf-2 focus-visible:outline-2 focus-visible:outline-cu"

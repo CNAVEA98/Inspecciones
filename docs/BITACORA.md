@@ -150,6 +150,20 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-01 · PDF: las tablas siguen en la página siguiente con un recuadro cerrado por página
+- **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
+- **Qué se hizo:** a pedido de Manuel, cada tabla de ítems del PDF ya no salta entera a la página siguiente (dejaba la primera hoja casi vacía): empieza justo bajo «Resultado de la inspección» y lo que no cabe continúa en la hoja siguiente. Cada página lleva su propio recuadro **cerrado** (no un marco abierto cortado). Se logra con dos pasadas: la primera anota en qué página cae cada fila (`render` de react-pdf) y la segunda dibuja un recuadro por página (`break` entre tramos). La pasada de medición deja 16 pt libres al pie de cada página para el cierre y la apertura de los recuadros. Las filas nunca se cortan por la mitad; el título de la tabla va solo en el primer tramo y siempre junto con la primera fila. Reemplaza la regla del 31-10 («la tabla viaja entera»): `paginado.ts` ya no estima alturas.
+- **Archivos:** `src/components/informe/informe-pdf.tsx`, `src/lib/informe/generar.tsx`, `src/lib/informe/paginado.ts`, `paginado.test.ts`
+- **Verificación:** lint, tsc, 184 tests y build en verde. Se generaron PDF de prueba fuera de la app (copia del INS-2026-000022 y un caso de 50 + 10 ítems en 4 páginas) y se revisaron como imagen: recuadros cerrados en cada página, ninguna fila cortada. Con la app: no verificado tras este último cambio (lo revisa Manuel).
+- **Pendiente / riesgos:** generar el PDF cuesta dos renderizados (algo más lento). Si una fila quedara justo en el borde, la holgura de 16 pt evita que cambie de página entre pasadas; no se probó con fotos ni con lecturas. Ojo: en local, `next dev` a veces sigue usando el código viejo del PDF; reiniciar el servidor.
+
+### 2026-11-01 · Bandeja: buscador más compacto, «Tipo de trabajo» se aplica al elegir, etiqueta Inspección/Mantención en fallas
+- **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
+- **Qué se hizo:** el buscador de la bandeja pasa de grilla a una fila con anchos fijos (en el celular se apilan). El filtro se llama **«Tipo de trabajo»** (opciones «Inspecciones y mantenciones», «Solo inspecciones», «Solo mantenciones»), tiene flecha visible, se pinta en cobre cuando está activo y, en la bandeja, se aplica al elegir (nuevo `SelectAuto`, que envía el formulario; sin JavaScript se usa «Buscar»); el select «Turno» de la lista completa también. En «Equipos con fallas» cada hallazgo muestra la etiqueta «Inspección» o «Mantención», porque el folio «INS-…» se usa para ambos y confundía.
+- **Archivos:** `src/components/revision/bandeja.tsx`, `select-auto.tsx` (nuevo), `filtros-fallas.tsx`, `fallas-equipos.tsx`
+- **Verificación:** lint, tsc, 184 tests y build en verde. En pantalla lo revisó Manuel (buscador y filtro); la etiqueta de fallas no se vio en pantalla.
+- **Pendiente / riesgos:** propuesto y sin decidir: folio propio para mantenciones (p. ej. «MAN-…»), requiere migración nueva.
+
 ### 2026-11-01 · Filtro «Tipo» (inspecciones / mantenciones) en la bandeja y en «Equipos con fallas»
 - **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
 - **Qué se hizo:** nuevo filtro **Tipo** con tres opciones, «Inspecciones y mantenciones», «Inspecciones» y «Mantenciones», junto a «Gestión» en «Equipos con fallas» (se aplica al elegir) y en el buscador de la bandeja del supervisor y del planificador (se aplica con «Buscar»). Funciona dentro de cada carpeta de turno y de área y también en la lista completa. El tipo sale del modo de trabajo del formato: «Mantenimiento programado» es mantención; «Inspección según Plan Matriz», inspección. El filtro viaja en la URL.

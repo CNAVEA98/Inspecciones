@@ -2,7 +2,7 @@
 import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
 import type { EstadoVer, Informe, LecturaAncha, LecturaChica } from "@/lib/informe/modelo";
 import { ESTADOS_VER, fmtNumero } from "@/lib/informe/modelo";
-import { grupoSinCortes } from "@/lib/informe/paginado";
+import { cortarEnTramos } from "@/lib/informe/paginado";
 
 /** Imagen ya descargada, lista para incrustar. */
 export interface ImagenPdf {
@@ -288,9 +288,20 @@ function Pill({ estado }: { estado: EstadoVer | null }) {
   );
 }
 
-function FilaItem({ f, ultima }: { f: Informe["grupos"][number]["filas"][number]; ultima: boolean }) {
+type Fila = Informe["grupos"][number]["filas"][number];
+
+function FilaItem({ f, ultima, medir }: { f: Fila; ultima: boolean; medir?: (pagina: number) => void }) {
   return (
     <View wrap={false} style={{ borderBottomWidth: ultima ? 0 : 1, borderBottomColor: C.hair, paddingVertical: 3.5 }}>
+      {medir ? (
+        <Text
+          style={{ position: "absolute", fontSize: 1 }}
+          render={({ pageNumber }) => {
+            medir(pageNumber);
+            return "";
+          }}
+        />
+      ) : null}
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Text style={{ fontFamily: MONO, fontSize: 7.5, color: C.sub, width: 22 }}>{String(f.n).padStart(2, "0")}</Text>
         <Text style={{ flex: 1, fontSize: 8.5, fontFamily: f.estado === "ML" ? TEXTO_B : "Helvetica", paddingRight: 8 }}>{f.texto}</Text>
@@ -309,29 +320,42 @@ function FilaItem({ f, ultima }: { f: Informe["grupos"][number]["filas"][number]
   );
 }
 
-function Grupos({ r }: { r: Informe }) {
+function Grupos({ r, paginado }: { r: Informe; paginado: Paginado }) {
   return (
     <>
-      {r.grupos.map((g) => (
-        <View
-          key={g.titulo}
-          // La tabla viaja entera a la página siguiente si no cabe; solo se parte si es más alta que una página.
-          wrap={grupoSinCortes(g) ? false : undefined}
-          style={{ marginHorizontal: MARGEN, marginTop: 14, borderWidth: 1, borderColor: C.hair, borderRadius: 12, paddingTop: 7, paddingBottom: 3, paddingHorizontal: 11 }}
-        >
-          {/* El título viaja junto con la primera fila: así nunca queda solo al pie de una página. */}
-          <View wrap={false}>
-            <View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 3 }}>
-              <Text style={{ fontFamily: TEXTO_B, fontSize: 9.5 }}>{g.titulo}</Text>
-              <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.total} conformes` : `${g.filas.length} ítems`}</Text>
-            </View>
-            {g.filas[0] ? <FilaItem f={g.filas[0]} ultima={g.filas.length === 1} /> : null}
+      {r.grupos.map((g, gi) => {
+        // La tabla empieza donde haya espacio y sigue en la página siguiente. Con la medición hecha, cada página
+        // lleva su propio recuadro cerrado (tramo); las filas nunca se cortan por la mitad.
+        const tramos = cortarEnTramos(
+          g.filas.map((f, i) => ({ f, i })),
+          paginado.tramos?.[gi] ?? [0],
+        );
+        const medir = paginado.medir;
+        const fila = ({ f, i }: { f: Fila; i: number }, ultima: boolean) => (
+          <FilaItem key={i} f={f} ultima={ultima} medir={medir ? (p) => medir(gi, i, p) : undefined} />
+        );
+        return tramos.map((tramo, k) => (
+          <View
+            key={`${g.titulo}-${k}`}
+            break={k > 0}
+            style={{ marginHorizontal: MARGEN, marginTop: k > 0 ? 0 : 14, borderWidth: 1, borderColor: C.hair, borderRadius: 12, paddingTop: k > 0 ? 4 : 7, paddingBottom: 3, paddingHorizontal: 11 }}
+          >
+            {k === 0 ? (
+              // El título viaja junto con la primera fila: así nunca queda solo al pie de una página.
+              <View wrap={false}>
+                <View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 3 }}>
+                  <Text style={{ fontFamily: TEXTO_B, fontSize: 9.5 }}>{g.titulo}</Text>
+                  <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.total} conformes` : `${g.filas.length} ítems`}</Text>
+                </View>
+                {fila(tramo[0], tramo.length === 1)}
+              </View>
+            ) : (
+              fila(tramo[0], tramo.length === 1)
+            )}
+            {tramo.slice(1).map((x, j) => fila(x, j === tramo.length - 2))}
           </View>
-          {g.filas.slice(1).map((f, i) => (
-            <FilaItem key={f.n} f={f} ultima={i === g.filas.length - 2} />
-          ))}
-        </View>
-      ))}
+        ));
+      })}
     </>
   );
 }
@@ -402,15 +426,41 @@ function Fotos({ r, rec }: { r: Informe; rec: RecursosPdf }) {
   );
 }
 
-export function InformePdf({ informe: r, recursos: rec }: { informe: Informe; recursos: RecursosPdf }) {
+/**
+ * Paginado de las tablas: en la pasada de medición (`medir`) se anota la página de cada fila; en la pasada final
+ * (`tramos`) cada grupo se dibuja con un recuadro cerrado por página. Sin ninguno, la tabla va en un solo recuadro.
+ */
+export interface Paginado {
+  medir?: (grupo: number, fila: number, pagina: number) => void;
+  tramos?: number[][];
+}
+
+/**
+ * Espacio que la pasada de medición deja libre al pie de cada página: cubre el cierre del recuadro y la
+ * apertura del siguiente, que la pasada final agrega en cada corte, para que las filas no cambien de página.
+ */
+const HOLGURA_MEDICION = 16;
+
+export function InformePdf({
+  informe: r,
+  recursos: rec,
+  paginado = {},
+}: {
+  informe: Informe;
+  recursos: RecursosPdf;
+  paginado?: Paginado;
+}) {
   return (
     <Document title={`${r.folio} · ${r.titulo}`} author="BBOSCH" subject={`Inspección ${r.tag}`} language="es-CL">
-      <Page size="A4" style={{ paddingTop: 28, paddingBottom: 50, fontFamily: "Helvetica", fontSize: 8.5, color: C.graf }}>
+      <Page
+        size="A4"
+        style={{ paddingTop: 28, paddingBottom: 50 + (paginado.medir ? HOLGURA_MEDICION : 0), fontFamily: "Helvetica", fontSize: 8.5, color: C.graf }}
+      >
         <Hero r={r} rec={rec} />
         <Specs r={r} />
         <Resumen r={r} />
         <Lecturas r={r} />
-        <Grupos r={r} />
+        <Grupos r={r} paginado={paginado} />
         {/* Cierre (observaciones y firmas) siempre junto: las firmas no quedan solas en una página. */}
         <View wrap={false}>
           <Diagnostico r={r} />

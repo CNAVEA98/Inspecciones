@@ -150,6 +150,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-01 · Bandeja del supervisor y del planificador con carpetas por turno y por área
+- **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
+- **Qué se hizo:** la bandeja de entrada del supervisor y del planificador se abre ahora en dos carpetas, **Turno A** y **Turno B**, y dentro de cada una **Chacay-Mina** y **Puerto-Mauro**. Cada tarjeta muestra cuántas inspecciones hay y cuántas le tocan firmar a quien mira. Son vistas, no copias: la inspección cae sola en su carpeta según el turno de la cuenta de técnico que la envió (`technician_shift`) y su área (Chacay y Mina juntas; Puerto y Mauro juntas). Dentro de la carpeta se mantiene la lista de siempre (filtros por estado, búsqueda, fechas) con una ruta «Bandeja › Turno A › Chacay-Mina». «Buscar o ver todas en una lista» (o cualquier búsqueda) muestra todo junto sin pasar por las carpetas. El administrador conserva la lista plana de siempre.
+- **Archivos:** `src/lib/revision/carpetas.ts` (nuevo, con test), `src/components/revision/carpetas-bandeja.tsx` (nuevo), `src/components/revision/bandeja.tsx`, `src/lib/revision/consulta.ts` (+ test), `src/app/supervisor/page.tsx`, `src/app/planificador/page.tsx`
+- **Verificación:** lint, tsc, 178 tests (5 nuevos) y build en verde. Vista en pantalla con las cuentas de supervisor y planificador: no verificada (la hace Manuel en localhost).
+- **Pendiente / riesgos:** (1) Valle no tiene carpeta propia: sus inspecciones aparecen en una tercera carpeta «Otras áreas» solo cuando existen, y las que no tengan turno en «Sin turno»; confirmar si Valle debe ir en alguna de las dos carpetas. (2) Se ve el turno de la **cuenta** del técnico, no el de quien realizó la inspección. (3) Las carpetas se calculan sobre las últimas 1.000 inspecciones que carga la bandeja.
+
 ### 2026-10-31 · Las 60 plantillas cargadas en el Supabase remoto (el sitio publicado ya muestra todos los formatos)
 - **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-migraciones-remotas`
 - **Qué se hizo:** el sitio de Vercel mostraba pocos formatos porque las plantillas viven en la tabla `form_templates` de Supabase y no viajan con `git push`; en el remoto solo estaba la de `seed_catalogo.sql`. Cristóbal ejecutó en el SQL Editor (superusuario `postgres`) `seed_plantillas_insp.sql`, `seed_plantillas_insp_16_41.sql` y `seed_plantillas_mant.sql`. Como el editor rechazó los archivos grandes («request entity too large»: 100, 253 y 283 KB), se partieron en 19 trozos de menos de 45 KB cada uno (cortados en sentencias completas; unidos dan el contenido idéntico al original) y se ejecutaron en orden.

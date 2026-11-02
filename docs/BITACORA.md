@@ -150,6 +150,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-02 · Se quitan de la interfaz los textos que prometen completar la inspección sin señal
+- **Autor:** Manuel (con Claude) · rama `fix/textos-sin-senal`
+- **Qué se hizo:** a pedido de Manuel, que probó sin señal y no pudo iniciar nada, se quitan las dos frases que prometían el uso sin señal: en el ingreso, «Complete el formulario en terreno, incluso sin señal, y envíelo cuando vuelva la conexión» pasa a «Complete el formulario en terreno y envíelo desde la misma app»; en el paso «Revisar», «Todo listo. Si no hay red, se enviará apenas vuelva la conexión» pasa a «Todo listo para enviar». No se cambió la lógica: el service worker, la cola de envío y los avisos de estado reales («Sin conexión, N guardadas en el equipo» y «Se enviará apenas haya conexión», que solo aparecen si de verdad quedó en cola) siguen igual.
+- **Archivos:** `src/app/login/page.tsx`, `src/components/tecnico/formulario.tsx`
+- **Verificación:** lint y tsc sin errores, 184 tests y build en verde. Los textos nuevos no se vieron en pantalla.
+- **Pendiente / riesgos:** el uso sin señal sigue sin probarse de punta a punta (ver entrada del 2026-10-30). Ojo al probar: el service worker solo se activa en producción (`next build` + `next start`, o Vercel con https); con `pnpm dev` o abriendo `http://192.168…` desde el teléfono no hay modo sin señal. El inicio de sesión siempre necesita señal. Si se confirma que funciona, se pueden volver a poner los textos.
+
 ### 2026-11-01 · PDF: las tablas siguen en la página siguiente con un recuadro cerrado por página
 - **Autor:** Manuel (con Claude) · rama `feat/bandeja-carpetas-turno`
 - **Qué se hizo:** a pedido de Manuel, cada tabla de ítems del PDF ya no salta entera a la página siguiente (dejaba la primera hoja casi vacía): empieza justo bajo «Resultado de la inspección» y lo que no cabe continúa en la hoja siguiente. Cada página lleva su propio recuadro **cerrado** (no un marco abierto cortado). Se logra con dos pasadas: la primera anota en qué página cae cada fila (`render` de react-pdf) y la segunda dibuja un recuadro por página (`break` entre tramos). La pasada de medición deja 16 pt libres al pie de cada página para el cierre y la apertura de los recuadros. Las filas nunca se cortan por la mitad; el título de la tabla va solo en el primer tramo y siempre junto con la primera fila. Reemplaza la regla del 31-10 («la tabla viaja entera»): `paginado.ts` ya no estima alturas.

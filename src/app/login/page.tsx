@@ -22,7 +22,7 @@ export default async function LoginPage({
             Cada inspección, firmada y trazable.
           </h1>
           <p className="mt-5 max-w-[48ch] text-lg leading-relaxed text-[#c9d0d6]">
-            Complete el formulario en terreno, incluso sin señal, y envíelo cuando vuelva la conexión.
+            Complete el formulario en terreno y envíelo desde la misma app.
           </p>
         </div>
 

@@ -472,7 +472,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             </div>
           ) : (
             <p className="rounded-2xl border border-ok bg-[#e1f2e8] p-4 text-lg font-medium text-[#0b4a28]">
-              Todo listo. Si no hay red, se enviará apenas vuelva la conexión.
+              Todo listo para enviar.
             </p>
           )}
           <button

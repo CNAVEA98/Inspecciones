@@ -79,14 +79,14 @@ GitHub con la copia local y baje lo último:
 | Rendimiento del arranque en móvil | Hecho en `perf/arranque-movil` (2026-11-03): abrir la app 1.102 → 150 ms con 120 ms simulados por llamada; **sin verificar en el sitio publicado ni en iPhone** |
 | Pestaña «Formatos» (editor de plantillas) | Hecha (2026-11-03, en `main`): lista, editor, historial, publicación de versión nueva. Probada por HTTP y con tests; migración 0015 **aplicada en el remoto**; **sin probar con clics en navegador** |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
-| PDF para el técnico (2026-10-31) | Hecho: el técnico descarga el PDF de **sus** inspecciones al enviar y desde «Enviadas» (ruta `/tecnico/[id]/pdf`, por RLS). Probado en local en PC; **sin probar en iPhone ni sin red**. Requiere la migración `0013` |
+| PDF para el técnico (2026-10-31; visor 2026-11-03) | Hecho: el técnico ve el PDF de **sus** inspecciones al enviar y desde «Enviadas» (ruta `/tecnico/[id]/pdf`, por RLS); desde el 2026-11-03 en un visor dentro de la app con Compartir, Guardar y Salir (antes quedaba atrapado en el PDF en el celular; visor probado en PC, **no en teléfono**). Probado en local en PC; **sin probar en iPhone ni sin red**. Requiere la migración `0013` |
 | PDF sin tablas cortadas (2026-10-31, cambiado 2026-11-01) | Hecho: desde el 2026-11-01 (Manuel, PR #8) la tabla empieza bajo «Resultado de la inspección» y continúa en la hoja siguiente con un recuadro **cerrado** por página, sin filas cortadas (antes saltaba entera). Revisado en imagen; sin probar con fotos ni lecturas |
 | Bandeja con carpetas por turno y área, filtro «Tipo de trabajo» (2026-11-01) | Hecho por Manuel (PR #8, en `main`): carpetas Turno A/B → Chacay-Mina / Puerto-Mauro (y «Otras áreas», «Sin turno»), también en «Equipos con fallas»; filtro inspecciones/mantenciones. Revisado en pantalla por Manuel en local; **sin probar en el sitio publicado** |
 | Auditoría con skills de Vercel Labs (`react-best-practices`, `web-design-guidelines`) | **Parcial.** 2026-10-31: auditados 5 archivos del formulario del técnico y aplicadas las mejoras de terreno (foto 44 px con confirmación, confirmar «Quitar sección», texto 12 px, «…», `touch-action`). **Sin auditar:** selección de formato y `tecnico-provider`, firma, tarjetas, indicador de sincronización, pestaña «Formatos», bandeja y área del supervisor/planificador, rutas del PDF (pendiente 29) |
 | Seguimiento de hallazgos y «Equipos con fallas» (2026-10-31) | Hecho en local: pestaña por equipo ordenada por severidad (supervisor, programador, administrador; filtros automáticos de severidad, área y gestión); el supervisor y el administrador registran el N.º de aviso subsecuente SAP o la canalización con MLP, también con la inspección aprobada, **sin bloquear las firmas**; ficha copiable para SAP; trazabilidad en el PDF. Base: migración `0014`, pruebas 42/42. **Sin probar en el sitio publicado, en iPhone ni con datos reales** |
 | Verificación a 375px y 1440px, prueba con red apagada | Parcial (formularios a 375px con datos simulados) |
 
-Verificación global más reciente (2026-11-03, rama `fix/error-catalogo-visible`, hoy en `main`): `lint` y `tsc` sin errores · `test` 236/236 · `build` correcto. Base: `supabase test db` en verde el 2026-11-03 con la 0019 (rama `feat/crear-formatos`; no se volvió a correr después, el PR #10 no toca SQL). Remoto: 0015–0019 verificadas por consulta el 2026-11-03. Las verificaciones anteriores (2026-10-31: 173 tests, 42/42) quedan superadas.
+Verificación global más reciente (2026-11-03, rama `fix/visor-pdf-tecnico`): `lint` y `tsc` sin errores · `test` 243/243 · `build` correcto. Base: `supabase test db` en verde el 2026-11-03 con la 0019 (rama `feat/crear-formatos`; no se volvió a correr después, el PR #10 no toca SQL). Remoto: 0015–0019 verificadas por consulta el 2026-11-03. Las verificaciones anteriores (2026-10-31: 173 tests, 42/42) quedan superadas.
 
 ## Pendientes
 
@@ -136,6 +136,7 @@ Verificación global más reciente (2026-11-03, rama `fix/error-catalogo-visible
 42. **Peso del JavaScript del técnico** (~321 KB comprimidos: React, cliente de Supabase con realtime, Zod, Dexie): evaluar cargar Supabase bajo demanda o `zod/mini`. Queda en caché del service worker tras la primera visita.
 43. **Base local con datos de simulación:** ~120 inspecciones de `TECNICO_A` del 2026-11-03; se limpian con `corepack pnpm supabase db reset` (vuelve a aplicar migraciones y seeds).
 44. **Editor de formatos, siguientes pasos:** vista previa del formulario tal como lo ve el técnico; editar firmas, leyenda de estados y lecturas destacadas; copiar entre inspección y mantención.
+46. **Probar el visor del PDF en el teléfono** (iPhone y Android, app instalada): «Ver PDF» en «Enviadas» y al terminar un envío; Compartir (WhatsApp/correo), Guardar (en iPhone «Guardar en Archivos»), Salir y el botón «atrás» de Android. Decidir si el supervisor, planificador y administrador también necesitan el visor.
 45. **Probar el catálogo en el sitio publicado y en el iPhone** tras aplicar 0015–0019: entrar como `TECNICO_A`, recargar la app (o cerrarla y abrirla) y comprobar que aparecen Área → Trabajo → Familia → Formato y que se puede iniciar una inspección; con `SUPERVISOR_A`, abrir la pestaña «Formatos». Si aparece un error, ahora muestra el motivo real (PR #10).
 
 ## Decisiones
@@ -185,6 +186,31 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · El técnico ve el PDF dentro de la app con Compartir, Guardar y Salir
+- **Autor:** Cristóbal (con Claude) · rama `fix/visor-pdf-tecnico`
+- **Problema (informado por el usuario en el celular):** al tocar «Descargar PDF» en el perfil de técnico, el PDF se abría
+  a pantalla completa y no había forma de volver, salir ni enviarlo. Causa: el botón abría `/tecnico/{id}/pdf` con
+  `target="_blank"`; en la app instalada (sin barra del navegador) eso deja el PDF sin ningún control.
+- **Qué se hizo:** el botón pasa a **«Ver PDF»**: descarga el PDF con `fetch` (misma sesión, mismo permiso por RLS) y lo
+  muestra en un visor propio a pantalla completa (`visor-pdf.tsx`) con tres botones siempre visibles: **Compartir** (hoja del
+  teléfono: WhatsApp, correo, «Guardar en Archivos»…; solo si el navegador admite compartir archivos), **Guardar** (descarga
+  el archivo con su nombre; en iPhone/iPad usa la hoja de compartir con el aviso «Elija Guardar en Archivos», porque una
+  descarga desde la app instalada vuelve a dejar el PDF sin salida) y **Salir**. El botón «atrás» del teléfono y Escape
+  también cierran el visor (entrada de historial con `history.pushState`, que Next 16 integra a su router). Vista previa
+  dentro de la app solo si el navegador puede mostrar PDF (`navigator.pdfViewerEnabled`); si no (Android), se muestra
+  «PDF listo» con instrucciones. Mientras se genera: «Preparando PDF…»; los errores del servidor se muestran con su texto.
+- **Archivos:** `src/components/tecnico/boton-pdf.tsx`, `src/components/tecnico/visor-pdf.tsx` (nuevo),
+  `src/lib/tecnico/pdf.ts` y `pdf.test.ts` (nuevos: nombre desde `Content-Disposition`, detección de iOS).
+- **Verificación:** lint y tsc sin errores · `test` 243/243 (7 nuevos) · `build` correcto. En Chrome de escritorio contra la
+  app local compilada (`next start`) con `TECNICO_A`: «Ver PDF» abrió el visor con el nombre del archivo, las 4 páginas y
+  los tres botones; «atrás» del navegador y «Salir» lo cerraron quedando en `/tecnico` **sin recargar la página**.
+  **No verificado:** en iPhone ni en Android (Compartir, Guardar, vista previa en iOS y el «atrás» de Android), ni en el
+  sitio publicado. Compartir y Guardar no se probaron en el PC (abren el diálogo del sistema y una descarga).
+- **Pendiente / riesgos:** en iPhone la vista previa depende de que Safari informe `pdfViewerEnabled`; si informa `false`
+  se verá «PDF listo» sin vista previa (Compartir muestra igual la vista del archivo). Supervisor, planificador y
+  administrador siguen con la descarga directa (no se pidió cambiarla); si la usan desde la app instalada en el teléfono
+  tendrían el mismo problema.
 
 ### 2026-11-03 · Bitácora al día con todas las mejoras
 - **Autor:** Cristóbal (con Claude) · rama `docs/bitacora-al-dia`

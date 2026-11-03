@@ -177,6 +177,21 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-03 · El técnico ve el error real cuando el servidor no entrega el catálogo
+- **Autor:** Cristóbal (con Claude) · rama `fix/error-catalogo-visible`
+- **Diagnóstico (comprobado en el SQL Editor del remoto, solo lectura):** tras unir el PR #9 a `main`, en el sitio publicado
+  el técnico veía «Sin catálogo local. Conéctese a internet…». Causa: **el Supabase remoto no tiene ninguna de las
+  migraciones `0015` a `0019`** (`to_regclass('public.formatos')` = NULL, columna `form_templates.change_note` y funciones
+  `form_templates_set_published_at` y `crear_formato` inexistentes). La descarga del catálogo fallaba, el error se
+  ocultaba y la copia local antigua (sin `formatos`) se descarta a propósito, así que el mensaje pedía "conectarse".
+- **Qué se hizo:** `loadCatalog` registra el error en la consola y, si hay red y el servidor responde con error, muestra
+  «El servidor no entregó el catálogo de formatos: <error>. Avise al administrador.» en vez de pedir conexión
+  (`mensajeSinCatalogo`). Un `TypeError` de `fetch` (sin conexión real) sigue mostrando el mensaje de conexión.
+- **Archivos:** `src/lib/tecnico/catalog.ts`, `src/lib/tecnico/catalog.test.ts`, `src/components/tecnico/nueva-inspeccion.tsx`.
+- **Verificación:** lint OK, tsc OK, tests 236/236, build OK. **No verificado en navegador ni en el sitio publicado.**
+- **Pendiente / riesgos:** **aplicar en el remoto las migraciones `0015` a `0019` en orden** (es lo que realmente arregla el
+  problema; no se aplicó en esta entrada). Hasta entonces el técnico no puede iniciar inspecciones en el sitio publicado.
+
 ### 2026-11-03 · Simulación de los 60 formatos con PDF y contexto para revisión en Cowork
 - **Autor:** Cristóbal (con Claude) · rama `perf/arranque-movil`
 - **Qué se hizo:** script `scripts/simular-formatos.mjs`: entra como `TECNICO_A` a la app **local** (se niega a correr si `NEXT_PUBLIC_SUPABASE_URL` no es local), y por cada formato disponible envía una inspección por el mismo camino que la app (fotos y firma sintéticas a Storage + `submit_inspection`) en dos escenarios, «conforme» y «con hallazgos» (hasta 3 ML con severidad y foto, NA, secciones repetibles con 2 copias), descarga el PDF de `/tecnico/{id}/pdf` y escribe `RESUMEN.md`. Opciones: carpeta de salida, `--solo=INSP-01,MANT-03`, `--url=`. Lee los formatos de la tabla `formatos`. Se preparó `CONTEXTO_COWORK_REVISION_FORMATOS.md` (proyecto, nomenclatura, anatomía esperada del PDF, lista de verificación, tabla de los 60 formatos con secciones/ítems/estados, qué no es falla) junto a los PDF. A pedido del usuario se borraron de la base local las 3 inspecciones sin turno (`INS-2026-000007` a `000009`) con `delete_inspections`.

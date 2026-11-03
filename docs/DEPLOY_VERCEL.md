@@ -99,3 +99,14 @@ Aún **no probado en remoto**: corte total de red con envío al reconectar, inst
 - `supabase/seed_usuarios_dev.sql` (cuentas con contraseñas de prueba) **no** debe ejecutarse en un Supabase remoto.
 - No suba `.env*` a ningún repositorio ni pegue claves en el chat.
 - Las cuentas compartidas se identifican por usuario; la trazabilidad por persona depende del campo «quién realiza la inspección».
+
+## Región de las funciones (rendimiento)
+
+Las funciones de Vercel deben correr en **São Paulo (`gru1`)**, junto a la base de Supabase. `vercel.json` lo fija con
+`"regions": ["gru1"]`. Medido el 2026-11-03: el sitio respondía desde `iad1` (Washington) y cada consulta a Supabase
+cruzaba el continente; la raíz `/` tardaba 2,2 s.
+
+- Después de desplegar, compruébelo: `curl -sI https://inspecciones-bbosch.vercel.app/login | grep -i x-vercel-id` debe
+  mostrar `gru1::gru1` (antes mostraba `gru1::iad1`).
+- Si sigue en `iad1`, cámbielo en Vercel → Project Settings → Functions → **Function Region** → São Paulo (gru1) y vuelva a desplegar.
+- Si el plan no lo permite, lo indica el propio panel; en ese caso se pierde la mejora de región, pero se mantienen las demás.

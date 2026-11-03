@@ -6,7 +6,9 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: "Inspecciones",
     description: "Inspecciones de terreno de infraestructura eléctrica",
     lang: "es-CL",
-    start_url: "/",
+    // El icono abre directo el área del técnico (la usa el teléfono): el service worker la tiene guardada, así abre
+    // aunque no haya red. Otros roles son redirigidos por el proxy a su área sin renderizar nada intermedio.
+    start_url: "/tecnico",
     scope: "/",
     display: "standalone",
     orientation: "portrait",

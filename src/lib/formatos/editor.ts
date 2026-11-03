@@ -1,4 +1,5 @@
 import { templateSchema, type FormTemplateSchema, type TemplateItem, type TemplateSection } from "@/lib/templates/schema";
+import { CLAVES_CABECERA_ESTANDAR } from "./estandar";
 
 /**
  * Lógica pura del editor de formatos (sin React ni base de datos). Todas las operaciones devuelven una plantilla nueva.
@@ -148,6 +149,38 @@ export function quitarItem(t: FormTemplateSchema, seccionId: string, itemId: str
   return mapItems(t, seccionId, (items) => items.filter((it) => it.id !== itemId));
 }
 
+// ---------- Cabecera: los campos estándar (TAG, OT, ubicación, fecha, horario) son fijos; los extra se editan ----------
+
+export type TipoCampoCabecera = "text" | "number" | "date";
+
+export const TIPO_CAMPO_LABEL: Record<FormTemplateSchema["header"][number]["input"], string> = {
+  text: "Texto",
+  number: "Número",
+  date: "Fecha",
+  time: "Hora",
+};
+
+export const esCampoEstandar = (key: string) => CLAVES_CABECERA_ESTANDAR.has(key);
+
+/** Agrega un campo extra a la cabecera (p. ej. «Marca»), al final. */
+export function agregarCampoCabecera(t: FormTemplateSchema, label: string, input: TipoCampoCabecera): FormTemplateSchema {
+  const usados = new Set([...t.header.map((h) => h.key), ...CLAVES_CABECERA_ESTANDAR]);
+  const key = slugId(label, usados, "dato");
+  return { ...t, header: [...t.header, { key, label, input, required: false }] };
+}
+
+/** Cambia el nombre o la obligatoriedad de un campo extra. Los estándar no se tocan. */
+export function editarCampoCabecera(t: FormTemplateSchema, key: string, cambios: Partial<{ label: string; required: boolean }>): FormTemplateSchema {
+  if (esCampoEstandar(key)) return t;
+  return { ...t, header: t.header.map((h) => (h.key === key ? { ...h, ...cambios, key: h.key, input: h.input } : h)) };
+}
+
+/** Quita un campo extra. Los estándar no se quitan. */
+export function quitarCampoCabecera(t: FormTemplateSchema, key: string): FormTemplateSchema {
+  if (esCampoEstandar(key)) return t;
+  return { ...t, header: t.header.filter((h) => h.key !== key) };
+}
+
 /** Ítems que usan las lecturas destacadas del informe: no se pueden quitar sin antes cambiar la lectura. */
 export function itemsEnLecturas(t: FormTemplateSchema): Set<string> {
   const s = new Set<string>();
@@ -170,6 +203,8 @@ export function prepararParaPublicar(t: FormTemplateSchema): { ok: true; templat
       return { ...resto, label: it.label.trim(), ...(h ? { help: h } : {}) } as TemplateItem;
     }),
   }));
+  limpio.header = limpio.header.map((h) => ({ ...h, label: h.label.trim() }));
+  for (const h of limpio.header) if (!h.label) errores.push("Hay un campo de la cabecera sin nombre");
   for (const s of limpio.sections) {
     if (!s.title) errores.push("Hay una sección sin título");
     for (const it of s.items) if (!it.label) errores.push(`Hay un ítem sin texto en «${s.title || s.id}»`);
@@ -186,11 +221,24 @@ export function prepararParaPublicar(t: FormTemplateSchema): { ok: true; templat
  */
 export function problemasDeEdicion(base: FormTemplateSchema, nueva: FormTemplateSchema): string[] {
   const out: string[] = [];
-  const { sections: _a, ...restoBase } = base;
-  const { sections: _b, ...restoNueva } = nueva;
+  const { sections: _a, header: hBase, ...restoBase } = base;
+  const { sections: _b, header: hNueva, ...restoNueva } = nueva;
   void _a; void _b;
   if (JSON.stringify(restoBase) !== JSON.stringify(restoNueva)) {
-    out.push("Solo se pueden editar las secciones y sus ítems (cabecera, roles, lecturas y estados no se modifican aquí)");
+    out.push("Solo se pueden editar las secciones, sus ítems y los campos extra de la cabecera (roles, lecturas y estados no se modifican aquí)");
+  }
+  const cabNueva = new Map(hNueva.map((h) => [h.key, h]));
+  for (const h of hBase) {
+    const n = cabNueva.get(h.key);
+    if (esCampoEstandar(h.key)) {
+      if (!n || JSON.stringify(n) !== JSON.stringify(h)) out.push(`El campo estándar «${h.label}» de la cabecera no se puede cambiar ni quitar`);
+    } else if (n && n.input !== h.input) {
+      out.push(`No se puede cambiar el tipo del campo «${h.label}» de la cabecera`);
+    }
+  }
+  const clavesBase = new Set(hBase.map((h) => h.key));
+  for (const h of hNueva) {
+    if (!clavesBase.has(h.key) && esCampoEstandar(h.key)) out.push(`El campo «${h.label}» usa una clave reservada`);
   }
   const secBase = new Map(base.sections.map((s) => [s.id, s]));
   for (const s of nueva.sections) {
@@ -214,13 +262,23 @@ export function problemasDeEdicion(base: FormTemplateSchema, nueva: FormTemplate
 }
 
 export interface Cambio {
-  tipo: "seccion-nueva" | "seccion-quitada" | "seccion-renombrada" | "seccion-movida" | "item-nuevo" | "item-quitado" | "item-editado" | "item-movido";
+  tipo: "campo-nuevo" | "campo-quitado" | "campo-editado" | "seccion-nueva" | "seccion-quitada" | "seccion-renombrada" | "seccion-movida" | "item-nuevo" | "item-quitado" | "item-editado" | "item-movido";
   texto: string;
 }
 
 /** Resumen legible de lo que cambió entre dos versiones (para confirmar antes de publicar y para la nota de cambios). */
 export function resumenCambios(antes: FormTemplateSchema, despues: FormTemplateSchema): Cambio[] {
   const out: Cambio[] = [];
+  const cabA = new Map(antes.header.map((h) => [h.key, h]));
+  const cabD = new Map(despues.header.map((h) => [h.key, h]));
+  for (const h of despues.header) {
+    const a = cabA.get(h.key);
+    if (!a) out.push({ tipo: "campo-nuevo", texto: `Campo nuevo en la cabecera «${h.label}»` });
+    else if (a.label !== h.label || a.required !== h.required) {
+      out.push({ tipo: "campo-editado", texto: a.label !== h.label ? `Campo de cabecera «${a.label}» → «${h.label}»` : `Campo de cabecera «${h.label}»: obligatorio` });
+    }
+  }
+  for (const h of antes.header) if (!cabD.has(h.key)) out.push({ tipo: "campo-quitado", texto: `Campo quitado de la cabecera «${h.label}»` });
   const secA = new Map(antes.sections.map((s) => [s.id, s]));
   const secD = new Map(despues.sections.map((s) => [s.id, s]));
   const itemsA = new Map(antes.sections.flatMap((s) => s.items.map((it) => [it.id, { it, sec: s.id }] as const)));

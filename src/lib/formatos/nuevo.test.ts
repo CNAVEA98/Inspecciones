@@ -13,6 +13,7 @@ const valido = {
   variosEquipos: false,
   norma: "EST-ELEC-MLP-Bbosch-42",
   revision: "Noviembre 2026",
+  origen: "copia" as const,
   copiarDe: "INSP-12",
 };
 

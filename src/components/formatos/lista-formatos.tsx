@@ -1,10 +1,15 @@
 import Link from "next/link";
 import { formatFechaHora } from "@/lib/fecha";
 import { listarFormatos } from "@/lib/formatos/plantillas";
+import { BotonActivo } from "./boton-activo";
 
-/** Listado de los formatos con su versión vigente. `base` es la ruta del panel («/supervisor»…). */
-export async function ListaFormatos({ base, puedeEditar }: { base: string; puedeEditar: boolean }) {
+/**
+ * Listado de los formatos con su versión vigente. `base` es la ruta del panel («/supervisor»…).
+ * `puedeActivar` (solo administrador) muestra el botón Desactivar / Reactivar.
+ */
+export async function ListaFormatos({ base, puedeEditar, puedeActivar = false }: { base: string; puedeEditar: boolean; puedeActivar?: boolean }) {
   const filas = await listarFormatos();
+  const inactivos = filas.filter((f) => !f.formato.activo).length;
   const grupos = (["INSP", "MANT"] as const).map((tipo) => ({ tipo, filas: filas.filter((f) => f.formato.tipo === tipo) }));
 
   return (
@@ -15,7 +20,15 @@ export async function ListaFormatos({ base, puedeEditar }: { base: string; puede
           {puedeEditar
             ? "Entre a un formato para cambiar los textos de sus preguntas o agregar secciones e ítems. Cada cambio se publica como una versión nueva; las inspecciones ya enviadas conservan la suya."
             : "Consulta de los formatos vigentes y su historial de versiones. Solo un supervisor o un administrador puede modificarlos."}
+          {puedeActivar
+            ? " Un formato desactivado deja de ofrecerse a los técnicos, pero no se borra: sus inspecciones y versiones se conservan."
+            : ""}
         </p>
+        {inactivos > 0 ? (
+          <p className="mt-1 text-sm font-semibold text-sub">
+            {inactivos} formato{inactivos === 1 ? "" : "s"} desactivado{inactivos === 1 ? "" : "s"}: no aparece{inactivos === 1 ? "" : "n"} al técnico.
+          </p>
+        ) : null}
       </header>
 
       {grupos.map((g) => (
@@ -39,9 +52,16 @@ export async function ListaFormatos({ base, puedeEditar }: { base: string; puede
               </thead>
               <tbody>
                 {g.filas.map(({ formato, familia, actual, versiones }) => (
-                  <tr key={formato.id} className="border-t border-hair align-top">
+                  <tr key={formato.id} className={`border-t border-hair align-top ${formato.activo ? "" : "bg-paper text-sub"}`}>
                     <td className="px-5 py-3 font-mono font-semibold">{formato.id}</td>
-                    <td className="px-5 py-3 font-medium">{formato.titulo.trim()}</td>
+                    <td className="px-5 py-3 font-medium">
+                      {formato.titulo.trim()}
+                      {formato.activo ? null : (
+                        <span className="ml-2 rounded-full border border-hair bg-white px-2 py-0.5 font-mono text-[11px] uppercase tracking-[0.06em] text-sub">
+                          Desactivado
+                        </span>
+                      )}
+                    </td>
                     <td className="px-5 py-3 text-sub">{familia}</td>
                     <td className="px-5 py-3 font-mono">{actual ? `v${actual.version}` : "—"}{versiones > 1 ? <span className="text-sub"> · {versiones} versiones</span> : null}</td>
                     <td className="px-5 py-3 text-sub">
@@ -49,6 +69,7 @@ export async function ListaFormatos({ base, puedeEditar }: { base: string; puede
                       {actual?.autor ? <span className="block">{actual.autor}</span> : null}
                     </td>
                     <td className="px-5 py-3 text-right">
+                      <span className="inline-flex flex-wrap items-start justify-end gap-2">
                       {actual ? (
                         <Link
                           href={`${base}/formatos/${formato.id}`}
@@ -59,6 +80,8 @@ export async function ListaFormatos({ base, puedeEditar }: { base: string; puede
                       ) : (
                         <span className="text-sub">Sin plantilla</span>
                       )}
+                      {puedeActivar ? <BotonActivo formatoId={formato.id} titulo={formato.titulo.trim()} activo={formato.activo} /> : null}
+                      </span>
                     </td>
                   </tr>
                 ))}

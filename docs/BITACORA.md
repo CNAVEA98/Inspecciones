@@ -57,6 +57,7 @@ GitHub con la copia local y baje lo último:
 | Despliegue de prueba (Vercel + Supabase remoto) | Esquema y catálogo cargados y verificados en el Supabase remoto; 7 cuentas con rol y turno; app publicada y compilando. **Falta que el usuario pruebe el ingreso en el sitio publicado** y confirme que desactivó el registro libre (ver «Pendientes» 15 a 19) |
 | Service worker / PWA instalable | Hecho (2026-10-30, rama `feat/pwa-offline`): probado en Chrome con el servidor apagado; **sin probar con corte total de red, envío sin red ni instalación en teléfono** |
 | Flujo del supervisor y planificador (bandeja, detalle, aprobar/rechazar, firma) | Bandeja, detalle, PDF y firma de revisión (aprobar/rechazar con comentario y firma dibujada) hechos; lógica y permisos probados contra la app; firma del supervisor probada en navegador (2026-10-30), **firma del planificador y rechazo sin probar en navegador**. Bandeja con buscador y consulta (TAG, turno, fechas) y eliminación con confirmación por el administrador, probados en navegador |
+| Desactivar / reactivar formatos | Hecho en `feat/desactivar-formatos` (2026-11-03), solo administrador; sin probar con clics |
 | Catálogo de formatos en la base | Hecho en `feat/catalogo-formatos-bd` (2026-11-03), mismos 60 formatos; **migración 0016 sin aplicar en el remoto** y flujo del técnico sin probar con clics |
 | Pestaña «Formatos» (editor de plantillas) | Hecha en la rama `feat/editor-formatos` (2026-11-03): lista, editor, historial, publicación de versión nueva. Probada por HTTP y con tests; **sin probar con clics en navegador y migración 0015 sin aplicar en el remoto** |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
@@ -154,6 +155,13 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · Formatos: desactivar y reactivar (paso 2 de 3)
+- **Autor:** Cristóbal (con Claude) · rama `feat/desactivar-formatos` (sale de `feat/catalogo-formatos-bd`: unir antes los PR del editor y del catálogo)
+- **Qué se hizo:** en la pestaña «Formatos» el **administrador** tiene un botón «Desactivar» / «Reactivar» por formato, con confirmación que explica el efecto. Un formato desactivado deja de ofrecerse al técnico en el flujo de 4 pasos (y una familia sin formatos activos deja de mostrarse), pero **no se borra nada**: sus inspecciones, PDF y versiones se conservan, los borradores ya empezados se pueden terminar y se puede reactivar. En la lista aparece con la etiqueta «Desactivado» para los tres roles, y el detalle del formato lo avisa. Supervisor y planificador no ven el botón.
+- **Archivos:** `src/lib/formatos/activo-actions.ts`, `src/components/formatos/{boton-activo,lista-formatos,pagina-formato}.tsx`, `src/app/admin/formatos/page.tsx`. Sin migración nueva (usa la columna `activo` de la 0016).
+- **Verificación:** lint, typecheck y build en verde; 213 tests (el filtro de formatos desactivados ya estaba probado en `catalogo.test.ts`). En la app local con sesiones reales: 60 botones en el panel del administrador y ninguno en el del supervisor; la acción rechazó al supervisor y un id inválido; el administrador desactivó INSP-12, el técnico lo leyó como inactivo, la lista del supervisor mostró «Desactivado» y el detalle el aviso; después se reactivó (la base quedó con 0 formatos desactivados).
+- **Pendiente / riesgos:** **no probado con clics** (el diálogo de confirmación del navegador y el refresco de la lista se probaron por HTTP, no con el ratón). Un técnico **sin red** sigue viendo el formato hasta que vuelva a descargar el catálogo con conexión. Paso siguiente: 3) crear formatos nuevos copiando uno existente.
 
 ### 2026-11-03 · Catálogo de formatos en la base de datos (paso 1 de 3, sin cambios visibles)
 - **Autor:** Cristóbal (con Claude) · rama `feat/catalogo-formatos-bd` (sale de `feat/editor-formatos`: unir primero ese PR)

@@ -31,8 +31,9 @@ export async function PaginaFormato({ base, formatoId, puedeEditar }: { base: st
         )}
         {puedeEditar && (
           <p className="max-w-3xl text-sm text-sub">
-            Puede cambiar textos, ayudas, unidades y rangos, agregar o quitar secciones e ítems y reordenarlos. No se cambian el tipo ni el
-            identificador de los ítems que ya existen, ni la cabecera, los roles ni las lecturas del informe. Si cambia el contenido
+            Puede cambiar textos, ayudas, unidades y rangos, agregar o quitar secciones e ítems y reordenarlos. También puede sumar campos propios a la
+            cabecera. No se cambian el tipo ni el identificador de los ítems que ya existen, ni los campos estándar de la cabecera, las firmas
+            ni las lecturas del informe. Si cambia el contenido
             normativo, recuerde actualizar la revisión del documento oficial.
           </p>
         )}

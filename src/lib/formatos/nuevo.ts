@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Formato, TipoTrabajo } from "./catalogo";
+import { plantillaEnBlanco } from "./estandar";
 
 /** «INSP» + 42 → «INSP-42» (dos dígitos como mínimo, igual que los existentes). */
 export const idFormato = (tipo: TipoTrabajo, numero: number) => `${tipo}-${String(numero).padStart(2, "0")}`;
@@ -33,9 +34,15 @@ export const nuevoFormatoSchema = z
     variosEquipos: z.boolean(),
     norma: z.string().trim().min(3, "Escriba el código de la norma (p. ej. EST-ELEC-MLP-Bbosch-42)").max(80),
     revision: z.string().trim().min(3, "Escriba la revisión (p. ej. Noviembre 2026)").max(60),
-    copiarDe: z.string().regex(/^(INSP|MANT)-\d{2,3}$/, "Elija el formato que se copia"),
+    /** «blanco»: estructura estándar y se arma pregunta por pregunta; «copia»: contenido de otro formato. */
+    origen: z.enum(["blanco", "copia"]),
+    copiarDe: z.string().optional(),
   })
-  .refine((v) => v.copiarDe.startsWith(`${v.tipo}-`), {
+  .refine((v) => v.origen === "blanco" || /^(INSP|MANT)-\d{2,3}$/.test(v.copiarDe ?? ""), {
+    message: "Elija el formato que se copia",
+    path: ["copiarDe"],
+  })
+  .refine((v) => v.origen === "blanco" || (v.copiarDe ?? "").startsWith(`${v.tipo}-`), {
     message: "Copie un formato del mismo tipo (inspección o mantención)",
     path: ["copiarDe"],
   });
@@ -54,5 +61,8 @@ export const aPayloadBD = (v: NuevoFormato) => ({
   varios_equipos: v.variosEquipos,
   norma: v.norma,
   revision: v.revision,
-  copiar_de: v.copiarDe,
+  // En blanco: la plantilla estándar se arma aquí (servidor) y la base la recibe ya validada.
+  ...(v.origen === "copia"
+    ? { copiar_de: v.copiarDe }
+    : { copiar_de: null, schema: plantillaEnBlanco(v.tipo, v.titulo, v.norma, v.revision) }),
 });

@@ -4,8 +4,14 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, ChevronUp, Plus, Trash2 } from "lucide-react";
 import {
+  TIPO_CAMPO_LABEL,
   TIPO_ITEM_LABEL,
+  agregarCampoCabecera,
   agregarItem,
+  editarCampoCabecera,
+  esCampoEstandar,
+  quitarCampoCabecera,
+  type TipoCampoCabecera,
   agregarSeccion,
   editarItem,
   itemsEnLecturas,
@@ -113,6 +119,14 @@ export function EditorFormato({ formatoId, titulo, versionBase, inicial, soloLec
           {error}
         </p>
       )}
+
+      <Cabecera
+        header={t.header}
+        soloLectura={soloLectura}
+        onAgregar={(label, input) => setT(agregarCampoCabecera(t, label, input))}
+        onEditar={(key, c) => setT(editarCampoCabecera(t, key, c))}
+        onQuitar={(key, label) => confirmar(`¿Quitar el campo «${label}» de la cabecera?`) && setT(quitarCampoCabecera(t, key))}
+      />
 
       {t.sections.map((s, si) => (
         <section key={s.id} className="rounded-2xl border border-hair bg-white" aria-label={`Sección ${s.title}`}>
@@ -409,5 +423,91 @@ function NuevaSeccion({ onAgregar }: { onAgregar: (titulo: string, primerItem: s
       </div>
       <p className="text-xs text-sub">La sección nueva queda al final y su primer ítem es de verificación; después puede agregar más ítems de cualquier tipo.</p>
     </form>
+  );
+}
+
+function Cabecera({
+  header,
+  soloLectura,
+  onAgregar,
+  onEditar,
+  onQuitar,
+}: {
+  header: FormTemplateSchema["header"];
+  soloLectura: boolean;
+  onAgregar: (label: string, input: TipoCampoCabecera) => void;
+  onEditar: (key: string, c: { label?: string; required?: boolean }) => void;
+  onQuitar: (key: string, label: string) => void;
+}) {
+  const [label, setLabel] = useState("");
+  const [input, setInput] = useState<TipoCampoCabecera>("text");
+  const estandar = header.filter((h) => esCampoEstandar(h.key));
+  const extra = header.filter((h) => !esCampoEstandar(h.key));
+  return (
+    <section className="rounded-2xl border border-hair bg-white" aria-label="Cabecera del formato">
+      <div className="border-b border-hair px-4 py-3">
+        <h2 className="font-semibold">Cabecera · datos del equipo</h2>
+        <p className="text-xs text-sub">
+          Los campos estándar y las firmas son iguales en todos los formatos y no se modifican. El nombre del técnico, la firma del encargado y
+          los participantes los agrega la app siempre. Puede sumar datos propios del equipo (marca, serie, potencia…), que salen en la ficha del informe.
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2 px-4 py-3">
+        {estandar.map((h) => (
+          <span key={h.key} className="rounded-full bg-paper px-3 py-1 text-xs font-semibold text-sub" title="Campo estándar">
+            {h.label}
+          </span>
+        ))}
+      </div>
+      {extra.length > 0 && (
+        <ul className="divide-y divide-hair border-t border-hair">
+          {extra.map((h) => (
+            <li key={h.key} className="flex flex-wrap items-center gap-2 px-4 py-2">
+              <input
+                value={h.label}
+                onChange={(e) => onEditar(h.key, { label: e.target.value })}
+                disabled={soloLectura}
+                aria-label={`Nombre del campo ${h.label}`}
+                className={`${campo} min-w-60 flex-1`}
+              />
+              <span className="rounded-full bg-paper px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.06em] text-sub">{TIPO_CAMPO_LABEL[h.input]}</span>
+              <label className="flex items-center gap-1.5 text-sm">
+                <input type="checkbox" checked={h.required} disabled={soloLectura} onChange={(e) => onEditar(h.key, { required: e.target.checked })} />
+                Obligatorio
+              </label>
+              {!soloLectura && (
+                <button type="button" className={botonIcono} aria-label={`Quitar el campo ${h.label}`} onClick={() => onQuitar(h.key, h.label)}>
+                  <Trash2 size={16} />
+                </button>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {!soloLectura && (
+        <form
+          className="flex flex-wrap items-center gap-2 border-t border-hair bg-paper px-4 py-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!label.trim()) return;
+            onAgregar(label.trim(), input);
+            setLabel("");
+          }}
+        >
+          <Plus size={16} aria-hidden className="text-sub" />
+          <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Nombre del dato (p. ej. Marca)" aria-label="Nombre del campo nuevo de la cabecera" className={`${campo} min-w-60 flex-1`} />
+          <select value={input} onChange={(e) => setInput(e.target.value as TipoCampoCabecera)} aria-label="Tipo del campo nuevo" className={`${campo} w-auto`}>
+            {(["text", "number", "date"] as const).map((x) => (
+              <option key={x} value={x}>
+                {TIPO_CAMPO_LABEL[x]}
+              </option>
+            ))}
+          </select>
+          <button type="submit" className={botonSecundario} disabled={!label.trim()}>
+            Agregar campo
+          </button>
+        </form>
+      )}
+    </section>
   );
 }

@@ -24,8 +24,8 @@ export async function PaginaNuevoFormato({ base }: { base: string }) {
         </Link>
         <h1 className="text-xl font-bold tracking-tight">Nuevo formato</h1>
         <p className="max-w-3xl text-sm text-sub">
-          El formato nuevo parte como una copia del contenido vigente de otro del mismo tipo. Al crearlo se abre el editor para
-          ajustar sus secciones e ítems.
+          Puede partir en blanco, con la estructura estándar, o de una copia de otro formato del mismo tipo. Al crearlo se abre
+          el editor para agregar o ajustar las preguntas una a una.
         </p>
       </header>
       <NuevoFormato

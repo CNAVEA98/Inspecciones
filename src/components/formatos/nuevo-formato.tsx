@@ -30,11 +30,12 @@ interface Props {
   existentes: string[];
 }
 
-/** Formulario del supervisor y del administrador: crea un formato copiando el contenido de otro del mismo tipo. */
+/** Formulario del supervisor y del administrador: crea un formato en blanco (estructura estándar) o copiando otro del mismo tipo. */
 export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: Props) {
   const router = useRouter();
   const [tipo, setTipo] = useState<TipoTrabajo>("INSP");
   const [numero, setNumero] = useState(siguiente.INSP);
+  const [origen, setOrigen] = useState<"blanco" | "copia">("blanco");
   const [copiarDe, setCopiarDe] = useState("");
   const [titulo, setTitulo] = useState("");
   const [familia, setFamilia] = useState<CodigoFamilia>("F1");
@@ -84,7 +85,8 @@ export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: P
         variosEquipos: varios,
         norma,
         revision,
-        copiarDe,
+        origen,
+        ...(origen === "copia" ? { copiarDe } : {}),
       });
       if (r.ok) router.push(`${base}/formatos/${r.id}`);
       else setError(r.error);
@@ -105,9 +107,31 @@ export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: P
         </div>
       </fieldset>
 
+      <fieldset className="space-y-2">
+        <legend className={etiqueta}>Partir de</legend>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="radio" name="origen" className="mt-1" checked={origen === "blanco"} onChange={() => setOrigen("blanco")} />
+          <span>
+            <strong>En blanco, con la estructura estándar</strong>
+            <span className="block text-sub">
+              Cabecera (TAG, N° OT, ubicación, fecha, hora de inicio y término), las firmas (encargado, supervisor y planificador) y la
+              leyenda de estados de {tipo === "INSP" ? "inspección" : "mantención"}. Las preguntas las agrega una a una en el editor.
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 text-sm">
+          <input type="radio" name="origen" className="mt-1" checked={origen === "copia"} onChange={() => setOrigen("copia")} />
+          <span>
+            <strong>Copia de un formato existente</strong>
+            <span className="block text-sub">Trae sus secciones, preguntas, cabecera, firmas y lecturas, para ajustarlas.</span>
+          </span>
+        </label>
+      </fieldset>
+
+      {origen === "copia" ? (
       <label className={etiqueta}>
         Copiar el contenido de
-        <select required value={copiarDe} onChange={(e) => elegirOrigen(e.target.value)} className={`${campo} mt-1`}>
+        <select required={origen === "copia"} value={copiarDe} onChange={(e) => elegirOrigen(e.target.value)} className={`${campo} mt-1`}>
           <option value="">Elija un formato…</option>
           {delTipo.map((o) => (
             <option key={o.id} value={o.id}>
@@ -119,6 +143,7 @@ export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: P
           Se copian sus secciones, ítems, cabecera, roles y lecturas. Después puede ajustarlos en el editor.
         </span>
       </label>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-[10rem_1fr]">
         <label className={etiqueta}>
@@ -202,7 +227,7 @@ export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: P
       <div className="flex flex-wrap items-center gap-3">
         <button
           type="submit"
-          disabled={pendiente || repetido || !copiarDe}
+          disabled={pendiente || repetido || (origen === "copia" && !copiarDe)}
           className="rounded-lg bg-graf px-4 py-2 text-sm font-semibold text-white hover:bg-graf-2 focus-visible:outline-2 focus-visible:outline-cu disabled:opacity-50"
         >
           {pendiente ? "Creando…" : `Crear ${id}`}

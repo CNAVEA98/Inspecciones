@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(25);
+select plan(28);
 
 create function public.tap_as(p_email text)
 returns void
@@ -112,6 +112,15 @@ select is((select ft.schema -> 'meta' ->> 'norma' from public.form_templates ft 
 select throws_ok($$ select public.crear_formato((select p from nuevo)) $$, '23505', null, 'no se puede repetir el id');
 select throws_ok($$ select public.crear_formato((select jsonb_set(jsonb_set(p, '{id}', '"INSP-92"'), '{copiar_de}', '"MANT-03"') from nuevo)) $$,
   '22023', null, 'no se puede copiar un formato de otro tipo');
+
+-- ---------- En blanco (migración 0019) ----------
+select public.tap_as('supervisor_a@mlp.local');
+select is(public.crear_formato((select jsonb_set(jsonb_set(p - 'copiar_de', '{id}', '"MANT-90"'), '{tipo}', '"MANT"')
+            || '{"schema":{"title":"x","sections":[{"id":"s1","title":"S","items":[{"id":"a","type":"verificacion","label":"A"}]}]}}'::jsonb from nuevo)),
+          'MANT-90', 'el supervisor crea un formato en blanco');
+select is((select modo_code from public.formatos where id = 'MANT-90'), 'mantenimiento_programado', 'en blanco toma el modo según el tipo');
+select throws_ok($$ select public.crear_formato((select jsonb_set(p - 'copiar_de', '{id}', '"INSP-93"') from nuevo)) $$,
+  '22023', null, 'en blanco sin plantilla se rechaza');
 
 select * from finish();
 rollback;

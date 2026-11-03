@@ -4,6 +4,8 @@ import { roleWithShift } from "@/lib/auth/roles";
 import { SignOutButton } from "@/components/shared/sign-out-button";
 import { TecnicoProvider } from "@/components/tecnico/tecnico-provider";
 import { SyncIndicator } from "@/components/tecnico/sync-indicator";
+import { PiePagina } from "@/components/shared/pie-pagina";
+import { AvisoPrivacidad } from "@/components/shared/aviso-privacidad";
 
 /** Área del técnico: mobile-first, objetivos táctiles grandes, funciona con y sin red. */
 export default async function TecnicoLayout({ children }: { children: React.ReactNode }) {
@@ -26,8 +28,12 @@ export default async function TecnicoLayout({ children }: { children: React.Reac
             </div>
           </div>
         </header>
-        <main className="flex-1 px-5 py-6">{children}</main>
+        {/* min-h: el pie queda siempre bajo el borde de la pantalla; las listas del técnico cargan desde el teléfono
+            después de pintar y, si el pie estuviera a la vista, lo empujarían (salto de diseño). */}
+        <main className="min-h-[100dvh] flex-1 px-5 py-6">{children}</main>
+        <PiePagina />
       </div>
+      <AvisoPrivacidad userId={session.id} />
     </TecnicoProvider>
   );
 }

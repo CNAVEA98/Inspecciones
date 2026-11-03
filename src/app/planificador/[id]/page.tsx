@@ -4,7 +4,7 @@ import { PanelRevision } from "@/components/revision/panel-revision";
 import { etapaPendiente } from "@/lib/revision/estado";
 import { obtenerDetalle } from "@/lib/revision/queries";
 
-export const metadata = { title: "Detalle de inspección · Inspecciones MLP" };
+export const metadata = { title: "Detalle de inspección · Inspección Eléctrica Bbosch-MLP" };
 
 export default async function DetallePlanificadorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -3,7 +3,7 @@ import { getSession } from "@/lib/auth/session";
 import { ROLES, ROLE_LABEL, SHIFTS, roleWithShift, type Role, type Shift } from "@/lib/auth/roles";
 import { actualizarUsuario } from "./actions";
 
-export const metadata = { title: "Usuarios · Inspecciones MLP" };
+export const metadata = { title: "Usuarios · Inspección Eléctrica Bbosch-MLP" };
 
 const campo =
   "rounded-lg border border-hair bg-white px-2 py-1.5 text-sm focus-visible:outline-2 focus-visible:outline-cu";

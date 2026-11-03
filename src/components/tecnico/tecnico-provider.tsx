@@ -14,6 +14,8 @@ interface CatalogState {
   catalog: Catalog | null;
   status: "loading" | "ready" | "error";
   fromCache: boolean;
+  /** Se muestra la copia local mientras se intenta descargar la nueva: no hay que avisar todavía. */
+  actualizando?: boolean;
   error?: string;
 }
 
@@ -48,12 +50,13 @@ export function TecnicoProvider({ userId, children }: { userId: string; children
     const cargar = async () => {
       // La copia local se muestra al instante: una red lenta no debe bloquear el trabajo en terreno.
       const cache = await readCatalogCache(core.db);
-      if (vivo && cache) setCatalog({ catalog: cache, status: "ready", fromCache: true });
+      if (vivo && cache) setCatalog({ catalog: cache, status: "ready", fromCache: true, actualizando: true });
       try {
         const r = await loadCatalog(core.db, core.supabase, navigator.onLine);
         if (vivo) setCatalog({ catalog: r.catalog, status: "ready", fromCache: r.fromCache });
       } catch (e) {
-        if (vivo && !cache) {
+        if (vivo && cache) setCatalog({ catalog: cache, status: "ready", fromCache: true });
+        else if (vivo) {
           setCatalog({
             catalog: null,
             status: "error",

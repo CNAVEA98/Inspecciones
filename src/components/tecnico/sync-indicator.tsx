@@ -19,7 +19,7 @@ function texto(s: SyncSnapshot): string {
     case "synced":
       return "Todo sincronizado";
     case "syncing":
-      return "Enviando";
+      return "Enviando…";
     case "pending":
       return `${s.pending} por enviar`;
     case "offline":

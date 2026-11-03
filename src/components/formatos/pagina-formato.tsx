@@ -24,6 +24,11 @@ export async function PaginaFormato({ base, formatoId, puedeEditar }: { base: st
           {p.schema.meta ? ` · ${p.schema.meta.norma} · ${p.schema.meta.revision}` : ""}
           {puedeEditar ? "" : " · solo lectura"}
         </p>
+        {p.formato.activo ? null : (
+          <p className="rounded-xl border border-hair bg-paper px-4 py-2 text-sm font-semibold text-sub">
+            Formato desactivado: los técnicos no lo ven al elegir un formato. Un administrador puede reactivarlo desde la lista.
+          </p>
+        )}
         {puedeEditar && (
           <p className="max-w-3xl text-sm text-sub">
             Puede cambiar textos, ayudas, unidades y rangos, agregar o quitar secciones e ítems y reordenarlos. No se cambian el tipo ni el

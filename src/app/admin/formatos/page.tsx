@@ -3,5 +3,5 @@ import { ListaFormatos } from "@/components/formatos/lista-formatos";
 export const metadata = { title: "Formatos · Inspecciones MLP" };
 
 export default function FormatosPage() {
-  return <ListaFormatos base="/admin" puedeEditar={true} />;
+  return <ListaFormatos base="/admin" puedeEditar={true} puedeActivar />;
 }

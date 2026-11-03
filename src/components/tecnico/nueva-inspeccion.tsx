@@ -62,7 +62,7 @@ export function NuevaInspeccion() {
   const [creando, setCreando] = useState(false);
 
   if (catalog.status === "loading") {
-    return <p className="text-lg text-sub">Cargando catálogo</p>;
+    return <p className="text-lg text-sub">Cargando catálogo…</p>;
   }
   if (catalog.status === "error" || !catalog.catalog) {
     return (
@@ -125,7 +125,7 @@ export function NuevaInspeccion() {
       </div>
 
       <h1 className="text-3xl font-bold leading-tight tracking-tight">{TITULO[paso]}</h1>
-      {catalog.fromCache ? (
+      {catalog.fromCache && !catalog.actualizando ? (
         <p className="rounded-xl bg-cu-soft px-4 py-2 text-sm font-medium text-[#7a3d12]">
           Usando el catálogo guardado en el equipo.
         </p>

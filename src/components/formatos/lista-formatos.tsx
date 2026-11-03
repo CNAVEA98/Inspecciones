@@ -15,7 +15,17 @@ export async function ListaFormatos({ base, puedeEditar, puedeActivar = false }:
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-bold tracking-tight">Formatos</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight">Formatos</h1>
+          {puedeActivar ? (
+            <Link
+              href={`${base}/formatos/nuevo`}
+              className="ml-auto rounded-lg bg-graf px-4 py-2 text-sm font-semibold text-white hover:bg-graf-2 focus-visible:outline-2 focus-visible:outline-cu"
+            >
+              Nuevo formato
+            </Link>
+          ) : null}
+        </div>
         <p className="text-sm text-sub">
           {puedeEditar
             ? "Entre a un formato para cambiar los textos de sus preguntas o agregar secciones e ítems. Cada cambio se publica como una versión nueva; las inspecciones ya enviadas conservan la suya."

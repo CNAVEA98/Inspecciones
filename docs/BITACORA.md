@@ -40,8 +40,8 @@ GitHub con la copia local y baje lo último:
   administrador y planificador (editar formatos publicando versiones nuevas; crear formatos en blanco con la estructura estándar
   o copiando uno; desactivar y reactivar; campos propios en la cabecera), catálogo de formatos movido a la tabla `formatos`, y
   optimización del arranque (región de Vercel `gru1`, sesión validada una vez en el proxy, el icono abre `/tecnico`).
-  **Antes de unir el PR: aplicar en el Supabase remoto las migraciones `0015` a `0019`, en ese orden** (sin la `0016` el técnico
-  no carga el catálogo). Después de desplegar: comprobar `x-vercel-id: gru1::gru1` (ver `docs/DEPLOY_VERCEL.md`) y volver a
+  PR #9 unido a `main`. **Migraciones `0015` a `0019` aplicadas en el Supabase remoto el 2026-11-03** (verificado: 60 formatos
+  con plantilla); antes de aplicarlas el técnico veía «Sin catálogo local» en el sitio publicado. Después de desplegar: comprobar `x-vercel-id: gru1::gru1` (ver `docs/DEPLOY_VERCEL.md`) y volver a
   agregar el icono en el iPhone. Nada de esto se ha probado con clics en un navegador ni en el sitio publicado.
 - **Simulación de los 60 formatos:** `node scripts/simular-formatos.mjs` genera 2 PDF por formato (conforme y con hallazgos)
   como `TECNICO_A` en la app local; resultado del 2026-11-03: 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-03\`
@@ -176,6 +176,26 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · El técnico ve el error real cuando el servidor no entrega el catálogo
+- **Autor:** Cristóbal (con Claude) · rama `fix/error-catalogo-visible`
+- **Diagnóstico (comprobado en el SQL Editor del remoto, solo lectura):** tras unir el PR #9 a `main`, en el sitio publicado
+  el técnico veía «Sin catálogo local. Conéctese a internet…». Causa: **el Supabase remoto no tiene ninguna de las
+  migraciones `0015` a `0019`** (`to_regclass('public.formatos')` = NULL, columna `form_templates.change_note` y funciones
+  `form_templates_set_published_at` y `crear_formato` inexistentes). La descarga del catálogo fallaba, el error se
+  ocultaba y la copia local antigua (sin `formatos`) se descarta a propósito, así que el mensaje pedía "conectarse".
+- **Qué se hizo:** `loadCatalog` registra el error en la consola y, si hay red y el servidor responde con error, muestra
+  «El servidor no entregó el catálogo de formatos: <error>. Avise al administrador.» en vez de pedir conexión
+  (`mensajeSinCatalogo`). Un `TypeError` de `fetch` (sin conexión real) sigue mostrando el mensaje de conexión.
+- **Archivos:** `src/lib/tecnico/catalog.ts`, `src/lib/tecnico/catalog.test.ts`, `src/components/tecnico/nueva-inspeccion.tsx`.
+- **Verificación:** lint OK, tsc OK, tests 236/236, build OK. **No verificado en navegador ni en el sitio publicado.**
+- **Migraciones aplicadas en el remoto (2026-11-03):** `0015` a `0019`, en orden y en una sola transacción
+  (`begin … commit`), pegadas en el SQL Editor de `inspecciones-bbosch`; resultado «Success. No rows returned».
+  Comprobado después con una consulta: `formatos` = 60 filas, 60 activas y 60 con plantilla publicada; columnas
+  `change_note` y `created_by` en `form_templates`; funciones `crear_formato`, `form_templates_set_published_at` y
+  `formatos_touch`; política `formatos_write` = `is_admin() OR is_supervisor()`; `crear_formato` en la versión de la `0019`.
+- **Pendiente / riesgos:** **no verificado en el sitio publicado ni en el iPhone** que el técnico ya vea el catálogo
+  (debería bastar con recargar la app). Lección: aplicar las migraciones en el remoto **antes** de unir un PR que las necesita.
 
 ### 2026-11-03 · Simulación de los 60 formatos con PDF y contexto para revisión en Cowork
 - **Autor:** Cristóbal (con Claude) · rama `perf/arranque-movil`

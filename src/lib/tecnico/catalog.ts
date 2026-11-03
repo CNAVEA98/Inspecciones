@@ -91,18 +91,46 @@ export async function loadCatalog(
   supabase: SupabaseClient,
   online: boolean,
 ): Promise<{ catalog: Catalog; fromCache: boolean }> {
+  let falloServidor: unknown = null;
   if (online) {
     try {
       const catalog = await fetchCatalog(supabase);
       await db.catalog.put({ key: KEY, value: catalog, updatedAt: Date.now() });
       return { catalog, fromCache: false };
-    } catch {
-      // cae a la copia local
+    } catch (e) {
+      // cae a la copia local, pero se deja rastro: un error del servidor no se arregla "conectándose a internet".
+      falloServidor = e;
+      console.error("[catalogo] No se pudo descargar el catálogo:", e);
     }
   }
   const cached = await readCatalogCache(db);
-  if (!cached) throw new Error("Sin catálogo local. Conéctese a internet al menos una vez.");
+  if (!cached) throw new Error(mensajeSinCatalogo(online, falloServidor));
   return { catalog: cached, fromCache: true };
+}
+
+/** Texto de un error de Supabase/PostgREST o de JavaScript, sin depender de su forma exacta. */
+function detalleError(e: unknown): string {
+  if (e && typeof e === "object") {
+    const o = e as { message?: unknown; code?: unknown };
+    const msg = typeof o.message === "string" ? o.message : "";
+    const code = typeof o.code === "string" && o.code ? ` (${o.code})` : "";
+    if (msg) return msg + code;
+  }
+  return typeof e === "string" && e ? e : "error desconocido";
+}
+
+/**
+ * Mensaje cuando no hay catálogo que mostrar. Distingue "sin red" de "el servidor respondió con error", porque en el
+ * segundo caso pedir que se conecte a internet confunde: el problema está en el servidor (p. ej. falta una migración).
+ */
+export function mensajeSinCatalogo(online: boolean, falloServidor: unknown): string {
+  if (online && falloServidor) {
+    const red = falloServidor instanceof TypeError; // fetch falla con TypeError cuando no hay conexión real
+    if (!red) {
+      return `El servidor no entregó el catálogo de formatos: ${detalleError(falloServidor)}. Avise al administrador.`;
+    }
+  }
+  return "Sin catálogo local. Conéctese a internet al menos una vez para descargarlo.";
 }
 
 export function templateFor(catalog: Catalog, equipmentTypeId: string, workModeId: string): TemplateRow | null {

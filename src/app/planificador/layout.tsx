@@ -8,6 +8,7 @@ export default async function PlanificadorLayout({ children }: { children: React
     <StaffShell session={session} nav={[
         { href: "/planificador", label: "Bandeja" },
         { href: "/planificador/fallas", label: "Equipos con fallas" },
+        { href: "/planificador/formatos", label: "Formatos" },
       ]}>
       {children}
     </StaffShell>

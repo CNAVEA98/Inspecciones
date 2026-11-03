@@ -10,6 +10,7 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
    ```
    ### AAAA-MM-DD · Título corto
    - **Autor:** nombre
+   - **Versión:** V1.1.x (la nueva, ver «Versiones» abajo)
    - **Qué se hizo:** 1 a 3 líneas
    - **Archivos:** rutas principales
    - **Verificación:** comando y resultado real (lint, tsc, tests, build, prueba manual) o «no verificado» y por qué
@@ -18,6 +19,17 @@ Registro de todo lo realizado, para trabajar en equipo en la carpeta compartida.
 2. Actualice la sección «Estado actual» y la lista «Pendientes» si cambian.
 3. Si un cambio modifica una decisión, anótelo también en «Decisiones».
 4. No borre entradas antiguas: si algo se revierte, agregue una entrada nueva que lo diga.
+
+## Versiones
+
+La versión se ve al pie de cada pantalla (p. ej. «V1.1.0») y sirve de referencia al reportar problemas. Se partió en
+**V1.1.0** el 2026-11-03. **Cada mejora que se une a `main` sube el último número** (V1.1.1, V1.1.2…): cambie
+`version` en `package.json` y `VERSION_APP` en `src/lib/version.ts` (un test exige que sean iguales) y anote la versión
+en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se une segunda sube uno más.
+
+| Versión | Fecha | Qué incluye |
+|---|---|---|
+| V1.1.0 | 2026-11-03 | Punto de partida: todo lo unido hasta el PR #10 más visor del PDF del técnico, pie de página con versión, Privacidad, Condiciones de uso, aviso de privacidad al primer ingreso, fotos sin metadatos y dependencias sin vulnerabilidades |
 
 ## Al iniciar cada sesión (obligatorio)
 
@@ -84,9 +96,10 @@ GitHub con la copia local y baje lo último:
 | Bandeja con carpetas por turno y área, filtro «Tipo de trabajo» (2026-11-01) | Hecho por Manuel (PR #8, en `main`): carpetas Turno A/B → Chacay-Mina / Puerto-Mauro (y «Otras áreas», «Sin turno»), también en «Equipos con fallas»; filtro inspecciones/mantenciones. Revisado en pantalla por Manuel en local; **sin probar en el sitio publicado** |
 | Auditoría con skills de Vercel Labs (`react-best-practices`, `web-design-guidelines`) | **Parcial.** 2026-10-31: auditados 5 archivos del formulario del técnico y aplicadas las mejoras de terreno (foto 44 px con confirmación, confirmar «Quitar sección», texto 12 px, «…», `touch-action`). **Sin auditar:** selección de formato y `tecnico-provider`, firma, tarjetas, indicador de sincronización, pestaña «Formatos», bandeja y área del supervisor/planificador, rutas del PDF (pendiente 29) |
 | Seguimiento de hallazgos y «Equipos con fallas» (2026-10-31) | Hecho en local: pestaña por equipo ordenada por severidad (supervisor, programador, administrador; filtros automáticos de severidad, área y gestión); el supervisor y el administrador registran el N.º de aviso subsecuente SAP o la canalización con MLP, también con la inspección aprobada, **sin bloquear las firmas**; ficha copiable para SAP; trazabilidad en el PDF. Base: migración `0014`, pruebas 42/42. **Sin probar en el sitio publicado, en iPhone ni con datos reales** |
+| Versión, Privacidad, Condiciones y aviso al ingresar (V1.1.0, 2026-11-03) | Hecho en `feat/legal-version-1.1.0`: pie con versión en todas las pantallas, `/privacidad` y `/condiciones` públicas, aviso con «Entendido» registrado en el perfil (migración **0020, sin aplicar en el remoto**), fotos sin metadatos, dependencias sin vulnerabilidades, `docs/LICENCIAS.md`. Probado en local con `TECNICO_A`; **sin probar en teléfono ni en el sitio publicado** |
 | Verificación a 375px y 1440px, prueba con red apagada | Parcial (formularios a 375px con datos simulados) |
 
-Verificación global más reciente (2026-11-03, rama `fix/visor-pdf-tecnico`): `lint` y `tsc` sin errores · `test` 243/243 · `build` correcto. Base: `supabase test db` en verde el 2026-11-03 con la 0019 (rama `feat/crear-formatos`; no se volvió a correr después, el PR #10 no toca SQL). Remoto: 0015–0019 verificadas por consulta el 2026-11-03. Las verificaciones anteriores (2026-10-31: 173 tests, 42/42) quedan superadas.
+Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`, V1.1.0): `lint` y `tsc` sin errores · `test` 245/245 · `build` correcto · `supabase test db` 76/76 con 0001–0020 en local · `pnpm audit --prod` sin vulnerabilidades. Base: `supabase test db` en verde el 2026-11-03 con la 0019 (rama `feat/crear-formatos`; no se volvió a correr después, el PR #10 no toca SQL). Remoto: 0015–0019 verificadas por consulta el 2026-11-03. Las verificaciones anteriores (2026-10-31: 173 tests, 42/42) quedan superadas.
 
 ## Pendientes
 
@@ -136,6 +149,8 @@ Verificación global más reciente (2026-11-03, rama `fix/visor-pdf-tecnico`): `
 42. **Peso del JavaScript del técnico** (~321 KB comprimidos: React, cliente de Supabase con realtime, Zod, Dexie): evaluar cargar Supabase bajo demanda o `zod/mini`. Queda en caché del service worker tras la primera visita.
 43. **Base local con datos de simulación:** ~120 inspecciones de `TECNICO_A` del 2026-11-03; se limpian con `corepack pnpm supabase db reset` (vuelve a aplicar migraciones y seeds).
 44. **Editor de formatos, siguientes pasos:** vista previa del formulario tal como lo ve el técnico; editar firmas, leyenda de estados y lecturas destacadas; copiar entre inspección y mantención.
+47. **Aplicar la migración `0020_aviso_privacidad.sql` en el Supabase remoto** antes de unir el PR de V1.1.0 y verificar que existan las columnas `aviso_privacidad_version`/`aviso_privacidad_at` y la función `registrar_aviso_privacidad`.
+48. **Probar V1.1.0 en el teléfono y con los otros roles:** pie con versión, aviso al primer ingreso (aparece una vez por persona), enlaces a Privacidad y Condiciones, y subir una foto tomada con GPS activo y comprobar que el archivo en Storage no trae ubicación.
 46. **Probar el visor del PDF en el teléfono** (iPhone y Android, app instalada): «Ver PDF» en «Enviadas» y al terminar un envío; Compartir (WhatsApp/correo), Guardar (en iPhone «Guardar en Archivos»), Salir y el botón «atrás» de Android. Decidir si el supervisor, planificador y administrador también necesitan el visor.
 45. **Probar el catálogo en el sitio publicado y en el iPhone** tras aplicar 0015–0019: entrar como `TECNICO_A`, recargar la app (o cerrarla y abrirla) y comprobar que aparecen Área → Trabajo → Familia → Formato y que se puede iniciar una inspección; con `SUPERVISOR_A`, abrir la pestaña «Formatos». Si aparece un error, ahora muestra el motivo real (PR #10).
 
@@ -164,6 +179,8 @@ Verificación global más reciente (2026-11-03, rama `fix/visor-pdf-tecnico`): `
 - **Firmas (2026-10-31): solo firman el encargado de la actividad, el supervisor y el planificador; los participantes se anotan pero no firman** (campo de texto opcional, clave `_lista_participantes`). El encargado firma al enviar, en el cierre del formulario, junto con su nombre (rol «Encargado de la actividad»); se guarda como adjunto `participant_signature` y la respuesta `_participantes`, nombres heredados que se mantienen para no cambiar el esquema ni los registros existentes (hoy significan «encargado»). La firma del supervisor y del planificador va en la tabla `signatures`. Los firmantes se llaman siempre «Supervisor Bbosch» y «Planificador Bbosch».
 - **Fuente Geist** vía `next/font` (se descarga en el build; requiere internet al compilar).
 
+- **Versiones (2026-11-03):** la app parte en V1.1.0 y cada mejora unida a `main` sube el último número; la versión se ve al pie de cada pantalla y se anota en la bitácora (ver «Versiones»).
+- **Privacidad (2026-11-03):** aviso informativo con «Entendido», no consentimiento (base: relación laboral/contractual y contrato Bbosch–MLP). Sin banner de cookies mientras solo haya cookies necesarias; si algún día se agrega analítica, hará falta banner y consentimiento. Fotos siempre sin metadatos.
 - **Migraciones remotas antes de unir (2026-11-03):** un PR que necesita migraciones nuevas solo se une a `main` **después** de aplicarlas en el Supabase remoto y verificarlas, porque Vercel despliega `main` de inmediato. Se aprendió con el PR #9 (catálogo vacío para el técnico hasta aplicar 0015–0019).
 - **Gestión de formatos (2026-11-03):** supervisor y administrador editan, crean, activan y desactivan formatos; el planificador solo consulta. Un formato nuevo nace desactivado.
 - **Catálogo de formatos en la base (2026-11-03):** la fuente de los formatos es la tabla `formatos` (antes `catalogo.ts`). Un formato con historial nunca se borra: se desactiva (`activo = false`). La plantilla se enlaza por códigos de tipo de equipo y modo, no por id, para que la migración no dependa del seed.
@@ -186,6 +203,47 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · V1.1.0: versión al pie, Privacidad, Condiciones de uso, aviso al ingresar, fotos sin GPS y dependencias
+- **Autor:** Cristóbal (con Claude) · rama `feat/legal-version-1.1.0` (sale de `fix/visor-pdf-tecnico`, que sale de `docs/bitacora-al-dia`)
+- **Versión:** V1.1.0 (la primera numerada; ver «Versiones»)
+- **Contexto:** el usuario pidió revisar una lista de cumplimiento (privacidad, términos, cookies, banner, consentimientos,
+  minimización, SDK de terceros, dark patterns, licencias) y aplicar lo recomendado en orden. Bbosch y MLP ya aceptaron la
+  aplicación (dicho por el usuario el 2026-11-03).
+- **Qué se hizo:**
+  1. **Fotos sin metadatos:** `compressImage` ahora devuelve siempre la imagen redibujada en el canvas (sin EXIF: GPS,
+     modelo, fecha). Antes, si el original pesaba menos que el comprimido, se subía el original con sus metadatos.
+  2. **Dependencias:** `pnpm audit --prod` daba 3 vulnerabilidades (zod <4.6.6 alta; glob y minimatch moderadas), todas
+     dentro de `@serwist/turbopack`/`@serwist/build` (herramientas del service worker). Se fijaron versiones corregidas con
+     `overrides` en `pnpm-workspace.yaml`; ahora «No known vulnerabilities found».
+  3. **Licencias:** `docs/LICENCIAS.md` (170 dependencias de producción: MIT, Apache-2.0, ISC, BlueOak, BSD; ninguna
+     GPL/AGPL; Geist con SIL OFL; Helvetica/Courier del PDF; logos y nombre MLP autorizados).
+  4. **Versión y pie de página:** `package.json` y `src/lib/version.ts` en 1.1.0; pie (`pie-pagina.tsx`) en técnico,
+     personal de escritorio, ingreso y páginas legales: «© 2026 Bbosch · Uso exclusivo del personal autorizado de Bbosch y
+     MLP · Privacidad · Condiciones de uso · V1.1.0». En el formulario del técnico deja espacio para la barra fija.
+  5. **Páginas públicas `/privacidad` y `/condiciones`** (se leen sin sesión): qué datos se guardan, para qué, quién los
+     ve, dónde (Supabase y Vercel en São Paulo: transferencia fuera de Chile), cookies solo necesarias (por eso **no hay
+     banner de cookies**), datos guardados en el teléfono, conservación según plazos de Bbosch/MLP, derechos (Ley 19.628 y
+     Ley 21.719 desde su vigencia) y condiciones de uso internas.
+  6. **Aviso al primer ingreso:** ventana con resumen y botón «Entendido» (no es consentimiento: la base es la relación
+     laboral/contractual). Registra versión y fecha en el perfil con la función `registrar_aviso_privacidad` (migración
+     **0020**). Se consulta cuando el teléfono queda ocioso y nunca bloquea: sin red o con error del servidor no aparece.
+- **No se hizo (no aplica):** banner de cookies (solo hay cookies necesarias) ni política de cookies aparte (es una sección
+  de Privacidad). Dark patterns: no se encontraron; queda la revisión con `web-design-guidelines` (pendiente 29).
+- **Archivos:** `src/lib/offline/compress.ts`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`, `package.json`, `docs/LICENCIAS.md`,
+  `src/lib/version.ts` (+ test), `src/components/shared/{pie-pagina,pagina-legal,aviso-privacidad,staff-shell}.tsx`,
+  `src/app/{privacidad,condiciones}/page.tsx`, `src/app/tecnico/layout.tsx`, `src/app/login/page.tsx`,
+  `supabase/migrations/0020_aviso_privacidad.sql`, `supabase/tests/aviso.test.sql`, `CLAUDE.md` (regla de versión).
+- **Verificación:** lint y tsc sin errores · `test` 245/245 · `build` correcto · `supabase test db` 76/76 (6 nuevas del
+  aviso) · `pnpm audit --prod` sin vulnerabilidades. En Chrome contra la app local compilada con `TECNICO_A`: el aviso
+  apareció, «Entendido» lo cerró y quedó en la base (`aviso_privacidad_version = 2026-11-03` con fecha); pie con V1.1.0
+  en `/tecnico` y en el formulario (con espacio para la barra); `/privacidad` y `/condiciones` responden 200 sin sesión;
+  `/login` muestra el pie. **No verificado:** en teléfono, con supervisor/planificador/administrador en navegador, ni en el
+  sitio publicado; la foto sin EXIF no se comprobó con una foto real con GPS (el canvas no copia metadatos).
+- **Pendiente / riesgos:** **aplicar la migración `0020` en el Supabase remoto ANTES de unir el PR** (ver Decisiones). Si
+  no se aplica, la app sigue funcionando pero el aviso no aparece. Los textos legales quedaron redactados sobre lo que la
+  app hace realmente; si Bbosch/MLP tienen un texto corporativo, reemplazarlo y subir `VERSION_AVISO_PRIVACIDAD`.
+  Quedó abierto de antes un `next start -p 3100` (proceso de otra sesión, no se tocó).
 
 ### 2026-11-03 · El técnico ve el PDF dentro de la app con Compartir, Guardar y Salir
 - **Autor:** Cristóbal (con Claude) · rama `fix/visor-pdf-tecnico`

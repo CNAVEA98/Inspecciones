@@ -25,6 +25,8 @@ Trazabilidad: **la entrada de la bitácora viaja en el mismo commit que el cambi
 2. Trabajar en una rama (`git switch -c tipo/descripcion-corta`, p. ej. `feat/bandeja-supervisor`), nunca directo en `main`.
 3. Al terminar: correr lint, tsc, tests y build; agregar la entrada en `docs/BITACORA.md` (autor = quien lo hizo,
    indicando el nombre de la rama) y hacer commit con el cambio y la bitácora juntos. Mensaje claro, en español.
+   **Versión:** cada mejora sube el último número (V1.1.0 → V1.1.1…) en `package.json` y `src/lib/version.ts`
+   (se ve al pie de la app) y se anota en la entrada de la bitácora (ver «Versiones» en `docs/BITACORA.md`).
 4. Subir la rama y abrir un Pull Request hacia `main`; la otra persona lo revisa y lo une.
 5. Si hay conflicto en `docs/BITACORA.md` al unir, conserve **ambas** entradas (la más reciente arriba) y no borre ninguna.
 6. Hacer `push` o abrir PR requiere confirmación explícita del usuario en cada ocasión.

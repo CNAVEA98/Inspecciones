@@ -28,7 +28,9 @@ export default async function TecnicoLayout({ children }: { children: React.Reac
             </div>
           </div>
         </header>
-        <main className="flex-1 px-5 py-6">{children}</main>
+        {/* min-h: el pie queda siempre bajo el borde de la pantalla; las listas del técnico cargan desde el teléfono
+            después de pintar y, si el pie estuviera a la vista, lo empujarían (salto de diseño). */}
+        <main className="min-h-[100dvh] flex-1 px-5 py-6">{children}</main>
         <PiePagina />
       </div>
       <AvisoPrivacidad userId={session.id} />

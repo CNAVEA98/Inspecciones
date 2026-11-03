@@ -1,7 +1,7 @@
 import { FallasEquipos } from "@/components/revision/fallas-equipos";
 import { parseFiltroFallas } from "@/lib/revision/fallas";
 
-export const metadata = { title: "Equipos con fallas · Inspecciones MLP" };
+export const metadata = { title: "Equipos con fallas · Inspección Eléctrica Bbosch-MLP" };
 
 export default async function FallasPage({
   searchParams,

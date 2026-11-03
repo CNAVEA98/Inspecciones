@@ -1,6 +1,6 @@
 import { ListaFormatos } from "@/components/formatos/lista-formatos";
 
-export const metadata = { title: "Formatos · Inspecciones MLP" };
+export const metadata = { title: "Formatos · Inspección Eléctrica Bbosch-MLP" };
 
 export default function FormatosPage() {
   return <ListaFormatos base="/planificador" puedeEditar={false} />;

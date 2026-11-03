@@ -204,6 +204,44 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-03 · Prueba de rendimiento y de funciones antes de publicar V1.1.0, con correcciones
+- **Autor:** Cristóbal (con Claude) · rama `feat/legal-version-1.1.0`
+- **Versión:** V1.1.0 (mismo lote, aún sin unir a `main`)
+- **Cómo se probó:** script propio con Chrome sin ventana (protocolo de depuración, sin dependencias nuevas; queda fuera
+  del repositorio) contra la app local compilada (`next start`) y Supabase local. Entra con `TECNICO_A`, `SUPERVISOR_A`,
+  `PROGRAMADOR_A`, `ADMINISTRADOR` y sin sesión; mide 21 pantallas en **celular simulado** (390 px, CPU 4× más lenta,
+  4G lenta: 150 ms y 1,6 Mbps) y en **escritorio** (1440 px): tiempo de respuesta, primer contenido, LCP, saltos de diseño
+  (CLS), KB descargados y errores de consola; y prueba funciones: ingreso por rol, aviso de privacidad, flujo Área →
+  Trabajo → Familia → Formato hasta el formulario, «Ver PDF» → visor → «Salir», bandeja → carpeta → detalle → PDF,
+  redirecciones por rol y sin sesión.
+- **Resultado final (celular simulado):** 0 errores de consola · 0 pruebas fallidas · **CLS 0 en todas** · respuesta del
+  servidor 7–130 ms · LCP 108–452 ms en pantallas con sesión · ingreso hasta la pantalla del técnico 563 ms · visor del PDF
+  listo en 1,5 s · PDF del supervisor 1,4 s (195 KB) · la pantalla de ingreso, en una primera visita sin caché, baja 256 KB
+  (147 KB de JavaScript del framework) con LCP 848 ms. Escritorio: LCP 36–200 ms. La pantalla más pesada es «Equipos con
+  fallas» del administrador (79 KB, respuesta 130 ms): aceptable.
+- **Encontrado y corregido:**
+  1. **Salto de diseño en el inicio del técnico (CLS 0,125, sobre el límite de 0,1)** causado por el pie de página nuevo:
+     aparecía abajo y la lista cargada desde el teléfono lo empujaba. Ahora el contenido del técnico ocupa al menos una
+     pantalla y el pie queda siempre bajo el borde (`src/app/tecnico/layout.tsx`).
+  2. **Salto en «Nuevo Standard» (CLS 0,03) y aviso engañoso:** con red se mostraba «Usando el catálogo guardado en el
+     equipo» unos segundos mientras se descargaba el nuevo y luego desaparecía. Ahora solo aparece si de verdad no se pudo
+     actualizar (`actualizando` en `tecnico-provider.tsx`, `nueva-inspeccion.tsx`).
+  3. **Títulos de pestaña con dos nombres:** 18 pantallas decían «Inspecciones MLP»; ahora todas usan el nombre oficial
+     «Inspección Eléctrica Bbosch-MLP».
+  4. **Textos de carga sin «…»** («Enviando», «Cargando catálogo», «Guardando», indicador «Enviando»): normalizados.
+  5. **Privacidad decía «planificador»** cuando la app llama «Programador» a ese rol: corregido.
+  6. **Enlaces del pie muy pequeños para el dedo:** área táctil mayor.
+- **Sin cambiar (decisión pendiente del equipo):** «Nuevo Standard» (mezcla inglés/español; lo puso Manuel al rediseñar
+  el inicio) y el menú del supervisor «Fallas» frente a «Equipos con fallas» en los demás roles. Además, los formatos
+  firman como «Planificador Bbosch» y la app llama «Programador» al rol.
+- **Archivos:** `src/app/tecnico/layout.tsx`, `src/components/tecnico/{tecnico-provider,nueva-inspeccion,formulario,photo-field,sync-indicator}.tsx`,
+  `src/components/shared/pie-pagina.tsx`, `src/app/privacidad/page.tsx`, títulos en `src/app/**/page.tsx`.
+- **Verificación:** lint y tsc sin errores · `test` 245/245 · `build` correcto · prueba en navegador descrita arriba
+  (celular simulado y escritorio, 21 pantallas cada uno, 0 fallas). **No verificado:** en un teléfono real ni en el sitio
+  publicado (la red y la CPU fueron simuladas; Supabase local está en el mismo PC, así que la respuesta real desde
+  São Paulo será mayor).
+- **Pendiente / riesgos:** decidir los nombres anteriores; repetir esta prueba en el sitio publicado después de desplegar.
+
 ### 2026-11-03 · V1.1.0: versión al pie, Privacidad, Condiciones de uso, aviso al ingresar, fotos sin GPS y dependencias
 - **Autor:** Cristóbal (con Claude) · rama `feat/legal-version-1.1.0` (sale de `fix/visor-pdf-tecnico`, que sale de `docs/bitacora-al-dia`)
 - **Versión:** V1.1.0 (la primera numerada; ver «Versiones»)

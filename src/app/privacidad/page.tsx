@@ -18,12 +18,12 @@ export default function PrivacidadPage() {
 
       <h2 className={h2}>Qué datos se guardan</h2>
       <ul className={ul}>
-        <li>Datos de la cuenta: usuario, nombre, rol (técnico, supervisor, planificador o administrador) y turno.</li>
+        <li>Datos de la cuenta: usuario, nombre, rol (técnico, supervisor, programador o administrador) y turno.</li>
         <li>
           Lo que se registra en cada inspección: equipo (TAG), fecha y hora, respuestas, observaciones, hallazgos, fotos,
           nombre de los participantes y del encargado de la actividad.
         </li>
-        <li>Firmas dibujadas del encargado, del supervisor y del planificador.</li>
+        <li>Firmas dibujadas del encargado, del supervisor y del programador.</li>
         <li>Registro de acciones: quién creó, envió, firmó, aprobó, rechazó o eliminó cada registro y cuándo.</li>
       </ul>
       <p>
@@ -47,7 +47,7 @@ export default function PrivacidadPage() {
       <h2 className={h2}>Quién ve los datos</h2>
       <ul className={ul}>
         <li>El técnico ve sus propias inspecciones.</li>
-        <li>Supervisores, planificadores y administradores de Bbosch ven las inspecciones para revisarlas y firmarlas.</li>
+        <li>Supervisores, programadores y administradores de Bbosch ven las inspecciones para revisarlas y firmarlas.</li>
         <li>MLP recibe los informes y la información de los hallazgos como cliente del servicio.</li>
       </ul>
 

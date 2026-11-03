@@ -12,7 +12,8 @@ export function PiePagina({ oscuro = false }: { oscuro?: boolean }) {
   const pathname = usePathname();
   const conBarraFija = /^\/tecnico\/inspeccion\//.test(pathname ?? "");
   const color = oscuro ? "text-[#9aa4ad]" : "text-sub";
-  const enlace = `underline underline-offset-2 hover:text-cu focus-visible:outline-2 focus-visible:outline-cu ${oscuro ? "text-[#c9d0d6]" : "text-graf"}`;
+  // py-3: área táctil cómoda en el celular aunque el texto sea pequeño.
+  const enlace = `inline-block py-3 underline underline-offset-2 hover:text-cu focus-visible:outline-2 focus-visible:outline-cu ${oscuro ? "text-[#c9d0d6]" : "text-graf"}`;
   return (
     <footer className={`px-5 pt-4 text-xs ${color} ${conBarraFija ? "pb-28" : "pb-5"}`}>
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">

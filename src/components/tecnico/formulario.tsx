@@ -481,7 +481,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
             onClick={() => void enviar()}
             className="min-h-16 rounded-2xl bg-graf px-6 text-xl font-semibold text-white transition-transform hover:bg-graf-2 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-cu active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {enviando ? "Enviando" : "Enviar inspección"}
+            {enviando ? "Enviando…" : "Enviar inspección"}
           </button>
         </div>
       )}

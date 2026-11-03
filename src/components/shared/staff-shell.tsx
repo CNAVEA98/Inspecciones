@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { SessionProfile } from "@/lib/auth/session";
 import { roleWithShift } from "@/lib/auth/roles";
 import { SignOutButton } from "./sign-out-button";
+import { PiePagina } from "./pie-pagina";
+import { AvisoPrivacidad } from "./aviso-privacidad";
 
 interface NavItem {
   href: string;
@@ -22,7 +24,7 @@ export function StaffShell({
   const link =
     "rounded-lg px-3 py-2 text-sm font-semibold text-[#c9d0d6] hover:bg-graf-2 hover:text-white focus-visible:outline-2 focus-visible:outline-cu";
   return (
-    <div className="min-h-[100dvh]">
+    <div className="flex min-h-[100dvh] flex-col">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-graf px-6 py-3 text-white">
         <Link href="/" aria-label="Inspección Eléctrica Bbosch-MLP, inicio" className="flex items-center gap-3">
           {/* Pastilla blanca: el logo es gris y naranja y no se lee sobre el grafito. */}
@@ -46,7 +48,9 @@ export function StaffShell({
         </span>
         <SignOutButton className="min-h-9 !px-3 text-sm text-white" />
       </header>
-      <main className="mx-auto w-full max-w-[1400px] px-6 py-6">{children}</main>
+      <main className="mx-auto w-full max-w-[1400px] flex-1 px-6 py-6">{children}</main>
+      <PiePagina />
+      <AvisoPrivacidad userId={session.id} />
     </div>
   );
 }

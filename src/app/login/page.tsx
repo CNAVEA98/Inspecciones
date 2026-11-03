@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { LoginForm } from "./login-form";
 import { safeNext } from "@/lib/auth/roles";
+import { PiePagina } from "@/components/shared/pie-pagina";
 
 export const metadata: Metadata = { title: "Ingresar · Inspección Eléctrica Bbosch-MLP" };
 
@@ -44,6 +45,9 @@ export default async function LoginPage({
           className="h-auto w-56 sm:w-64"
         />
         <LoginForm next={safeNext(next) ?? undefined} />
+        <div className="-mb-6 mt-auto w-full">
+          <PiePagina />
+        </div>
       </section>
     </main>
   );

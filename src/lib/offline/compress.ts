@@ -7,7 +7,11 @@ export function fitWithin(w: number, h: number, max = MAX_SIDE): { width: number
   return { width: Math.max(1, Math.round(w * k)), height: Math.max(1, Math.round(h * k)) };
 }
 
-/** Comprime una foto en el cliente (JPEG, lado mayor 1600 px) antes de guardarla o subirla. Solo navegador. */
+/**
+ * Comprime una foto en el cliente (JPEG, lado mayor 1600 px) antes de guardarla o subirla. Solo navegador.
+ * Siempre devuelve la imagen redibujada: al pasar por el canvas se pierden los metadatos EXIF (ubicación GPS, modelo
+ * del teléfono, fecha), que la app no necesita. Antes, si el original pesaba menos se conservaba con sus metadatos.
+ */
 export async function compressImage(file: Blob, max = MAX_SIDE, quality = JPEG_QUALITY): Promise<Blob> {
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
   try {
@@ -20,8 +24,7 @@ export async function compressImage(file: Blob, max = MAX_SIDE, quality = JPEG_Q
     ctx.drawImage(bitmap, 0, 0, width, height);
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
     if (!blob) throw new Error("No se pudo comprimir la imagen");
-    // Si el original ya era más liviano, se conserva.
-    return blob.size < file.size ? blob : file;
+    return blob;
   } finally {
     bitmap.close();
   }

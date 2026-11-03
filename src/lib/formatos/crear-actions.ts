@@ -8,12 +8,12 @@ import { aPayloadBD, nuevoFormatoSchema } from "./nuevo";
 export type ResultadoCrear = { ok: true; id: string } | { ok: false; error: string };
 
 /**
- * Crea un formato nuevo copiando el contenido vigente de otro del mismo tipo. Solo el administrador; la función
+ * Crea un formato nuevo copiando el contenido vigente de otro del mismo tipo. Supervisor o administrador; la función
  * `crear_formato` de la base vuelve a validar todo y hace las tres inserciones en una transacción.
  */
 export async function crearFormato(input: unknown): Promise<ResultadoCrear> {
   const session = await getSession();
-  if (session?.role !== "admin") return { ok: false, error: "Solo un administrador puede crear formatos" };
+  if (session?.role !== "admin" && session?.role !== "supervisor") return { ok: false, error: "Solo un supervisor o un administrador puede crear formatos" };
   const p = nuevoFormatoSchema.safeParse(input);
   if (!p.success) return { ok: false, error: p.error.issues[0]?.message ?? "Datos inválidos" };
 

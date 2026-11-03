@@ -10,13 +10,13 @@ export type ResultadoActivo = { ok: true; activo: boolean } | { ok: false; error
 const entrada = z.object({ formatoId: z.string().regex(/^(INSP|MANT)-\d{2,3}$/), activo: z.boolean() });
 
 /**
- * Desactiva o reactiva un formato. Solo el administrador (lo exige también la policy `formatos_write`).
+ * Desactiva o reactiva un formato. Supervisor o administrador (lo exige también la policy `formatos_write`, 0018).
  * Desactivar no borra nada: el formato deja de ofrecerse al técnico, pero sus inspecciones, PDF y versiones siguen
  * intactos, y los borradores ya empezados se pueden terminar.
  */
 export async function cambiarActivo(input: z.input<typeof entrada>): Promise<ResultadoActivo> {
   const session = await getSession();
-  if (session?.role !== "admin") return { ok: false, error: "Solo un administrador puede activar o desactivar formatos" };
+  if (session?.role !== "admin" && session?.role !== "supervisor") return { ok: false, error: "Solo un supervisor o un administrador puede activar o desactivar formatos" };
   const p = entrada.safeParse(input);
   if (!p.success) return { ok: false, error: "Datos inválidos" };
 

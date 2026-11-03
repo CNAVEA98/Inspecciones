@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { cambiarActivo } from "@/lib/formatos/activo-actions";
 
-/** Botón del administrador para desactivar o reactivar un formato, con confirmación. */
+/** Botón del supervisor y del administrador para desactivar o reactivar un formato, con confirmación. */
 export function BotonActivo({ formatoId, titulo, activo }: { formatoId: string; titulo: string; activo: boolean }) {
   const router = useRouter();
   const [pendiente, iniciar] = useTransition();

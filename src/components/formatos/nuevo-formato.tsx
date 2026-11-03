@@ -22,14 +22,16 @@ export interface OrigenFormato {
 }
 
 interface Props {
+  /** Ruta del panel («/admin», «/supervisor»). */
+  base: string;
   origenes: OrigenFormato[];
   areas: { code: CodigoArea; name: string }[];
   siguiente: Record<TipoTrabajo, number>;
   existentes: string[];
 }
 
-/** Formulario del administrador: crea un formato copiando el contenido de otro del mismo tipo. */
-export function NuevoFormato({ origenes, areas, siguiente, existentes }: Props) {
+/** Formulario del supervisor y del administrador: crea un formato copiando el contenido de otro del mismo tipo. */
+export function NuevoFormato({ base, origenes, areas, siguiente, existentes }: Props) {
   const router = useRouter();
   const [tipo, setTipo] = useState<TipoTrabajo>("INSP");
   const [numero, setNumero] = useState(siguiente.INSP);
@@ -84,7 +86,7 @@ export function NuevoFormato({ origenes, areas, siguiente, existentes }: Props) 
         revision,
         copiarDe,
       });
-      if (r.ok) router.push(`/admin/formatos/${r.id}`);
+      if (r.ok) router.push(`${base}/formatos/${r.id}`);
       else setError(r.error);
     });
   };

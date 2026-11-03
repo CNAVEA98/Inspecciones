@@ -5,7 +5,7 @@ import { BotonActivo } from "./boton-activo";
 
 /**
  * Listado de los formatos con su versión vigente. `base` es la ruta del panel («/supervisor»…).
- * `puedeActivar` (solo administrador) muestra el botón Desactivar / Reactivar.
+ * `puedeActivar` (supervisor y administrador) muestra «Nuevo formato» y el botón Desactivar / Reactivar.
  */
 export async function ListaFormatos({ base, puedeEditar, puedeActivar = false }: { base: string; puedeEditar: boolean; puedeActivar?: boolean }) {
   const filas = await listarFormatos();

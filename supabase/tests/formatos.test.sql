@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(10);
+select plan(15);
 
 create function public.tap_as(p_email text)
 returns void
@@ -74,6 +74,19 @@ select public.tap_as('programador_a@mlp.local');
 select cmp_ok((select count(*)::int from public.form_templates where status = 'published'), '>', 0, 'el planificador ve las plantillas publicadas');
 select public.tap_as('tecnico_a@mlp.local');
 select cmp_ok((select count(*)::int from public.form_templates where status = 'published'), '>', 0, 'el técnico ve las plantillas publicadas');
+
+-- ---------- Tabla formatos (migración 0016) ----------
+select public.tap_as('tecnico_a@mlp.local');
+select is((select count(*)::int from public.formatos), 60, 'el técnico lee los 60 formatos');
+select is((select count(*)::int from public.formatos where tipo_equipo_code is not null), 60, 'los 60 formatos tienen plantilla asignada');
+select throws_ok($$ insert into public.formatos (id, tipo, titulo, familia) values ('INSP-99', 'INSP', 'x', 'F1') $$,
+  '42501', null, 'el técnico no puede crear formatos');
+select public.tap_as('supervisor_a@mlp.local');
+update public.formatos set activo = false where id = 'INSP-12';
+select is((select activo from public.formatos where id = 'INSP-12'), true, 'el supervisor no puede desactivar formatos (RLS ignora el update)');
+select public.tap_as('administrador@mlp.local');
+update public.formatos set activo = false where id = 'INSP-12';
+select is((select activo from public.formatos where id = 'INSP-12'), false, 'el administrador puede desactivar un formato');
 
 select * from finish();
 rollback;

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { getSession } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { templateSchema } from "@/lib/templates/schema";
-import { FORMATOS } from "./catalogo";
+import { formatoPorIdBD } from "./plantillas";
 import { prepararParaPublicar, problemasDeEdicion, resumenCambios } from "./editor";
 
 export type ResultadoPublicar = { ok: true; version: number } | { ok: false; error: string };
@@ -32,7 +32,7 @@ export async function publicarVersion(input: z.input<typeof entrada>): Promise<R
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
   const { formatoId, versionBase, nota } = parsed.data;
 
-  const formato = FORMATOS.find((f) => f.id === formatoId);
+  const formato = await formatoPorIdBD(formatoId);
   if (!formato?.plantilla || formato.estado !== "disponible") return { ok: false, error: "Formato no encontrado" };
 
   const nueva = templateSchema.safeParse(parsed.data.schema);

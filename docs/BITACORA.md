@@ -136,6 +136,7 @@ Verificación global más reciente (2026-10-31, rama `feat/fallas-seguimiento`, 
 - **Firmas (2026-10-31): solo firman el encargado de la actividad, el supervisor y el planificador; los participantes se anotan pero no firman** (campo de texto opcional, clave `_lista_participantes`). El encargado firma al enviar, en el cierre del formulario, junto con su nombre (rol «Encargado de la actividad»); se guarda como adjunto `participant_signature` y la respuesta `_participantes`, nombres heredados que se mantienen para no cambiar el esquema ni los registros existentes (hoy significan «encargado»). La firma del supervisor y del planificador va en la tabla `signatures`. Los firmantes se llaman siempre «Supervisor Bbosch» y «Planificador Bbosch».
 - **Fuente Geist** vía `next/font` (se descarga en el build; requiere internet al compilar).
 
+- **Gestión de formatos (2026-11-03):** supervisor y administrador editan, crean, activan y desactivan formatos; el planificador solo consulta. Un formato nuevo nace desactivado.
 - **Catálogo de formatos en la base (2026-11-03):** la fuente de los formatos es la tabla `formatos` (antes `catalogo.ts`). Un formato con historial nunca se borra: se desactiva (`activo = false`). La plantilla se enlaza por códigos de tipo de equipo y modo, no por id, para que la migración no dependa del seed.
 - **Edición de formatos (2026-11-03):** editar un formato nunca modifica una versión publicada: se inserta la siguiente. Escriben supervisor y administrador; el planificador consulta. Quitar un ítem en una versión nueva es seguro porque cada inspección conserva su `template_id`; por eso no hizo falta «ocultar» ítems. El `id` de un ítem existente es de solo lectura.
 
@@ -156,6 +157,13 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · El supervisor también crea, activa y desactiva formatos
+- **Autor:** Cristóbal (con Claude) · rama `feat/crear-formatos`
+- **Qué se hizo:** por decisión del usuario (opción B), el **supervisor** gestiona los formatos igual que el administrador: botón «Nuevo formato» (`/supervisor/formatos/nuevo`) y botones «Desactivar» / «Reactivar» en su pestaña «Formatos». El planificador y el técnico siguen sin poder. La página de creación pasó a un componente común para ambos paneles.
+- **Archivos:** `supabase/migrations/0018_supervisor_gestiona_formatos.sql` (escritura de `formatos` y `crear_formato` para supervisor o administrador; no se editó la 0017), `src/lib/formatos/{crear,activo}-actions.ts`, `src/components/formatos/{pagina-nuevo-formato,nuevo-formato,boton-activo,lista-formatos,pagina-formato}.tsx`, `src/app/{admin,supervisor}/formatos/nuevo/page.tsx`, `src/app/supervisor/formatos/page.tsx`, `supabase/tests/formatos.test.sql`.
+- **Verificación:** lint, typecheck y build en verde; 219 tests; `supabase test db` en verde (25 pruebas de formatos: el supervisor ya puede desactivar y crear; el planificador y el técnico no). En un servidor de producción aparte (puerto 3100) con sesiones reales: el supervisor ve «Nuevo formato» y 60 botones, creó INSP-42, lo activó y desactivó y abrió su editor; el planificador fue rechazado y no creó nada. Datos de prueba borrados (60 formatos, 60 tipos de equipo y 60 plantillas, como antes).
+- **Pendiente / riesgos:** el servidor `npm run dev` que estaba abierto siguió ejecutando la versión anterior de la acción de crear (respondía «Solo un administrador…») aunque el archivo ya había cambiado: **hay que reiniciarlo** (Ctrl+C y `npm run dev`) antes de probar. **Migración 0018 sin aplicar en el remoto** (va después de la 0017). Sin probar con clics.
 
 ### 2026-11-03 · Formatos: crear un formato nuevo copiando otro (paso 3 de 3)
 - **Autor:** Cristóbal (con Claude) · rama `feat/crear-formatos` (sale de `feat/desactivar-formatos`: unir antes los PR del editor, del catálogo y de desactivar)

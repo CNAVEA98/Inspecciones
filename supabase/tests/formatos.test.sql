@@ -4,7 +4,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(21);
+select plan(25);
 
 create function public.tap_as(p_email text)
 returns void
@@ -81,18 +81,28 @@ select is((select count(*)::int from public.formatos), 60, 'el técnico lee los 
 select is((select count(*)::int from public.formatos where tipo_equipo_code is not null), 60, 'los 60 formatos tienen plantilla asignada');
 select throws_ok($$ insert into public.formatos (id, tipo, titulo, familia) values ('INSP-99', 'INSP', 'x', 'F1') $$,
   '42501', null, 'el técnico no puede crear formatos');
+select public.tap_as('programador_a@mlp.local');
+update public.formatos set activo = false where id = 'INSP-12';
+select is((select activo from public.formatos where id = 'INSP-12'), true, 'el planificador no puede desactivar formatos (RLS ignora el update)');
+select public.tap_as('tecnico_a@mlp.local');
+update public.formatos set activo = false where id = 'INSP-12';
+select is((select activo from public.formatos where id = 'INSP-12'), true, 'el técnico no puede desactivar formatos');
 select public.tap_as('supervisor_a@mlp.local');
 update public.formatos set activo = false where id = 'INSP-12';
-select is((select activo from public.formatos where id = 'INSP-12'), true, 'el supervisor no puede desactivar formatos (RLS ignora el update)');
+select is((select activo from public.formatos where id = 'INSP-12'), false, 'el supervisor puede desactivar un formato (0018)');
 select public.tap_as('administrador@mlp.local');
-update public.formatos set activo = false where id = 'INSP-12';
-select is((select activo from public.formatos where id = 'INSP-12'), false, 'el administrador puede desactivar un formato');
+update public.formatos set activo = true where id = 'INSP-12';
+select is((select activo from public.formatos where id = 'INSP-12'), true, 'el administrador puede reactivar un formato');
 
 -- ---------- crear_formato (migración 0017) ----------
 create temp table nuevo as select '{"id":"INSP-90","tipo":"INSP","titulo":"Formato de prueba","familia":"F3","areas":["mina"],"designadores":["xf"],"campo":"tag","varios_equipos":false,"norma":"EST-PRUEBA-90","revision":"Nov 2026","copiar_de":"INSP-12"}'::jsonb as p;
 grant all on nuevo to public;
+select public.tap_as('programador_a@mlp.local');
+select throws_ok($$ select public.crear_formato((select p from nuevo)) $$, '42501', null, 'el planificador no puede crear formatos');
+select public.tap_as('tecnico_a@mlp.local');
+select throws_ok($$ select public.crear_formato((select p from nuevo)) $$, '42501', null, 'el técnico no puede crear formatos');
 select public.tap_as('supervisor_a@mlp.local');
-select throws_ok($$ select public.crear_formato((select p from nuevo)) $$, '42501', null, 'el supervisor no puede crear formatos');
+select is(public.crear_formato((select jsonb_set(p, '{id}', '"INSP-91"') from nuevo)), 'INSP-91', 'el supervisor puede crear un formato (0018)');
 select public.tap_as('administrador@mlp.local');
 select is(public.crear_formato((select p from nuevo)), 'INSP-90', 'el administrador crea un formato copiando otro');
 select is((select activo from public.formatos where id = 'INSP-90'), false, 'el formato nuevo nace desactivado');
@@ -100,7 +110,7 @@ select is((select ft.schema -> 'meta' ->> 'norma' from public.form_templates ft 
            where et.code = 'fmt_insp_90' and ft.version = 1),
           'EST-PRUEBA-90', 'su plantilla v1 lleva la norma nueva y el contenido copiado');
 select throws_ok($$ select public.crear_formato((select p from nuevo)) $$, '23505', null, 'no se puede repetir el id');
-select throws_ok($$ select public.crear_formato((select jsonb_set(jsonb_set(p, '{id}', '"INSP-91"'), '{copiar_de}', '"MANT-03"') from nuevo)) $$,
+select throws_ok($$ select public.crear_formato((select jsonb_set(jsonb_set(p, '{id}', '"INSP-92"'), '{copiar_de}', '"MANT-03"') from nuevo)) $$,
   '22023', null, 'no se puede copiar un formato de otro tipo');
 
 select * from finish();

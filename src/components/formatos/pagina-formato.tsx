@@ -26,7 +26,7 @@ export async function PaginaFormato({ base, formatoId, puedeEditar }: { base: st
         </p>
         {p.formato.activo ? null : (
           <p className="rounded-xl border border-hair bg-paper px-4 py-2 text-sm font-semibold text-sub">
-            Formato desactivado: los técnicos no lo ven al elegir un formato. Un administrador puede reactivarlo desde la lista.
+            Formato desactivado: los técnicos no lo ven al elegir un formato. Un supervisor o un administrador puede reactivarlo desde la lista.
           </p>
         )}
         {puedeEditar && (

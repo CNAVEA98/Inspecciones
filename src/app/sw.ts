@@ -35,8 +35,8 @@ const runtimeCaching: RuntimeCaching[] = [
       !url.pathname.endsWith("/pdf"),
     handler: new NetworkFirst({
       cacheName: CACHE_PAGINAS,
-      // Con señal mala se prefiere la copia local a esperar.
-      networkTimeoutSeconds: 4,
+      // Con señal mala se prefiere la copia local a esperar (con el servidor en São Paulo responde en mucho menos).
+      networkTimeoutSeconds: 3,
       matchOptions: { ignoreVary: true },
       plugins: [pagina],
     }),

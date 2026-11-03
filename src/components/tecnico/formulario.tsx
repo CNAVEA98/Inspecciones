@@ -135,7 +135,7 @@ export function Formulario({ id: idInicial }: { id: string }) {
   const bloqueado = draft.state !== "draft";
 
   // Filtro del selector de TAG: el formato elegido en el flujo; los borradores anteriores usan el tipo de equipo.
-  const formato = formatoPorId(draft.header.formato ?? "");
+  const formato = formatoPorId(catalog.catalog?.formatos ?? [], draft.header.formato ?? "");
   const codigoArea = (catalog.catalog?.areas.find((a) => a.id === draft.areaId)?.code ?? "chacay") as CodigoArea;
   const tipoEquipo = catalog.catalog?.equipmentTypes.find((e) => e.id === draft.equipmentTypeId)?.code ?? "";
   const designadores = formato?.designadores ?? DESIGNADORES_POR_TIPO_EQUIPO[tipoEquipo] ?? [];

@@ -7,6 +7,7 @@ import { getDb, type MlpDB } from "@/lib/offline/db";
 import { createSupabaseTransport } from "@/lib/offline/transport";
 import { SyncController } from "@/lib/offline/sync";
 import { calentarPaginas } from "@/lib/offline/paginas";
+import { enReposo } from "@/lib/offline/reposo";
 import { loadCatalog, readCatalogCache, type Catalog } from "@/lib/tecnico/catalog";
 
 interface CatalogState {
@@ -72,12 +73,16 @@ export function TecnicoProvider({ userId, children }: { userId: string; children
     };
   }, [core]);
 
-  // Guarda las páginas del técnico para abrir la app sin red (al abrir y al volver la conexión).
+  // Guarda las páginas del técnico para abrir la app sin red (al abrir y al volver la conexión). Se hace cuando el
+  // teléfono queda ocioso, para no competir con la carga de la pantalla y del catálogo al abrir la app.
   useEffect(() => {
-    void calentarPaginas();
+    const cancelar = enReposo(() => void calentarPaginas());
     const onOnline = () => void calentarPaginas();
     window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
+    return () => {
+      cancelar();
+      window.removeEventListener("online", onOnline);
+    };
   }, []);
 
   return <TecnicoContext.Provider value={{ userId, ...core, catalog }}>{children}</TecnicoContext.Provider>;

@@ -216,21 +216,19 @@ export async function listarBandeja(estados: InspectionStatus[]): Promise<FilaBa
 /** Devuelve null si la inspección no existe o el usuario no puede verla (RLS). */
 export async function obtenerDetalle(id: string): Promise<DetalleInspeccion | null> {
   const supabase = await createClient();
-  const { data: insp, error } = await supabase
-    .from("inspections")
-    .select(
-      `id, folio, status, equipment_tag, template_id, template_version, started_at, submitted_at, review_comment,
-       performed_by, technician_shift,
-       area:areas(name), equipo:equipment_types(name), modo:work_modes(name),
-       tecnico:profiles!technician_id(full_name)`,
-    )
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(`No se pudo cargar la inspección: ${error.message}`);
-  if (!insp) return null;
-
-  const [plantillaRes, respuestasRes, hallazgosRes, adjuntosRes, firmasRes, seguimientoRes] = await Promise.all([
-    supabase.from("form_templates").select("schema").eq("id", insp.template_id).maybeSingle(),
+  // Todo se pide a la vez: la plantilla viene embebida en la inspección (antes era una segunda vuelta que esperaba
+  // a la primera). Si la inspección no se puede ver (RLS), las demás consultas vuelven vacías y se descartan.
+  const [inspRes, respuestasRes, hallazgosRes, adjuntosRes, firmasRes, seguimientoRes] = await Promise.all([
+    supabase
+      .from("inspections")
+      .select(
+        `id, folio, status, equipment_tag, template_id, template_version, started_at, submitted_at, review_comment,
+         performed_by, technician_shift,
+         area:areas(name), equipo:equipment_types(name), modo:work_modes(name),
+         tecnico:profiles!technician_id(full_name), plantilla:form_templates(schema)`,
+      )
+      .eq("id", id)
+      .maybeSingle(),
     supabase.from("answers").select("item_key, value").eq("inspection_id", id),
     supabase
       .from("findings")
@@ -245,28 +243,30 @@ export async function obtenerDetalle(id: string): Promise<DetalleInspeccion | nu
       .order("signed_at"),
     supabase.from("finding_followups").select("finding_id, scope, sap_notice, channel_note").eq("inspection_id", id),
   ]);
+  const { data: insp, error } = inspRes;
+  if (error) throw new Error(`No se pudo cargar la inspección: ${error.message}`);
+  if (!insp) return null;
+  const plantillaRel = (Array.isArray(insp.plantilla) ? insp.plantilla[0] : insp.plantilla) as { schema?: unknown } | null;
   const seguimientoDe = new Map((seguimientoRes.data ?? []).map((r) => [r.finding_id as string, aSeguimiento(r)]));
 
-  const parsed = templateSchema.safeParse(plantillaRes.data?.schema);
+  const parsed = templateSchema.safeParse(plantillaRel?.schema);
 
   const rutas = (adjuntosRes.data ?? []).map((a) => a.storage_path as string);
-  const urlDeFoto = new Map<string, string>();
-  if (rutas.length > 0) {
-    const { data: firmadas } = await supabase.storage.from("inspection-photos").createSignedUrls(rutas, URL_SEGUNDOS);
-    for (const f of firmadas ?? []) if (f.path && f.signedUrl) urlDeFoto.set(f.path, f.signedUrl);
-  }
-
   const firmasRaw = firmasRes.data ?? [];
+  // Las URL firmadas de fotos y de firmas son independientes: se piden a la vez (antes, una tras otra).
+  const [fotosFirmadas, firmasFirmadas] = await Promise.all([
+    rutas.length > 0 ? supabase.storage.from("inspection-photos").createSignedUrls(rutas, URL_SEGUNDOS) : null,
+    firmasRaw.length > 0
+      ? supabase.storage.from("signatures").createSignedUrls(
+          firmasRaw.map((f) => f.image_path as string),
+          URL_SEGUNDOS,
+        )
+      : null,
+  ]);
+  const urlDeFoto = new Map<string, string>();
+  for (const f of fotosFirmadas?.data ?? []) if (f.path && f.signedUrl) urlDeFoto.set(f.path, f.signedUrl);
   const urlDeFirma = new Map<string, string>();
-  if (firmasRaw.length > 0) {
-    const { data: firmadas } = await supabase.storage
-      .from("signatures")
-      .createSignedUrls(
-        firmasRaw.map((f) => f.image_path as string),
-        URL_SEGUNDOS,
-      );
-    for (const f of firmadas ?? []) if (f.path && f.signedUrl) urlDeFirma.set(f.path, f.signedUrl);
-  }
+  for (const f of firmasFirmadas?.data ?? []) if (f.path && f.signedUrl) urlDeFirma.set(f.path, f.signedUrl);
 
   return {
     id: insp.id as string,

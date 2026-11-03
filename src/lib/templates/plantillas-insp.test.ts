@@ -1,7 +1,9 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { FORMATOS } from "@/lib/formatos/catalogo";
+import { formatosDeLaMigracion } from "@/lib/formatos/semilla";
+
+const FORMATOS = formatosDeLaMigracion();
 import { validateTemplate } from "./validate";
 
 const sql = readFileSync(path.resolve(__dirname, "../../../supabase/seed_plantillas_insp.sql"), "utf8");

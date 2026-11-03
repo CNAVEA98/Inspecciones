@@ -1,8 +1,10 @@
 /**
- * Fuente única de los formatos de inspección (INSP) y mantención (MANT).
+ * Formatos de inspección (INSP) y mantención (MANT): tipos y reglas de filtrado.
  *
- * Para habilitar un formato: (1) cambiar su `estado` a "disponible" y (2) cargar su plantilla en la base
- * (tipo de equipo × modo, como INSP-12) e indicar cuál en `plantilla`. Nada más cambia en las pantallas.
+ * Los datos viven en la tabla `public.formatos` (migración 0016). El técnico los recibe con el catálogo que descarga
+ * y guarda en el equipo (`lib/tecnico/catalog`); el personal los lee en el servidor (`lib/formatos/plantillas`).
+ * Para habilitar un formato: su plantilla debe estar publicada en la base (tipo de equipo × modo) y la fila del
+ * formato debe indicar esos códigos en `tipo_equipo_code` y `modo_code`.
  */
 
 export type TipoTrabajo = "INSP" | "MANT";
@@ -29,6 +31,8 @@ export interface Formato {
   areasPorConfirmar?: boolean;
   /** Plantilla de la base que abre el formulario: códigos de `equipment_types` y `work_modes`. */
   plantilla?: { tipoEquipo: string; modo: string };
+  /** Un formato desactivado no se ofrece al técnico; sus inspecciones siguen intactas. */
+  activo: boolean;
 }
 
 export const FAMILIAS: Record<CodigoFamilia, string> = {
@@ -39,140 +43,75 @@ export const FAMILIAS: Record<CodigoFamilia, string> = {
   F5: "Grupo Generadores",
   F6: "Filtros y Condensadores",
   F7: "Corriente Continua, BT",
-};export const ORDEN_FAMILIAS = Object.keys(FAMILIAS) as CodigoFamilia[];
+};
+export const ORDEN_FAMILIAS = Object.keys(FAMILIAS) as CodigoFamilia[];
 
 export const TRABAJOS: Record<TipoTrabajo, string> = { INSP: "Inspección", MANT: "Mantención" };
 
-const AREA: Record<string, CodigoArea> = { CH: "chacay", MI: "mina", MA: "mauro", PU: "puerto" };
-const GEN = ["GG", "GE", "DG"];
-
-interface Opciones {
-  tramo?: boolean;
-  varios?: boolean;
-  porConfirmar?: boolean;
-  disponible?: Formato["plantilla"];
+/** Fila de `public.formatos` tal como la entrega PostgREST. */
+export interface FilaFormatoBD {
+  id: string;
+  tipo: string;
+  titulo: string;
+  familia: string;
+  areas: string[] | null;
+  designadores: string[] | null;
+  campo: string;
+  varios_equipos: boolean;
+  areas_por_confirmar: boolean;
+  tipo_equipo_code: string | null;
+  modo_code: string | null;
+  activo: boolean;
+  orden: number;
 }
 
-/** f("INSP", 12, "Titulo", "F3", "T", ["XF"]) — áreas: «T» (transversal) o «CH,MI». */
-function f(
-  tipo: TipoTrabajo,
-  n: number,
-  titulo: string,
-  familia: CodigoFamilia,
-  areas: string,
-  designadores: string[],
-  o: Opciones = {},
-): Formato {
+/** Columnas que se piden a `public.formatos`. */
+export const COLUMNAS_FORMATO =
+  "id, tipo, titulo, familia, areas, designadores, campo, varios_equipos, areas_por_confirmar, tipo_equipo_code, modo_code, activo, orden";
+
+/** Convierte una fila de la base al modelo de la app (mismo resultado que el antiguo catálogo en código). */
+export function filaAFormato(r: FilaFormatoBD): Formato {
+  const plantilla = r.tipo_equipo_code && r.modo_code ? { tipoEquipo: r.tipo_equipo_code, modo: r.modo_code } : undefined;
   return {
-    id: `${tipo}-${String(n).padStart(2, "0")}`,
-    tipo,
-    titulo,
-    familia,
-    areas: areas === "T" ? [] : areas.split(",").map((a) => AREA[a]),
-    designadores,
-    campo: o.tramo ? "tramo" : "tag",
-    variosEquipos: o.varios ?? false,
-    estado: o.disponible ? "disponible" : "proximamente",
-    ...(o.porConfirmar ? { areasPorConfirmar: true } : {}),
-    ...(o.disponible ? { plantilla: o.disponible } : {}),
+    id: r.id,
+    tipo: r.tipo as TipoTrabajo,
+    titulo: r.titulo,
+    familia: r.familia as CodigoFamilia,
+    areas: (r.areas ?? []) as CodigoArea[],
+    designadores: r.designadores ?? [],
+    campo: r.campo === "tramo" ? "tramo" : "tag",
+    variosEquipos: r.varios_equipos,
+    estado: plantilla ? "disponible" : "proximamente",
+    ...(r.areas_por_confirmar ? { areasPorConfirmar: true } : {}),
+    ...(plantilla ? { plantilla } : {}),
+    activo: r.activo,
   };
 }
 
-export const FORMATOS: Formato[] = [
-  // ---------- Inspección ----------
-  f("INSP", 1, "Desconectador Seccionador Maniobra 23 kV", "F4", "T", ["SW"], { disponible: { tipoEquipo: "desconectador_seccionador", modo: "plan_matriz" } }),
-  f("INSP", 2, "Banco de Condensadores Mauro", "F6", "MA", ["XC"], { disponible: { tipoEquipo: "banco_condensadores_mauro", modo: "plan_matriz" } }),
-  f("INSP", 3, "Pruebas Grupos Generadores El Mauro", "F5", "MA", GEN, {
-    varios: true,
-    disponible: { tipoEquipo: "grupo_generador_mauro", modo: "plan_matriz" },
-  }),
-  f("INSP", 4, "Limpieza Salas Eléctricas STMG 23 kV", "F2", "MI", ["ER"], { disponible: { tipoEquipo: "sala_electrica_stmg", modo: "plan_matriz" } }),
-  f("INSP", 5, "Reconectadores", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "reconectador", modo: "plan_matriz" } }),
-  f("INSP", 6, "Subestaciones Móviles", "F3", "MI", ["SE", "US"], { disponible: { tipoEquipo: "subestacion_movil", modo: "plan_matriz" } }),
-  f("INSP", 7, "Transformadores Aéreos", "F3", "T", ["XF"], { disponible: { tipoEquipo: "transformador_aereo", modo: "plan_matriz" } }),
-  f("INSP", 8, "Switchgear Sala Eléctrica 12", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "switchgear_sala_12", modo: "plan_matriz" } }),
-  f("INSP", 9, "Parrones de Maniobra 23 kV", "F4", "MI", ["PM"], { disponible: { tipoEquipo: "parron_maniobra", modo: "plan_matriz" } }),
-  f("INSP", 10, "Sistema Presurizado Sala 12", "F2", "MI", [], {
-    tramo: true,
-    disponible: { tipoEquipo: "sistema_presurizado_sala_12", modo: "plan_matriz" },
-  }),
-  f("INSP", 11, "Líneas Aéreas 23 kV", "F4", "T", ["LI"], {
-    tramo: true,
-    disponible: { tipoEquipo: "inspeccion_lineas", modo: "plan_matriz" },
-  }),
-  f("INSP", 12, "Transformadores de Piso", "F3", "T", ["XF"], {
-    disponible: { tipoEquipo: "transformador_piso", modo: "plan_matriz" },
-  }),
-  f("INSP", 13, "Switchgears 23 kV", "F1", "T", ["SG"], { disponible: { tipoEquipo: "switchgear_23kv", modo: "plan_matriz" } }),
-  f("INSP", 14, "Switchgear Principal Tranque Mauro 23 kV", "F1", "MA", ["SG"], { disponible: { tipoEquipo: "switchgear_tranque_mauro", modo: "plan_matriz" } }),
-  f("INSP", 15, "Túnel de Cables STMG", "F2", "MI", ["TU"], {
-    tramo: true,
-    disponible: { tipoEquipo: "tunel_cables_stmg", modo: "plan_matriz" },
-  }),
-  f("INSP", 16, "Grupos Generadores ", "F5", "T", GEN, { varios: true, disponible: { tipoEquipo: "grupo_generador", modo: "plan_matriz" } }),
-  f("INSP", 17, "Cargador y Banco de Baterías", "F7", "T", ["BC", "BA"], { disponible: { tipoEquipo: "cargador_banco_baterias", modo: "plan_matriz" } }),
-  f("INSP", 18, "Pruebas Grupos Generadores Chacay-Mina", "F5", "CH,MI", GEN, { varios: true, disponible: { tipoEquipo: "pruebas_generadores_chacay_mina", modo: "plan_matriz" } }),
-  f("INSP", 19, "Cables y Tierras de Escalerillas", "F2", "T", [], { tramo: true, disponible: { tipoEquipo: "cables_tierras_escalerillas", modo: "plan_matriz" } }),
-  f("INSP", 20, "Celda 23 kV", "F1", "T", ["SW"], { disponible: { tipoEquipo: "celda_alimentador_23kv", modo: "plan_matriz" } }),
-  f("INSP", 21, "Cruce de Caminos Mina", "F4", "MI", ["CC"], { disponible: { tipoEquipo: "cruce_camino_mina", modo: "plan_matriz" } }),
-  f("INSP", 22, "Luminarias", "F7", "T", ["LP", "LT", "LX"], { disponible: { tipoEquipo: "luminarias", modo: "plan_matriz" } }),
-  f("INSP", 23, "Tablero Eléctrico", "F7", "T", ["DP", "CO", "JP"], { disponible: { tipoEquipo: "tablero_electrico_bt", modo: "plan_matriz" } }),
-  f("INSP", 24, "Parque Generador", "F5", "T", GEN, { varios: true, disponible: { tipoEquipo: "parque_generador", modo: "plan_matriz" } }),
-  f("INSP", 25, "Filtro Armónico STATCOM", "F6", "CH", ["HF"], { disponible: { tipoEquipo: "filtro_armonico_statcom", modo: "plan_matriz" } }),
-  f("INSP", 26, "Tablero de Respaldo UPS", "F7", "T", ["UP"], { disponible: { tipoEquipo: "tablero_respaldo_ups", modo: "plan_matriz" } }),
-  f("INSP", 27, "Filtro Armónico 740-HF-5002 ", "F6", "CH", ["HF"], { disponible: { tipoEquipo: "filtro_molino_bolas_5002", modo: "plan_matriz" } }),
-  f("INSP", 28, "Filtro Armónico 740-HF-5001 ", "F6", "CH", ["HF"], { disponible: { tipoEquipo: "filtro_molino_sag_5001", modo: "plan_matriz" } }),
-  f("INSP", 29, "Switchgear PPCH", "F1", "PU", ["SG"], { disponible: { tipoEquipo: "switchgear_ppch", modo: "plan_matriz" } }),
-  f("INSP", 30, "Sala Eléctrica 740-ER-5002", "F2", "CH", ["ER"], { disponible: { tipoEquipo: "sala_electrica_740_er_5002", modo: "plan_matriz" } }),
-  f("INSP", 31, "Ficha Generadores ", "F5", "T", GEN, { varios: true, disponible: { tipoEquipo: "ficha_generadores_agk", modo: "plan_matriz" } }),
-  f("INSP", 32, "Check List Grupo Generador", "F5", "T", GEN, { varios: true, disponible: { tipoEquipo: "checklist_grupo_generador", modo: "plan_matriz" } }),
-  f("INSP", 33, "Sala Eléctrica 741-ER-5001 (STATCOM)", "F2", "CH", ["ER"], { disponible: { tipoEquipo: "sala_electrica_741_er_5001", modo: "plan_matriz" } }),
-  f("INSP", 34, "Relés de Protección y Controladores de Reconectadores", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "reles_proteccion", modo: "plan_matriz" } }),
-  f("INSP", 35, "Banco de Condensadores PPCH", "F6", "PU", ["XC"], { disponible: { tipoEquipo: "banco_condensadores_ppch", modo: "plan_matriz" } }),
-  // No existe INSP-36 (la numeración salta de 35 a 37).
-  f("INSP", 37, "Cerco Perimetral STATCOM", "F7", "CH", [], { tramo: true, disponible: { tipoEquipo: "cerco_perimetral_statcom", modo: "plan_matriz" } }),
-  f("INSP", 38, "Carga de Combustible PG Piuquenes", "F5", "CH", [], { tramo: true, disponible: { tipoEquipo: "carga_combustible_piuquenes", modo: "plan_matriz" } }),
-  f("INSP", 39, "Limpieza Sala Eléctrica 740-ER-5002 ", "F2", "CH", ["ER"], { disponible: { tipoEquipo: "limpieza_sala_740_er_5002_l4", modo: "plan_matriz" } }),
-  f("INSP", 40, "Pruebas Grupos Generadores Puerto-Mauro", "F5", "PU,MA", GEN, { varios: true, disponible: { tipoEquipo: "pruebas_generadores_puerto_mauro", modo: "plan_matriz" } }),
-  f("INSP", 41, "Sala Eléctrica 741-ER-5002 STATCOM", "F2", "CH", ["ER"], { disponible: { tipoEquipo: "sala_electrica_741_er_5002", modo: "plan_matriz" } }),
-
-  // ---------- Mantención ----------
-  f("MANT", 1, "Generadores Locales", "F5", "T", GEN, { varios: true, disponible: { tipoEquipo: "mant_generadores_locales", modo: "mantenimiento_programado" } }),
-  f("MANT", 2, "Parques de Generación", "F5", "T", GEN, { varios: true, porConfirmar: true, disponible: { tipoEquipo: "mant_parques_generacion", modo: "mantenimiento_programado" } }),
-  f("MANT", 3, "Subestación Móvil", "F3", "MI", ["SE", "US"], { disponible: { tipoEquipo: "mant_subestacion_movil", modo: "mantenimiento_programado" } }),
-  f("MANT", 4, "Cargadores y Banco de Baterías", "F7", "T", ["BC", "BA"], { disponible: { tipoEquipo: "mant_cargadores_baterias", modo: "mantenimiento_programado" } }),
-  f("MANT", 5, "Tablero BT", "F7", "T", ["DP", "CO"], { disponible: { tipoEquipo: "mant_tablero_bt", modo: "mantenimiento_programado" } }),
-  f("MANT", 6, "Reconectador", "F4", "T", ["GV", "NJ"], { disponible: { tipoEquipo: "mant_reconectador", modo: "mantenimiento_programado" } }),
-  f("MANT", 7, "Switchgear Sala 12 23 kV", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_12", modo: "mantenimiento_programado" } }),
-  f("MANT", 8, "Switchgear Estaciones Móviles 23 kV", "F1", "MI", ["SG"], { porConfirmar: true, disponible: { tipoEquipo: "mant_switchgear_estaciones", modo: "mantenimiento_programado" } }),
-  f("MANT", 9, "Switchgear Sala 1", "F1", "MI", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_sala_1_y_12", modo: "mantenimiento_programado" } }),
-  f("MANT", 10, "Switchgear SE El Mauro 23 kV", "F1", "MA", ["SG"], { disponible: { tipoEquipo: "mant_switchgear_mauro", modo: "mantenimiento_programado" } }),
-  f("MANT", 11, "Transformador Aéreo", "F3", "T", ["XF"], { disponible: { tipoEquipo: "mant_transformador_aereo", modo: "mantenimiento_programado" } }),
-  f("MANT", 12, "Filtro Armónico Chancado", "F6", "MI", ["HF"], { disponible: { tipoEquipo: "mant_filtro_chancado", modo: "mantenimiento_programado" } }),
-  f("MANT", 13, "Filtro Armónico Planta", "F6", "CH", ["HF"], { disponible: { tipoEquipo: "mant_filtro_planta", modo: "mantenimiento_programado" } }),
-  f("MANT", 14, "Filtro Armónico PPCH", "F6", "PU", ["HF"], { disponible: { tipoEquipo: "mant_filtro_ppch", modo: "mantenimiento_programado" } }),
-  f("MANT", 15, "Parrones 23 kV", "F4", "MI", ["PM"], { disponible: { tipoEquipo: "mant_parrones", modo: "mantenimiento_programado" } }),
-  f("MANT", 16, "Transformador de Piso", "F3", "T", ["XF"], { disponible: { tipoEquipo: "mant_transformador_piso", modo: "mantenimiento_programado" } }),
-  f("MANT", 17, "Transformador de Poder Correas", "F3", "MI", ["XF"], { porConfirmar: true, disponible: { tipoEquipo: "mant_transformador_poder_correas", modo: "mantenimiento_programado" } }),
-  f("MANT", 18, "Celda de Piso 23 kV", "F1", "T", ["SW"], { disponible: { tipoEquipo: "mant_celda_piso", modo: "mantenimiento_programado" } }),
-  f("MANT", 19, "Prueba de Instrumentos Transformador Principal", "F3", "T", ["CT", "PT"], { disponible: { tipoEquipo: "mant_instrumentos_transformador", modo: "mantenimiento_programado" } }),
-  f("MANT", 20, "Línea Aérea 23 kV", "F4", "T", ["LI"], { tramo: true, disponible: { tipoEquipo: "mant_linea_aerea", modo: "mantenimiento_programado" } }),
-];
+/** Ordena como el catálogo original: por `orden` y, a igualdad, por id. */
+export const ordenarFilas = (filas: readonly FilaFormatoBD[]) =>
+  [...filas].sort((a, b) => a.orden - b.orden || a.id.localeCompare(b.id));
 
 /** Un formato aparece si es transversal o incluye el área elegida. */
 export const aplicaEnArea = (formato: Formato, area: CodigoArea) =>
   formato.areas.length === 0 || formato.areas.includes(area);
 
-export function formatosVisibles(area: CodigoArea, tipo: TipoTrabajo, familia?: CodigoFamilia): Formato[] {
-  return FORMATOS.filter(
-    (x) => x.tipo === tipo && aplicaEnArea(x, area) && (familia === undefined || x.familia === familia),
+/** Formatos que ve el técnico: activos, del trabajo y área elegidos (y de la familia, si se indica). */
+export function formatosVisibles(
+  formatos: readonly Formato[],
+  area: CodigoArea,
+  tipo: TipoTrabajo,
+  familia?: CodigoFamilia,
+): Formato[] {
+  return formatos.filter(
+    (x) => x.activo && x.tipo === tipo && aplicaEnArea(x, area) && (familia === undefined || x.familia === familia),
   );
 }
 
 /** Familias con al menos un formato visible para el área y el trabajo (el estado «próximamente» no oculta). */
-export function familiasVisibles(area: CodigoArea, tipo: TipoTrabajo): CodigoFamilia[] {
-  const con = new Set(formatosVisibles(area, tipo).map((x) => x.familia));
+export function familiasVisibles(formatos: readonly Formato[], area: CodigoArea, tipo: TipoTrabajo): CodigoFamilia[] {
+  const con = new Set(formatosVisibles(formatos, area, tipo).map((x) => x.familia));
   return ORDEN_FAMILIAS.filter((fam) => con.has(fam));
 }
 
-export const formatoPorId = (id: string) => FORMATOS.find((x) => x.id === id);
+export const formatoPorId = (formatos: readonly Formato[], id: string) => formatos.find((x) => x.id === id);

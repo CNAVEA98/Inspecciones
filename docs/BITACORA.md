@@ -33,9 +33,19 @@ GitHub con la copia local y baje lo último:
    migraciones, corra `corepack pnpm install` y `corepack pnpm supabase db reset`.
 5. Si el `pull` falla (credenciales, conflicto, rama divergente), no lo fuerce: anote el error y avise antes de seguir.
 
-## Estado actual (2026-10-31)
+## Estado actual (2026-11-03)
 
 **Para quien continúa (léalo primero):**
+- **Trabajo del 2026-11-03 (rama `perf/arranque-movil`, subida a GitHub, PR hacia `main`):** pestaña «Formatos» para supervisor,
+  administrador y planificador (editar formatos publicando versiones nuevas; crear formatos en blanco con la estructura estándar
+  o copiando uno; desactivar y reactivar; campos propios en la cabecera), catálogo de formatos movido a la tabla `formatos`, y
+  optimización del arranque (región de Vercel `gru1`, sesión validada una vez en el proxy, el icono abre `/tecnico`).
+  **Antes de unir el PR: aplicar en el Supabase remoto las migraciones `0015` a `0019`, en ese orden** (sin la `0016` el técnico
+  no carga el catálogo). Después de desplegar: comprobar `x-vercel-id: gru1::gru1` (ver `docs/DEPLOY_VERCEL.md`) y volver a
+  agregar el icono en el iPhone. Nada de esto se ha probado con clics en un navegador ni en el sitio publicado.
+- **Simulación de los 60 formatos:** `node scripts/simular-formatos.mjs` genera 2 PDF por formato (conforme y con hallazgos)
+  como `TECNICO_A` en la app local; resultado del 2026-11-03: 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-03\`
+  (fuera del repositorio) con `RESUMEN.md` y `CONTEXTO_COWORK_REVISION_FORMATOS.md` para la revisión visual en Cowork.
 - **Trabajo del 2026-10-31:** unido a `main` con el PR #5 (técnico descarga el PDF, PDF sin tablas cortadas, «Equipos con fallas» y seguimiento de hallazgos, correcciones de uso en terreno). **Las migraciones `0012`, `0013` y `0014` ya están aplicadas en el Supabase remoto** (comprobado 6/6 el 2026-10-31); falta probar todo en el sitio publicado.
 - `main` en GitHub ya tiene todo el trabajo (PR #1 unido el 2026-10-30). Siga el flujo de `CLAUDE.md`: rama nueva, bitácora en el mismo commit, PR.
 - **Local:** `corepack pnpm install`, `corepack pnpm supabase start` (Docker), `corepack pnpm dev`. Entre con **usuario** (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); las contraseñas de prueba están en `supabase/seed_usuarios_dev.sql`.
@@ -51,7 +61,7 @@ GitHub con la copia local y baje lo último:
 | Plantilla real Transformador de piso × Plan Matriz (29 ítems) | Hecha en el seed |
 | Auth, proxy por rol (admin, supervisor, programador, técnico), turnos A/B y firma doble en BD | Hecho. Cuentas genéricas con **usuario** (sin correo). Probado en navegador en local con `TECNICO_A`, `SUPERVISOR_A` y `PROGRAMADOR_A`; **sin probar en el sitio publicado** |
 | Núcleo offline (Dexie, cola, reintentos, compresión) | Hecho, con tests |
-| Flujo del técnico (Área → Trabajo → Familia → Formato → formulario con selector de TAG → envío) | Hecho y en `main`. Catálogo de 60 formatos; disponibles INSP-01 a 15 (INSP-01 a 15 en la rama `feat/plantillas-insp-11-15`). Probado de extremo a extremo en local (envío con TAG provisional, firma del supervisor, aprobación del programador, PDF) |
+| Flujo del técnico (Área → Trabajo → Familia → Formato → formulario con selector de TAG → envío) | Hecho y en `main`. Los 60 formatos disponibles; desde el 2026-11-03 el catálogo está en la tabla `formatos` (rama `perf/arranque-movil`). Probado de extremo a extremo en local (envío con TAG provisional, firma del supervisor, aprobación del programador, PDF) |
 | Selector de TAG desde el Maestro (1.073 equipos) | Hecho: TAG con guiones, nombres limpios, sectores, TAG provisionales marcados en el registro y en el detalle de revisión. Datos en `src/data/maestro-tags.json` (se regenera con `scripts/export-maestro.py`, ver `docs/EXPORT_MAESTRO.md`) |
 | Eliminar inspecciones en curso (técnico) | Hecho; probado con el ratón, **no con el dedo en un teléfono** |
 | Despliegue de prueba (Vercel + Supabase remoto) | Esquema y catálogo cargados y verificados en el Supabase remoto; 7 cuentas con rol y turno; app publicada y compilando. **Falta que el usuario pruebe el ingreso en el sitio publicado** y confirme que desactivó el registro libre (ver «Pendientes» 15 a 19) |
@@ -60,6 +70,8 @@ GitHub con la copia local y baje lo último:
 | Crear formatos nuevos (copia) | Hecho en `feat/crear-formatos` (2026-11-03), solo administrador, nace desactivado; **migración 0017 sin aplicar en el remoto**, sin probar con clics |
 | Desactivar / reactivar formatos | Hecho en `feat/desactivar-formatos` (2026-11-03), solo administrador; sin probar con clics |
 | Catálogo de formatos en la base | Hecho en `feat/catalogo-formatos-bd` (2026-11-03), mismos 60 formatos; **migración 0016 sin aplicar en el remoto** y flujo del técnico sin probar con clics |
+| Simulación de los 60 formatos (`scripts/simular-formatos.mjs`) | Hecha 2026-11-03: 120/120 PDF generados; **falta la revisión visual** (encargada a Cowork) |
+| Rendimiento del arranque en móvil | Hecho en `perf/arranque-movil` (2026-11-03): abrir la app 1.102 → 150 ms con 120 ms simulados por llamada; **sin verificar en el sitio publicado ni en iPhone** |
 | Pestaña «Formatos» (editor de plantillas) | Hecha en la rama `feat/editor-formatos` (2026-11-03): lista, editor, historial, publicación de versión nueva. Probada por HTTP y con tests; **sin probar con clics en navegador y migración 0015 sin aplicar en el remoto** |
 | PDF server-side | Descarga hecha para admin, supervisor y planificador (diseño Cobre, generado al pedirlo); sin guardar en Storage |
 | PDF para el técnico (2026-10-31) | Hecho: el técnico descarga el PDF de **sus** inspecciones al enviar y desde «Enviadas» (ruta `/tecnico/[id]/pdf`, por RLS). Probado en local en PC; **sin probar en iPhone ni sin red**. Requiere la migración `0013` |
@@ -101,15 +113,22 @@ Verificación global más reciente (2026-10-31, rama `feat/fallas-seguimiento`, 
 27. **Confirmar con MLP los supuestos de SAP:** texto breve de 40 caracteres, prioridad sugerida (crítica = Urgente, alta = Programada en ejecución, media y baja = Próximos programas), quién crea el aviso subsecuente y si «crítico» es todo ítem en ML. También decidir si un hallazgo debe darse por cerrado solo cuando una inspección posterior del mismo TAG lo muestre reparado.
 28. **Probar en iPhone y en pantalla angosta lo nuevo:** descarga del PDF por el técnico, confirmaciones al quitar fotos o secciones, etiquetas de estado a 12 px, «Equipos con fallas» y el botón de copiar la ficha. Procedimiento por Wi-Fi: `next start -H 0.0.0.0` con `NEXT_PUBLIC_SUPABASE_URL` apuntando a la IP del PC (sin HTTPS no hay modo sin red ni instalación).
 29. **Auditoría React/UI** (`docs/AUDITORIA_REACT_UI_TECNICO.md`): quedan el paso del formulario en la URL, medir con el Profiler antes de memoizar `ItemField`, y revisar los archivos no auditados (`tecnico-provider`, `nueva-inspeccion`, `signature-field`, área del supervisor).
-30. **Datos de prueba en la base local** de esta sesión: inspecciones `INS-2026-000007` a `000009` con hallazgos (`320-XF-007`, `740-XF-001`, `280-XF-281A`); desaparecen con el próximo `supabase db reset`.
+30. ~~Datos de prueba `INS-2026-000007` a `000009` en la base local~~ — eliminados el 2026-11-03 a pedido del usuario (no tenían turno: se enviaron antes de la migración 0008).
 
 31. **Subir la rama `docs/bitacora-migraciones-remotas`** (commit con la entrada de las migraciones remotas y la actualización de esta lista) y abrir su PR hacia `main`. Solo con confirmación del usuario; hoy está solo en el equipo local.
 32. **Opcional, a decisión del usuario:** renombrar el repositorio de GitHub (por ejemplo a `pwa-inspecciones`; después actualizar `git remote set-url origin …`, revisar que Vercel siga desplegando y cambiar el nombre en `CLAUDE.md`, esta bitácora y `docs/DEPLOY_VERCEL.md`); y borrar la carpeta `.fcc` del perfil de Windows, que dejó el intento fallido de instalar «Free Claude Code» (solo contiene un registro).
 33. **Al retomar tras reiniciar el PC (entorno local):** abrir Docker Desktop, `corepack pnpm supabase start`, `corepack pnpm dev` y entrar a `http://localhost:3000`. La base local conserva los datos de prueba (inspecciones `INS-2026-000007` a `000009`) mientras no se corra `supabase db reset`. El servidor de desarrollo y las ventanas de la prueba por Wi-Fi se pierden al reiniciar; hay que volver a lanzarlos.
 34. **Hacer repetible `seed_catalogo.sql`** (agregar `on conflict (code) do nothing` a `equipment_types` y `work_modes`, y evitar duplicar la plantilla de transformador de piso). Hoy falla si se ejecuta dos veces en el remoto.
-35. **Procedimiento de «versión 2» de una plantilla** para cambiar un formato ya publicado en el remoto sin tocar las inspecciones antiguas (hoy no existe; los seeds no sobrescriben). Documentarlo en `docs/` o automatizarlo.
+35. ~~Procedimiento de «versión 2» de una plantilla~~ — **hecho 2026-11-03** con la pestaña «Formatos» (cada publicación inserta la versión siguiente). Texto original: para cambiar un formato ya publicado en el remoto sin tocar las inspecciones antiguas (hoy no existe; los seeds no sobrescriben). Documentarlo en `docs/` o automatizarlo.
 36. **Revisar las 60 plantillas en el sitio publicado:** abrir al menos unos formatos de cada familia como técnico y comparar con el Word; opcionalmente listar títulos y secciones con una consulta a `form_templates` (`schema->>'title'`). Si la PWA está instalada, abrirla con red para que baje el catálogo.
 37. **Respaldo de las inspecciones reales:** Supabase Free no respalda a diario (ver pendiente 17); pasar a Pro o exportar antes de usar con datos reales.
+38. **Aplicar en el Supabase remoto las migraciones `0015` a `0019`, en orden**, antes de unir el PR de `perf/arranque-movil` (pegarlas en el SQL Editor, como las anteriores; ver pendiente 18).
+39. **Después de desplegar:** comprobar que las funciones corren en São Paulo (`curl -sI …/login | grep -i x-vercel-id` → `gru1::gru1`; si sigue en `iad1`, cambiar la región en Vercel → Settings → Functions) y medir el tiempo de apertura en el iPhone. **Borrar y volver a agregar el icono** en la pantalla de inicio del iPhone.
+40. **Probar con clics la pestaña «Formatos»** con `SUPERVISOR_A`, `ADMINISTRADOR` y `PROGRAMADOR_A` (crear en blanco, agregar preguntas y campos de cabecera, publicar, activar/desactivar, aviso al salir con cambios) y el flujo del técnico con un formato nuevo. Reiniciar `npm run dev` antes: un servidor abierto desde antes siguió usando una versión vieja de una acción.
+41. **Revisión visual de los 120 PDF de la simulación** con `CONTEXTO_COWORK_REVISION_FORMATOS.md` (Cowork) y corregir lo que encuentre (generador `src/components/informe/informe-pdf.tsx` o la plantilla del formato con el editor).
+42. **Peso del JavaScript del técnico** (~321 KB comprimidos: React, cliente de Supabase con realtime, Zod, Dexie): evaluar cargar Supabase bajo demanda o `zod/mini`. Queda en caché del service worker tras la primera visita.
+43. **Base local con datos de simulación:** ~120 inspecciones de `TECNICO_A` del 2026-11-03; se limpian con `corepack pnpm supabase db reset` (vuelve a aplicar migraciones y seeds).
+44. **Editor de formatos, siguientes pasos:** vista previa del formulario tal como lo ve el técnico; editar firmas, leyenda de estados y lecturas destacadas; copiar entre inspección y mantención.
 
 ## Decisiones
 
@@ -157,6 +176,13 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-03 · Simulación de los 60 formatos con PDF y contexto para revisión en Cowork
+- **Autor:** Cristóbal (con Claude) · rama `perf/arranque-movil`
+- **Qué se hizo:** script `scripts/simular-formatos.mjs`: entra como `TECNICO_A` a la app **local** (se niega a correr si `NEXT_PUBLIC_SUPABASE_URL` no es local), y por cada formato disponible envía una inspección por el mismo camino que la app (fotos y firma sintéticas a Storage + `submit_inspection`) en dos escenarios, «conforme» y «con hallazgos» (hasta 3 ML con severidad y foto, NA, secciones repetibles con 2 copias), descarga el PDF de `/tecnico/{id}/pdf` y escribe `RESUMEN.md`. Opciones: carpeta de salida, `--solo=INSP-01,MANT-03`, `--url=`. Lee los formatos de la tabla `formatos`. Se preparó `CONTEXTO_COWORK_REVISION_FORMATOS.md` (proyecto, nomenclatura, anatomía esperada del PDF, lista de verificación, tabla de los 60 formatos con secciones/ítems/estados, qué no es falla) junto a los PDF. A pedido del usuario se borraron de la base local las 3 inspecciones sin turno (`INS-2026-000007` a `000009`) con `delete_inspections`.
+- **Archivos:** `scripts/simular-formatos.mjs`. Los PDF y el contexto están fuera del repositorio, en `C:\Proyectos\simulacion-formatos6-11-03\`.
+- **Verificación:** 120/120 PDF generados sin errores de envío ni de generación (promedio 3,4 páginas; mínimo 1: INSP-10, 19 y 21 conforme; máximo 11: INSP-28 con hallazgos). **No verificado el aspecto visual** (no había `pdftoppm` para renderizarlos): la revisión visual queda para Cowork.
+- **Pendiente / riesgos:** las imágenes y textos son sintéticos (no prueban contenido real largo, fotos verticales ni firmas de supervisor/planificador). El conteo de páginas es aproximado.
 
 ### 2026-11-03 · Rendimiento: la app abre rápido desde el icono del iPhone
 - **Autor:** Cristóbal (con Claude) · rama `perf/arranque-movil` (sale de `feat/crear-formatos`)

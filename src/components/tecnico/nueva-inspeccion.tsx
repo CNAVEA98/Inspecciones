@@ -67,7 +67,7 @@ export function NuevaInspeccion() {
   if (catalog.status === "error" || !catalog.catalog) {
     return (
       <p role="alert" className="rounded-2xl border border-[#bb0000] bg-[#fdecec] p-5 text-lg text-[#7a0000]">
-        {catalog.error ?? "No se pudo cargar el catálogo."} Conéctese a internet una vez para descargarlo.
+        {catalog.error ?? "No se pudo cargar el catálogo. Conéctese a internet una vez para descargarlo."}
       </p>
     );
   }

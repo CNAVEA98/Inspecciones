@@ -86,8 +86,12 @@ const COLUMNAS = "id, equipment_type_id, work_mode_id, version, published_at, ch
 /** Los formatos disponibles con su versión vigente (sin cargar el contenido, que pesa). */
 export async function listarFormatos(): Promise<FilaFormato[]> {
   const supabase = await createClient();
-  const [{ tipos, modos }, formatos] = await Promise.all([idsDelCatalogo(), cargarFormatos()]);
-  const { data, error } = await supabase.from("form_templates").select(COLUMNAS).eq("status", "published").limit(5000);
+  // Las tres lecturas son independientes: van a la vez.
+  const [{ tipos, modos }, formatos, { data, error }] = await Promise.all([
+    idsDelCatalogo(),
+    cargarFormatos(),
+    supabase.from("form_templates").select(COLUMNAS).eq("status", "published").limit(5000),
+  ]);
   if (error) throw new Error(`No se pudieron cargar los formatos: ${error.message}`);
 
   const porClave = new Map<string, FilaVersion[]>();
@@ -104,9 +108,8 @@ export async function listarFormatos(): Promise<FilaFormato[]> {
 
 /** La plantilla vigente de un formato con su contenido y su historial de versiones. null si no existe o es inválida. */
 export async function obtenerPlantillaEditable(formatoId: string): Promise<PlantillaEditable | null> {
-  const formato = await formatoPorIdBD(formatoId);
+  const [formato, { tipos, modos }] = await Promise.all([formatoPorIdBD(formatoId), idsDelCatalogo()]);
   if (!formato || formato.estado !== "disponible" || !formato.plantilla) return null;
-  const { tipos, modos } = await idsDelCatalogo();
   const tipoId = tipos.get(formato.plantilla.tipoEquipo), modoId = modos.get(formato.plantilla.modo);
   if (!tipoId || !modoId) return null;
 

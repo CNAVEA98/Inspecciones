@@ -1,6 +1,8 @@
 import { cache } from "react";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { leerCabeceras } from "./cabeceras";
 import { homeFor, type Role, type Shift } from "./roles";
 
 export interface SessionProfile {
@@ -11,8 +13,14 @@ export interface SessionProfile {
   shift: Shift | null;
 }
 
-/** Usuario verificado + perfil (el rol viene de la tabla profiles, nunca del cliente). */
+/**
+ * Usuario verificado + perfil (el rol viene de la tabla profiles, nunca del cliente).
+ * Normalmente lo trae el proxy en cabeceras internas ya verificadas (sin volver a consultar Supabase); si faltan
+ * (p. ej. una ruta fuera del matcher del proxy), se consulta como siempre.
+ */
 export const getSession = cache(async (): Promise<SessionProfile | null> => {
+  const delProxy = leerCabeceras(await headers());
+  if (delProxy) return delProxy;
   const supabase = await createClient();
   const {
     data: { user },

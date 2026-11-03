@@ -44,7 +44,7 @@ GitHub con la copia local y baje lo último:
   no carga el catálogo). Después de desplegar: comprobar `x-vercel-id: gru1::gru1` (ver `docs/DEPLOY_VERCEL.md`) y volver a
   agregar el icono en el iPhone. Nada de esto se ha probado con clics en un navegador ni en el sitio publicado.
 - **Simulación de los 60 formatos:** `node scripts/simular-formatos.mjs` genera 2 PDF por formato (conforme y con hallazgos)
-  como `TECNICO_A` en la app local; resultado del 2026-11-03: 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-03\`
+  como `TECNICO_A` en la app local; resultado del 2026-11-03: 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-03\`
   (fuera del repositorio) con `RESUMEN.md` y `CONTEXTO_COWORK_REVISION_FORMATOS.md` para la revisión visual en Cowork.
 - **Trabajo del 2026-10-31:** unido a `main` con el PR #5 (técnico descarga el PDF, PDF sin tablas cortadas, «Equipos con fallas» y seguimiento de hallazgos, correcciones de uso en terreno). **Las migraciones `0012`, `0013` y `0014` ya están aplicadas en el Supabase remoto** (comprobado 6/6 el 2026-10-31); falta probar todo en el sitio publicado.
 - `main` en GitHub ya tiene todo el trabajo (PR #1 unido el 2026-10-30). Siga el flujo de `CLAUDE.md`: rama nueva, bitácora en el mismo commit, PR.
@@ -180,7 +180,7 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 ### 2026-11-03 · Simulación de los 60 formatos con PDF y contexto para revisión en Cowork
 - **Autor:** Cristóbal (con Claude) · rama `perf/arranque-movil`
 - **Qué se hizo:** script `scripts/simular-formatos.mjs`: entra como `TECNICO_A` a la app **local** (se niega a correr si `NEXT_PUBLIC_SUPABASE_URL` no es local), y por cada formato disponible envía una inspección por el mismo camino que la app (fotos y firma sintéticas a Storage + `submit_inspection`) en dos escenarios, «conforme» y «con hallazgos» (hasta 3 ML con severidad y foto, NA, secciones repetibles con 2 copias), descarga el PDF de `/tecnico/{id}/pdf` y escribe `RESUMEN.md`. Opciones: carpeta de salida, `--solo=INSP-01,MANT-03`, `--url=`. Lee los formatos de la tabla `formatos`. Se preparó `CONTEXTO_COWORK_REVISION_FORMATOS.md` (proyecto, nomenclatura, anatomía esperada del PDF, lista de verificación, tabla de los 60 formatos con secciones/ítems/estados, qué no es falla) junto a los PDF. A pedido del usuario se borraron de la base local las 3 inspecciones sin turno (`INS-2026-000007` a `000009`) con `delete_inspections`.
-- **Archivos:** `scripts/simular-formatos.mjs`. Los PDF y el contexto están fuera del repositorio, en `C:\Proyectos\simulacion-formatos6-11-03\`.
+- **Archivos:** `scripts/simular-formatos.mjs`. Los PDF y el contexto están fuera del repositorio, en `C:\Proyectos\simulacion-formatos\2026-11-03\`.
 - **Verificación:** 120/120 PDF generados sin errores de envío ni de generación (promedio 3,4 páginas; mínimo 1: INSP-10, 19 y 21 conforme; máximo 11: INSP-28 con hallazgos). **No verificado el aspecto visual** (no había `pdftoppm` para renderizarlos): la revisión visual queda para Cowork.
 - **Pendiente / riesgos:** las imágenes y textos son sintéticos (no prueban contenido real largo, fotos verticales ni firmas de supervisor/planificador). El conteo de páginas es aproximado.
 

@@ -3,3 +3,10 @@ allowBuilds:
   esbuild: false
   sharp: false
   unrs-resolver: false
+
+# Versiones corregidas de dependencias internas de @serwist/build (pnpm audit, 2026-11-03):
+# zod <4.6.6 (alta), glob <=14.0.1 y minimatch <11.0.1 (moderadas). Quitar cuando Serwist las actualice.
+overrides:
+  "@serwist/build>zod": "^4.6.7"
+  "@serwist/turbopack>zod": "^4.6.7"
+  "@serwist/build>glob": "^14.0.3"

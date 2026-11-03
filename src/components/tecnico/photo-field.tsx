@@ -115,7 +115,7 @@ export function PhotoField({
             onClick={() => input.current?.click()}
             className="min-h-14 rounded-xl border-[1.5px] border-dashed border-[#6f695f] bg-[#faf8f4] px-5 text-base font-semibold hover:border-cu hover:bg-cu-soft disabled:opacity-60"
           >
-            {ocupado ? "Guardando" : ids.length ? "Agregar otra foto" : "Tomar foto"}
+            {ocupado ? "Guardando…" : ids.length ? "Agregar otra foto" : "Tomar foto"}
           </button>
           <input
             ref={input}

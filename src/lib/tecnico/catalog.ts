@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MlpDB } from "@/lib/offline/db";
 import { validateTemplate } from "@/lib/templates/validate";
 import type { FormTemplateSchema } from "@/lib/templates/schema";
+import { COLUMNAS_FORMATO, filaAFormato, ordenarFilas, type FilaFormatoBD, type Formato } from "@/lib/formatos/catalogo";
 
 export interface CatalogEntry {
   id: string;
@@ -30,20 +31,24 @@ export interface Catalog {
   workModes: CatalogEntry[];
   combinations: Combination[];
   templates: TemplateRow[];
+  /** Formatos del flujo Área → Trabajo → Familia → Formato (todos, también los desactivados, para los borradores). */
+  formatos: Formato[];
 }
 
 const KEY = "catalog";
 
 export async function readCatalogCache(db: MlpDB): Promise<Catalog | null> {
   const row = await db.catalog.get(KEY);
-  return (row?.value as Catalog | undefined) ?? null;
+  const cat = (row?.value as Catalog | undefined) ?? null;
+  // Copia guardada antes de que los formatos vinieran de la base: no sirve, hay que descargar de nuevo.
+  return cat && Array.isArray(cat.formatos) ? cat : null;
 }
 
 async function fetchCatalog(supabase: SupabaseClient): Promise<Catalog> {
   const entries = (table: string) =>
     supabase.from(table).select("id, code, name, sort").eq("active", true).order("sort");
 
-  const [areas, equipment, modes, combos, templates] = await Promise.all([
+  const [areas, equipment, modes, combos, templates, formatos] = await Promise.all([
     entries("areas"),
     entries("equipment_types"),
     entries("work_modes"),
@@ -52,8 +57,9 @@ async function fetchCatalog(supabase: SupabaseClient): Promise<Catalog> {
       .from("form_templates")
       .select("id, equipment_type_id, work_mode_id, version, schema")
       .eq("status", "published"),
+    supabase.from("formatos").select(COLUMNAS_FORMATO),
   ]);
-  for (const r of [areas, equipment, modes, combos, templates]) if (r.error) throw r.error;
+  for (const r of [areas, equipment, modes, combos, templates, formatos]) if (r.error) throw r.error;
 
   // Una plantilla con JSON inválido no se ofrece: se trata como "sin formulario".
   const validas: TemplateRow[] = [];
@@ -72,6 +78,7 @@ async function fetchCatalog(supabase: SupabaseClient): Promise<Catalog> {
       template_id: c.template_id && ids.has(c.template_id) ? c.template_id : null,
     })),
     templates: validas,
+    formatos: ordenarFilas((formatos.data ?? []) as FilaFormatoBD[]).map(filaAFormato),
   };
 }
 

@@ -51,7 +51,7 @@ function Opcion({
   );
 }
 
-/** Flujo de selección en 4 pasos: Área → Trabajo → Familia → Formato. Los formatos salen de `lib/formatos/catalogo`. */
+/** Flujo de selección en 4 pasos: Área → Trabajo → Familia → Formato. Los formatos llegan con el catálogo (tabla `formatos`). */
 export function NuevaInspeccion() {
   const router = useRouter();
   const { catalog, db, userId } = useTecnico();
@@ -106,8 +106,8 @@ export function NuevaInspeccion() {
   };
 
   const codigoArea = area?.code as CodigoArea | undefined;
-  const familias = codigoArea && trabajo ? familiasVisibles(codigoArea, trabajo) : [];
-  const formatos = codigoArea && trabajo && familia ? formatosVisibles(codigoArea, trabajo, familia) : [];
+  const familias = codigoArea && trabajo ? familiasVisibles(cat.formatos, codigoArea, trabajo) : [];
+  const formatos = codigoArea && trabajo && familia ? formatosVisibles(cat.formatos, codigoArea, trabajo, familia) : [];
 
   return (
     <div className="flex flex-col gap-5">

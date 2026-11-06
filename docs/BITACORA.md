@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |
 | V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
 | V1.1.0 | 2026-11-03 | Punto de partida: todo lo unido hasta el PR #10 más visor del PDF del técnico, pie de página con versión, Privacidad, Condiciones de uso, aviso de privacidad al primer ingreso, fotos sin metadatos y dependencias sin vulnerabilidades |
 
@@ -119,10 +120,10 @@ Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`,
 14. ~~Probar en Vercel + Supabase remoto~~ — **medio hecho 2026-10-30** (ver entrada «Despliegue de prueba»): publicado, base y cuentas listas; falta la prueba de ingreso del usuario.
 11. ~~Plantillas de los otros 27 formatos~~ — hecho 2026-10-31: ya están los 60 (INSP-01 a 41 sin el 36, MANT-01 a 20). Falta revisarlos en pantalla (ver la entrada «Plantillas INSP-16 a INSP-41»).
 15. **Probar en el sitio publicado (https://inspecciones-bbosch.vercel.app)** — migraciones ya aplicadas el 2026-10-31, falta recorrerlo: (a) `SUPERVISOR_A`: aprobar una inspección **sin comentario** y abrir «Equipos con fallas»; (b) `TECNICO_A`: enviar una inspección y descargar su PDF, que debe mostrar el nombre de quien firmó; (c) `PROGRAMADOR_A`: firmar la segunda etapa. Nadie lo ha probado en el sitio publicado.
-16. **Desactivar «Allow new users to sign up»** en Supabase (Authentication → Sign In / Providers → Save changes) y confirmarlo. Si sigue activo, cualquiera con la dirección podría crearse una cuenta de técnico. Opcional: desactivar «Confirm email».
+16. **(Hecho: verificado el 2026-11-06 con `supabase config diff`: `auth.enable_signup = false` en el remoto.)** **Desactivar «Allow new users to sign up»**  en Supabase (Authentication → Sign In / Providers → Save changes) y confirmarlo. Si sigue activo, cualquiera con la dirección podría crearse una cuenta de técnico. Opcional: desactivar «Confirm email».
 17. **Planes:** Supabase Free tiene 1 GB de archivos, pausa tras unos 7 días sin uso y no hace respaldos diarios; para uso real con ~60 técnicos pasar a **Pro**. Vercel Hobby es para uso personal no comercial: revisar los términos antes de usarlo con el equipo.
-18. **Migraciones remotas sin registrar:** el esquema se aplicó pegando un SQL en el editor, así que la tabla de control de Supabase no las conoce. Una migración futura aplicada con `supabase db push` intentaría repetir las anteriores y fallaría. Para producción: `supabase link` + `db push` en un proyecto nuevo, o registrar las existentes con `supabase migration repair`.
-19. **Otro proyecto de Supabase sin identificar:** en la organización «CNV» existe `inspecciones-mlp-prueba` además de `inspecciones-bbosch`; no se tocó y no se sabe si se usa. Revisar y pausar o borrar. En Vercel existe además el proyecto `inspecciones-mlp-demo-formatos` (demo estática de la carpeta `demo/`).
+18. **(Hecho 2026-11-06: `supabase migration repair` marcó 0001–0020 como aplicadas; `db push --dry-run` dice «up to date».)** **Migraciones remotas sin registrar:** el esquema se aplicó pegando un SQL en el editor, así que la tabla de control de Supabase no las conoce. Una migración futura aplicada con `supabase db push` intentaría repetir las anteriores y fallaría. Para producción: `supabase link` + `db push` en un proyecto nuevo, o registrar las existentes con `supabase migration repair`.
+19. **(Identificado 2026-11-06: `inspecciones-mlp-prueba` está INACTIVE/pausado; falta decidir si se borra.)** **Otro proyecto de Supabase sin identificar:** en la organización «CNV» existe `inspecciones-mlp-prueba` además de `inspecciones-bbosch`; no se tocó y no se sabe si se usa. Revisar y pausar o borrar. En Vercel existe además el proyecto `inspecciones-mlp-demo-formatos` (demo estática de la carpeta `demo/`).
 20. **Contraseñas de las cuentas remotas:** las tiene el usuario; definir dónde guardarlas para el equipo y cambiarlas antes de producción. Las del seed local están en el repositorio y no deben usarse en remoto.
 21. **Probar en teléfonos reales** (Android e iPhone): instalar la PWA, abrir sin señal, deslizar una inspección en curso para eliminarla, y agregar el aviso de borradores sin enviar (iPhone puede borrar datos locales si la app no se usa por días y no está instalada).
 22. **Limpieza:** ramas ya unidas (`feat/roles-turnos-firma-doble`, `feat/pwa-offline`, `feat/flujo-4-pasos-tag`, y desde el 2026-11-03 `feat/bandeja-carpetas-turno`, `perf/arranque-movil`, `fix/error-catalogo-visible`, `docs/bitacora-migraciones-remotas`, `feat/editor-formatos`, `feat/catalogo-formatos-bd`, `feat/desactivar-formatos`, `feat/crear-formatos`) y datos de prueba en la base local (`INS-2026-000023`, `000024`, `000031`, y borradores de `TECNICO_A`/`TECNICO_B`).
@@ -144,13 +145,13 @@ Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`,
 36. **Revisar las 60 plantillas en el sitio publicado:** abrir al menos unos formatos de cada familia como técnico y comparar con el Word; opcionalmente listar títulos y secciones con una consulta a `form_templates` (`schema->>'title'`). Si la PWA está instalada, abrirla con red para que baje el catálogo.
 37. **Respaldo de las inspecciones reales:** Supabase Free no respalda a diario (ver pendiente 17); pasar a Pro o exportar antes de usar con datos reales.
 38. ~~Aplicar en el Supabase remoto las migraciones `0015` a `0019`~~ — **hecho 2026-11-03**, pero **después** de unir el PR #9: mientras tanto el técnico veía «Sin catálogo local» en el sitio publicado. Verificado por consulta (60 formatos con plantilla). Sigue vigente el pendiente 18.
-39. **Después de desplegar:** comprobar que las funciones corren en São Paulo (`curl -sI …/login | grep -i x-vercel-id` → `gru1::gru1`; si sigue en `iad1`, cambiar la región en Vercel → Settings → Functions) y medir el tiempo de apertura en el iPhone. **Borrar y volver a agregar el icono** en la pantalla de inicio del iPhone.
+39. **(Hecho: el sitio publicado responde `x-vercel-id: gru1::gru1` el 2026-11-06; falta medir en el iPhone.)** **Después de desplegar:** comprobar que las funciones corren en São Paulo (`curl -sI …/login | grep -i x-vercel-id` → `gru1::gru1`; si sigue en `iad1`, cambiar la región en Vercel → Settings → Functions) y medir el tiempo de apertura en el iPhone. **Borrar y volver a agregar el icono** en la pantalla de inicio del iPhone.
 40. **Probar con clics la pestaña «Formatos»** con `SUPERVISOR_A`, `ADMINISTRADOR` y `PROGRAMADOR_A` (crear en blanco, agregar preguntas y campos de cabecera, publicar, activar/desactivar, aviso al salir con cambios) y el flujo del técnico con un formato nuevo. Reiniciar `npm run dev` antes: un servidor abierto desde antes siguió usando una versión vieja de una acción.
 41. **(Parcial 2026-11-06: corregidas las 5 fallas altas y, en redacción, S03, S09, S11, P02, P06, P11, P27 y P28; ver el registro del 2026-11-06.)** **Revisión visual de los 120 PDF de la simulación** con `CONTEXTO_COWORK_REVISION_FORMATOS.md` (Cowork) y corregir lo que encuentre (generador `src/components/informe/informe-pdf.tsx` o la plantilla del formato con el editor).
 42. **Peso del JavaScript del técnico** (~321 KB comprimidos: React, cliente de Supabase con realtime, Zod, Dexie): evaluar cargar Supabase bajo demanda o `zod/mini`. Queda en caché del service worker tras la primera visita.
 43. **Base local con datos de simulación:** ~120 inspecciones de `TECNICO_A` del 2026-11-03; se limpian con `corepack pnpm supabase db reset` (vuelve a aplicar migraciones y seeds).
 44. **Editor de formatos, siguientes pasos:** vista previa del formulario tal como lo ve el técnico; editar firmas, leyenda de estados y lecturas destacadas; copiar entre inspección y mantención.
-47. **Aplicar la migración `0020_aviso_privacidad.sql` en el Supabase remoto** antes de unir el PR de V1.1.0 y verificar que existan las columnas `aviso_privacidad_version`/`aviso_privacidad_at` y la función `registrar_aviso_privacidad`.
+47. **(Hecho 2026-11-06: aplicada con `supabase db query --remote` y verificada: 2 columnas y la función.)** **Aplicar la migración `0020_aviso_privacidad.sql` en el Supabase remoto** antes de unir el PR de V1.1.0 y verificar que existan las columnas `aviso_privacidad_version`/`aviso_privacidad_at` y la función `registrar_aviso_privacidad`.
 48. **Probar V1.1.0 en el teléfono y con los otros roles:** pie con versión, aviso al primer ingreso (aparece una vez por persona), enlaces a Privacidad y Condiciones, y subir una foto tomada con GPS activo y comprobar que el archivo en Storage no trae ubicación.
 46. **Probar el visor del PDF en el teléfono** (iPhone y Android, app instalada): «Ver PDF» en «Enviadas» y al terminar un envío; Compartir (WhatsApp/correo), Guardar (en iPhone «Guardar en Archivos»), Salir y el botón «atrás» de Android. Decidir si el supervisor, planificador y administrador también necesitan el visor.
 45. **Probar el catálogo en el sitio publicado y en el iPhone** tras aplicar 0015–0019: entrar como `TECNICO_A`, recargar la app (o cerrarla y abrirla) y comprobar que aparecen Área → Trabajo → Familia → Formato y que se puede iniciar una inspección; con `SUPERVISOR_A`, abrir la pestaña «Formatos». Si aparece un error, ahora muestra el motivo real (PR #10).
@@ -208,13 +209,45 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-06 · Supabase remoto: migración 0020, parche de plantillas y registro de migraciones (por CLI)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `chore/supabase-cli-3` (PR #14) · **Versión:** sin cambio de código (V1.1.2)
+- **Qué se hizo** (proyecto `inspecciones-bbosch`, tras `supabase login` de Cristóbal; todo con `supabase db query --remote` y `--yes`):
+  1. Se consultó en solo lectura: la **0020 no estaba aplicada** (sin columnas ni función `registrar_aviso_privacidad`; el sitio
+     publicado ya era V1.1.0 y la usaba), 60 formatos y 60 plantillas v1, 3 inspecciones, 7 usuarios.
+  2. Se aplicó `0020_aviso_privacidad.sql` y se verificó (2 columnas y la función).
+  3. Se simuló en solo lectura el parche de plantillas (10 plantillas cambiarían) y se ejecutó `parche_plantillas_2026-11-06.sql`:
+     quedaron **10 versiones nuevas (v2)**: INSP-19, 27, 28, 31, 37 y MANT-05, 13, 14, 16, 19. Se comprobó en el remoto
+     MANT-05 («ausencia de óxido»), MANT-13 (TAG 740HF003, ordinales «.ª») y MANT-16 («transformador de piso»).
+  4. Se registraron 0001–0020 con `supabase migration repair --status applied`: `db push --dry-run` ahora dice «Remote database is up to date».
+  5. `supabase config diff` mostró `auth.enable_signup = false` en el remoto (**registro libre cerrado**) y `site_url = http://localhost:3000`.
+- **Verificación:** las consultas de comprobación de cada paso, ejecutadas contra el remoto el 2026-11-06 (resultados arriba). No se probó la
+  app publicada con clics ni con las cuentas.
+- **Pendiente / riesgos:** **NUNCA correr `supabase config push` con el `config.toml` actual:** sobrescribiría el remoto (reabriría el registro,
+  cambiaría `site_url`, MFA, etc.). Las inspecciones nuevas del sitio publicado usan las plantillas v2 (las 3 antiguas conservan la v1). Falta
+  desplegar V1.1.2 en Vercel (unir los PR #13 y #14 a `main`) para que el sitio muestre los PDF nuevos; hasta entonces los PDF del sitio son los de V1.1.0
+  con plantillas nuevas. `site_url` remoto en localhost no afecta el ingreso por usuario y contraseña, pero conviene fijarlo a la URL real si algún día se usan correos.
+
+### 2026-11-06 · Supabase CLI 3.0.0 (antes 2.122.0), con todas las pruebas repetidas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `chore/supabase-cli-3` (parte de `fix/pdf-fallas-altas`, PR #13) · **Versión:** V1.1.2
+- **Qué se hizo:** `supabase` en `devDependencies` pasó de `^2.122.0` a `^3.0.0` (decisión de Cristóbal: trabajar siempre con la
+  última versión). En `supabase/config.toml` se renombró `enable_signup` por `enabled` en `[auth.email]` y `[auth.sms]` (el CLI 3 avisa
+  que la clave vieja desaparece en la v4; los valores no cambiaron). La primera vez descarga imágenes nuevas (Postgres 17.11).
+- **Archivos:** `package.json`, `pnpm-lock.yaml`, `supabase/config.toml`, `src/lib/version.ts`.
+- **Verificación (2026-11-06, CLI 3.0.0):** `supabase start`, `db reset` y `test db` 76/76 sin avisos · `lint` y `tsc` sin errores ·
+  `test` 253/253 · `build` correcto · `pnpm audit --prod` sin vulnerabilidades · simulación 120/120 PDF · prueba de carga
+  (12 técnicos × 5 + supervisor + programador): 60/60 enviados y firmados, 0 errores ni pegados, envío p95 307 ms.
+- **Pendiente / riesgos:** Manuel debe correr `corepack pnpm install` y `corepack pnpm supabase start` (bajará imágenes) tras unir esto.
+  El contenedor `supabase_vector` (recolector de logs) se reinicia en bucle en este PC (se apaga solo y Docker lo relanza); no
+  afecta a la base, la API ni a las pruebas, y no se investigó más. El **remoto** no se tocó: el `login` del CLI sigue pendiente.
+  Los ajustes del Supabase remoto (p. ej. registro libre) no dependen de `config.toml`.
+
 ### 2026-11-06 · Prueba de estabilidad y rendimiento: 12 técnicos del turno A, supervisor y programador
 - **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1 (sin cambios en la app; solo se agregó el script)
 - **Qué se hizo:** nuevo `scripts/prueba-carga.mjs` (solo contra la app y el Supabase locales). Abre N sesiones de técnico que
   envían a la vez (fotos y firma a Storage + `submit_inspection`), 1 sesión de supervisor y 1 de programador que consultan su
   bandeja (carpetas y lista completa), abren cada inspección y la firman, y al final cada técnico descarga su PDF. Marca
   como «pegada» cualquier operación que pase de 60 s.
-- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos6-11-06-carga-*` (fuera del repo).
+- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos\2026-11-06-carga-*` (fuera del repo).
 - **Verificación (app en producción local `next start`, V1.1.1, base local):**
   - 12 técnicos × 5 envíos (60 formularios): **60/60 enviados, 60/60 firmados por supervisor y por programador, 0 errores,
     0 pegados**; envío completo p50 198 ms (p95 349 ms); firmar p50 28 ms.
@@ -243,7 +276,7 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
   `supabase/seed_plantillas_*.sql` (bases nuevas), `supabase/parche_plantillas_2026-11-06.sql` (**bases existentes**),
   tests en `modelo.test.ts` y `seeds-redaccion.test.ts`.
 - **Verificación (2026-11-06):** `lint` y `tsc` sin errores · `test` 253/253 · `build` correcto · `supabase db reset` +
-  `supabase test db` 76/76 · simulación local: 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`
+  `supabase test db` 76/76 · simulación local: 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-06\`
   (fuera del repo), revisados por texto en los 120 y por imagen en INSP-01, INSP-14 y MANT-16: 0 TAG partidos, bloque
   de hallazgos y severidad en 59 de 60 «con hallazgos» (MANT-05 no tiene ML posible, falla X01), 16 de 16 PDF
   «conforme» con foto, 0 mantenciones con «inspección». El parche SQL se probó en la base local: degradando a propósito

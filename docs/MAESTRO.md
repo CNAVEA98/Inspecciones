@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.2 · `main` = commit 76f41ec (PR #13 y #14 unidos) · sitio publicado en V1.1.2 (verificado).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-06 · versión V1.1.3 (rama `fix/claves-fuera-del-repo`) · `main` = commit b37bcf9 (V1.1.2, PR #15) · sitio publicado en V1.1.2 hasta unir esta rama.** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -16,6 +16,7 @@ se corrige en el mismo commit.
    entradas del «Registro»).
 3. Trabajar en rama nueva (`tipo/descripcion`), nunca directo en `main`. Reglas completas en `CLAUDE.md`.
 4. Si cambian dependencias o migraciones: `corepack pnpm install` y `corepack pnpm supabase db reset`.
+   **En un equipo nuevo, antes del primer `db reset`: `corepack pnpm seed:usuarios`** (crea las cuentas locales y sus claves; las claves quedan en `supabase/.claves-dev.json`, que no se versiona).
    El CLI de Supabase es dependencia del proyecto (v3.0.0): se usa siempre como `corepack pnpm supabase …`; no hay uno global.
    Para el remoto hace falta `corepack pnpm supabase login` en una terminal interactiva (no funciona desde Claude Code).
 5. Al terminar: lint, tsc, tests y build en verde; entrada en la bitácora y versión nueva en el mismo commit; PR.
@@ -54,7 +55,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 |---|---|
 | `supabase/migrations/` | Esquema, RLS y RPC (0001–0020). Nunca editar una aplicada: crear una nueva |
 | `supabase/seed_catalogo.sql`, `seed_plantillas_*.sql` | Catálogo y plantillas de los 60 formatos (seguros para remoto) |
-| `supabase/seed_usuarios_dev.sql` | Cuentas de prueba, **solo local** |
+| `supabase/seed_usuarios_dev.plantilla.sql` + `scripts/generar-seed-usuarios.mjs` | Cuentas de prueba **solo locales**. `corepack pnpm seed:usuarios` genera `seed_usuarios_dev.sql` y `supabase/.claves-dev.json` con claves aleatorias; ambos archivos están en `.gitignore` (repo público) |
 | `supabase/tests/` | Pruebas pgTAP (`supabase test db`; requiere Docker) |
 | `src/lib/templates` | Esquema Zod y validación de plantillas y respuestas |
 | `src/lib/offline` | Dexie, cola de envío, sincronización, compresión de fotos |
@@ -107,7 +108,7 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
 ### 5.1 Repositorio y seguridad
 - **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también
   admite colaboradores; el riesgo es la exposición de lo de abajo, así que lo de abajo es lo que importa.
-- `supabase/seed_usuarios_dev.sql` (contraseñas de prueba) y referencias al proyecto Supabase están versionados.
+- **Contraseñas del seed (2026-11-06):** salieron del árbol de archivos (V1.1.3), pero **siguen en el historial público de git** y las 7 cuentas del Supabase **remoto** todavía las usan (comprobado por hash). Cristóbal decidió no rotarlas mientras sea de prueba: **hay que rotarlas antes de datos reales**, y para sacarlas del historial hay que volver privado el repo o reescribir el historial. La bitácora y los documentos de formatos de MLP también están en el repo público.
   Falta revisar el **historial de git** buscando claves reales (la búsqueda falló por archivos `.docx`; usar
   `git -c diff.word.textconv= log -G… --no-textconv`). Cinco HTML de `demo/` y `docs/muestras/` tienen cadenas
   tipo `eyJ…` por revisar. Nunca mostrar valores secretos en pantalla.

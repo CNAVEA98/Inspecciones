@@ -1,8 +1,9 @@
 {
   "name": "mlp-inspecciones",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "private": true,
   "scripts": {
+    "seed:usuarios": "node scripts/generar-seed-usuarios.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

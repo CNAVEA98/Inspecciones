@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.3 (rama `fix/claves-fuera-del-repo`) · `main` = commit b37bcf9 (V1.1.2, PR #15) · sitio publicado en V1.1.2 hasta unir esta rama.** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit d765aaf (PR #16 unido) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -84,17 +84,17 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - Supabase: proyecto `inspecciones-bbosch` (São Paulo, plan Free). Las contraseñas de las cuentas remotas las tiene
   Cristóbal; **no están ni deben estar en el repositorio**. No se tocan archivos `.env*`.
 
-## 4. Estado actual (V1.1.2)
+## 4. Estado actual (V1.1.3)
 
 - `main` incluye hasta el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
-- Verificación del 2026-11-06 (V1.1.2, CLI de Supabase 3.0.0): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
+- Verificación del 2026-11-06 (V1.1.3, CLI de Supabase 3.0.0): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
   `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-06\`.
 - V1.1.1 (PR #13, unido) corrige las 5 fallas altas de PDF y varias medias; su parche de plantillas ya se aplicó en el remoto.
   Quedan abiertas las fallas medias y bajas de PDF (sección 5.3).
 - Remoto (verificado 2026-11-06): migraciones 0001–0020 aplicadas y registradas, plantillas con las correcciones (v2), registro libre
-  cerrado. **El sitio publicado ya está en V1.1.2** (PR #13 y #14 unidos a `main` el 2026-11-06; Vercel desplegó en menos de 1 minuto).
+  cerrado. **El sitio publicado está en V1.1.3** (PR #13, #14, #15 y #16 unidos a `main` el 2026-11-06; Vercel despliega en menos de 1 minuto).
 - Prueba de carga local del 2026-11-06 (12 técnicos del turno A + supervisor + programador, hasta 36 técnicos): sin errores ni
   operaciones pegadas, 384 formularios enviados y firmados. Lo más lento es generar el PDF (1 s solo; 5 s con 12 a la vez).
   No es prueba del sitio publicado ni de la PWA en navegador.
@@ -105,13 +105,17 @@ Equipo: 2 personas (Cristóbal y Manuel).
 Estados: **Abierto** · **Necesita a Cristóbal** · **Sin probar**. Detalle numerado de cada pendiente en `docs/BITACORA.md`.
 Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueba sin señal → 5 decisión de cuentas → 6 separar lógica.
 
-### 5.1 Repositorio y seguridad
-- **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también
-  admite colaboradores; el riesgo es la exposición de lo de abajo, así que lo de abajo es lo que importa.
-- **Contraseñas del seed (2026-11-06):** salieron del árbol de archivos (V1.1.3), pero **siguen en el historial público de git** y las 7 cuentas del Supabase **remoto** todavía las usan (comprobado por hash). Cristóbal decidió no rotarlas mientras sea de prueba: **hay que rotarlas antes de datos reales**, y para sacarlas del historial hay que volver privado el repo o reescribir el historial. La bitácora y los documentos de formatos de MLP también están en el repo público.
-  Falta revisar el **historial de git** buscando claves reales (la búsqueda falló por archivos `.docx`; usar
-  `git -c diff.word.textconv= log -G… --no-textconv`). Cinco HTML de `demo/` y `docs/muestras/` tienen cadenas
-  tipo `eyJ…` por revisar. Nunca mostrar valores secretos en pantalla.
+### 5.1 Repositorio y seguridad (revisado el 2026-11-06)
+- **Revisión de claves en el historial (106 commits, todas las ramas): NO hay** claves `service_role`, `sb_secret_`, tokens, URL de base con
+  contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de `demo/` y `docs/muestras/` son imágenes base64.
+- **Contraseñas de las 7 cuentas de prueba:** estuvieron publicadas en `seed_usuarios_dev.sql`. Desde la V1.1.3 salieron del árbol de archivos
+  (plantilla sin claves + `corepack pnpm seed:usuarios`), pero **siguen en el historial público** y **las 7 cuentas del Supabase remoto aún las usan**
+  (comprobado por hash; incluye `ADMINISTRADOR`). Cristóbal decidió no rotarlas ni volver privado el repo por ahora (sistema de prueba).
+  **Obligatorio antes de datos reales:** rotarlas (y cerrar sesiones) y volver privado el repo o reescribir el historial.
+  Ingresos recientes en `administrador` (3 nov), `supervisor_b` (4 nov) y `tecnico_b` (6 nov) no se pudieron atribuir (sin registro de auditoría).
+- **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también admite colaboradores. El repo público
+  contiene además los formatos Word/Excel de MLP/Bbosch (36 archivos) y el Maestro de TAG (1.073 equipos): información del cliente.
+- Nunca mostrar valores secretos en pantalla ni en la bitácora.
 
 ### 5.2 Producción (estado verificado el 2026-11-06 por CLI; el CLI ya tiene sesión en el PC de Cristóbal)
 - **Hecho:** migración 0020 aplicada; parche de plantillas aplicado (10 plantillas en v2); migraciones 0001–0020 registradas

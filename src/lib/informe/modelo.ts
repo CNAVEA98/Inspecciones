@@ -6,6 +6,8 @@ import { expandirPlantilla } from "@/lib/templates/repetir";
 import { ESTADOS, ESTADOS_CONFORMES, type Estado, type TemplateItem, type VerificationValue } from "@/lib/templates/schema";
 
 export type EstadoVer = Estado;
+export type SeveridadInforme = "baja" | "media" | "alta" | "critica";
+export const ORDEN_SEVERIDAD: readonly SeveridadInforme[] = ["critica", "alta", "media", "baja"];
 export const ESTADOS_VER: readonly EstadoVer[] = ESTADOS;
 
 export interface FilaInforme {
@@ -16,6 +18,8 @@ export interface FilaInforme {
   /** null en ítems que no son de verificación (número, texto, placa, foto). */
   estado: EstadoVer | null;
   obs: string;
+  /** Severidad del hallazgo registrado para este ítem (solo en ítems en ML). */
+  severidad?: SeveridadInforme;
   /** Trazabilidad del hallazgo (aviso subsecuente o canalización con MLP); vacío si no hay o sigue pendiente. */
   traza?: string;
 }
@@ -26,6 +30,8 @@ export interface GrupoInforme {
   /** Ítems de verificación conformes (BN, RL o SI) / total de ítems de verificación del grupo. */
   conformes: number;
   total: number;
+  /** Ítems de verificación que aplican (total menos los NA). */
+  aplicables: number;
 }
 
 export interface LecturaAncha {
@@ -55,6 +61,8 @@ export interface FotoInforme {
   n: number;
   texto: string;
   url: string;
+  /** Severidad del hallazgo al que pertenece la foto, si es de un ítem en ML. */
+  severidad?: SeveridadInforme;
 }
 
 export interface Informe {
@@ -74,8 +82,13 @@ export interface Informe {
     /** Ítems conformes (BN, RL o SI). */
     conformes: number;
     total: number;
-    criticos: { n: number; texto: string; obs: string }[];
+    /** Ítems de verificación que aplican (total menos los NA): base del «x de y conformes». */
+    aplicables: number;
+    /** Todos los hallazgos (ítems en ML) con su severidad, en el orden del formato. */
+    hallazgos: { n: number; texto: string; obs: string; severidad: SeveridadInforme | null }[];
   };
+  /** Verdadero si el formato es de mantención (cambia el rótulo del resultado). */
+  esMantencion: boolean;
   lecturas: (LecturaAncha | LecturaChica)[];
   grupos: GrupoInforme[];
   nomenclatura: string;
@@ -156,8 +169,9 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     const filas = s.items.map((it) => {
       const fila = filaDe(it, ++n, d.respuestas[it.id]);
       if (fila.estado !== "ML") return fila;
-      const traza = textoTrazabilidad(d.hallazgos.find((h) => h.itemKey === it.id)?.seguimiento);
-      return traza ? { ...fila, traza } : fila;
+      const hallazgo = d.hallazgos.find((h) => h.itemKey === it.id);
+      const traza = textoTrazabilidad(hallazgo?.seguimiento);
+      return { ...fila, ...(hallazgo ? { severidad: hallazgo.severity } : {}), ...(traza ? { traza } : {}) };
     });
     const ver = s.items.filter((it) => it.type === "verificacion");
     return {
@@ -165,6 +179,7 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
       filas,
       conformes: filas.filter((f) => f.estado !== null && ESTADOS_CONFORMES.includes(f.estado)).length,
       total: ver.length,
+      aplicables: filas.filter((f, i) => s.items[i].type === "verificacion" && f.estado !== "NA").length,
     };
   });
 
@@ -173,7 +188,9 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
   for (const f of filas) if (f.estado) cuenta[f.estado]++;
   const total = items.filter((it) => it.type === "verificacion").length;
   const conformes = ESTADOS_CONFORMES.reduce((s, e) => s + cuenta[e], 0);
-  const criticos = filas.filter((f) => f.estado === "ML").map((f) => ({ n: f.n, texto: f.texto, obs: f.obs }));
+  const aplicables = total - cuenta.NA;
+  const hallazgos = filas.filter((f) => f.estado === "ML").map((f) => ({ n: f.n, texto: f.texto, obs: f.obs, severidad: f.severidad ?? null }));
+  const esMantencion = (tpl?.estados ?? []).some((e) => e === "RL" || e === "RMP") || /mantenci/i.test(`${d.modo} ${d.equipo} ${tpl?.meta?.norma ?? ""}`) || /-MANT-/.test(tpl?.meta?.norma ?? "");
 
   const lecturas = (tpl?.readings ?? []).map((r): LecturaAncha | LecturaChica => {
     const item = items.find((it) => it.id === r.item);
@@ -222,14 +239,16 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     }),
   ];
 
+  const filaPorItem = new Map(items.map((it, i) => [it.id, filas[i]]));
   const fotos: FotoInforme[] = [];
   for (const it of items) {
     const valor = d.respuestas[it.id];
+    const severidad = (filaPorItem.get(it.id)?.estado === "ML" ? filaPorItem.get(it.id)?.severidad : undefined) as SeveridadInforme | undefined;
     const ids =
       it.type === "verificacion" ? ((valor as Partial<VerificationValue> | undefined)?.fotos ?? []) : it.type === "photo" && Array.isArray(valor) ? (valor as string[]) : [];
     for (const id of ids) {
       const url = urlDe.get(id);
-      if (url) fotos.push({ n: indice.get(it.id)!, texto: it.label, url });
+      if (url) fotos.push({ n: indice.get(it.id)!, texto: it.label, url, ...(severidad ? { severidad } : {}) });
     }
   }
 
@@ -245,7 +264,8 @@ export function armarInforme(d: DetalleInspeccion, ahora: Date = new Date()): In
     fecha: header.fecha ? fmtFecha(header.fecha) : "—",
     horario: header.h_inicio && header.h_fin ? `${header.h_inicio} – ${header.h_fin}` : "—",
     specs,
-    resumen: { cuenta, conformes, total, criticos },
+    resumen: { cuenta, conformes, total, aplicables, hallazgos },
+    esMantencion,
     lecturas,
     grupos,
     nomenclatura: tpl?.nomenclature ?? NOMENCLATURA_POR_DEFECTO,

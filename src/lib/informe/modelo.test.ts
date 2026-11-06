@@ -72,7 +72,7 @@ describe("armarInforme", () => {
     expect(r.resumen.cuenta.ML).toBe(1);
     expect(r.resumen.cuenta.NA).toBe(1);
     expect(r.resumen.cuenta.BN).toBe(27);
-    expect(r.resumen.criticos).toEqual([{ n: 10, texto: "Verificar estado de flanges, fugas.", obs: "Fuga en flange" }]);
+    expect(r.resumen.hallazgos).toEqual([{ n: 10, texto: "Verificar estado de flanges, fugas.", obs: "Fuga en flange", severidad: null }]);
   });
 
   it("numera los ítems de corrido entre grupos y arma valores con unidad", () => {
@@ -140,6 +140,42 @@ describe("armarInforme", () => {
     expect(r.fotos).toEqual([{ n: 10, texto: "Verificar estado de flanges, fugas.", url: "http://x/foto.jpg" }]);
     const sin = armarInforme(detalle({ adjuntos: [{ id: FOTO, kind: "photo", url: null }] }));
     expect(sin.fotos).toEqual([]);
+  });
+
+  it("lleva la severidad del hallazgo a la fila, al resumen y a la foto", () => {
+    const r = armarInforme(
+      detalle({ hallazgos: [{ id: "h1", itemKey: "item_10", severity: "alta", description: "Fuga en flange", photoAttachmentId: FOTO, seguimiento: null }] }),
+    );
+    expect(r.grupos.flatMap((g) => g.filas).find((f) => f.n === 10)?.severidad).toBe("alta");
+    expect(r.resumen.hallazgos[0].severidad).toBe("alta");
+    expect(r.fotos[0].severidad).toBe("alta");
+  });
+
+  it("los ítems NA no restan conformidad: el denominador son los que aplican", () => {
+    const r = armarInforme(detalle());
+    expect(r.resumen.total).toBe(29);
+    expect(r.resumen.aplicables).toBe(28);
+    expect(r.grupos.reduce((s, g) => s + g.aplicables, 0)).toBe(28);
+  });
+
+  it("detecta si el formato es de mantención", () => {
+    expect(armarInforme(detalle()).esMantencion).toBe(false);
+    expect(armarInforme(detalle({ modo: "Mantención programada" })).esMantencion).toBe(true);
+  });
+
+  it("incluye la foto de un ítem de tipo foto aunque la inspección no tenga hallazgos", () => {
+    const plantillaFoto = {
+      ...plantilla,
+      sections: [{ id: "g", title: "Galería fotográfica", items: [{ id: "foto_1", type: "photo" as const, label: "Foto general", required: false }] }],
+    };
+    const r = armarInforme(
+      detalle({
+        plantilla: plantillaFoto as typeof plantilla,
+        respuestas: { foto_1: [FOTO], _header: {} },
+        hallazgos: [],
+      }),
+    );
+    expect(r.fotos).toEqual([{ n: 1, texto: "Foto general", url: "http://x/foto.jpg" }]);
   });
 
   it("no falla si no se pudo leer la plantilla", () => {

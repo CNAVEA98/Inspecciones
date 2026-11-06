@@ -1,8 +1,17 @@
 # Instrucciones del proyecto · Inspecciones MLP
 
 PWA de inspecciones de terreno para infraestructura eléctrica de MLP. Se trabaja en equipo (2 personas) con el
-repositorio privado de GitHub `CNAVEA98/Inspecciones_BBOSCH`: cada persona (y cada sesión de Claude) debe dejar
+repositorio de GitHub `CNAVEA98/Inspecciones_BBOSCH` (debe ser privado; hoy figura PUBLIC, ver el Maestro): cada persona (y cada sesión de Claude) debe dejar
 el proyecto documentado y cada cambio debe poder rastrearse en git y en la bitácora.
+
+## LECTURA OBLIGATORIA AL INICIAR CADA SESIÓN
+
+**Antes de hacer cualquier cosa, lea `docs/MAESTRO.md` completo** (se carga abajo) y luego `docs/BITACORA.md`.
+El Maestro es el directorio de todo el proyecto: dónde está cada documento y cada carpeta, el estado actual, lo que
+falta y las revisiones pendientes. Si no tiene contexto previo (otra cuenta o PC), parta por ahí. Al cerrar una
+mejora, actualice el Maestro (secciones 4, 5 y 6) en el mismo commit que la bitácora.
+
+@docs/MAESTRO.md
 
 @AGENTS.md
 

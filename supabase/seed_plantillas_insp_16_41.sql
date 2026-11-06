@@ -853,7 +853,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_002",
           "type": "verificacion",
-          "label": "¿Hay chisporoteo?"
+          "label": "¿Hay chisporroteo?"
         },
         {
           "id": "item_003",
@@ -2710,17 +2710,17 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_001",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_002",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_003",
           "type": "verificacion",
-          "label": "Conexiones electricas; cables, mufas."
+          "label": "Conexiones eléctricas; cables, mufas."
         },
         {
           "id": "item_004",
@@ -2736,12 +2736,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_005",
           "type": "verificacion",
-          "label": "Ailadores"
+          "label": "Aisladores"
         },
         {
           "id": "item_006",
           "type": "verificacion",
-          "label": "Registrar presion SF6",
+          "label": "Registrar presión SF6",
           "unit": ""
         },
         {
@@ -3097,12 +3097,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_065",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_066",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_067",
@@ -3462,12 +3462,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_126",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_127",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_128",
@@ -3483,7 +3483,7 @@ select et.id, wm.id, 1, 'published', $tpl$
     },
     {
       "id": "componente_22",
-      "title": "Tablero electrico (0740-HF-5001-C01)",
+      "title": "Tablero eléctrico (0740-HF-5001-C01)",
       "items": [
         {
           "id": "item_130",
@@ -3498,7 +3498,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_132",
           "type": "verificacion",
-          "label": "Señaletica"
+          "label": "Señalética"
         }
       ]
     },
@@ -3656,17 +3656,17 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_001",
           "type": "verificacion",
-          "label": "Condiciones Físicas y Mecanicas"
+          "label": "Condiciones Físicas y mecánicas"
         },
         {
           "id": "item_002",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_003",
           "type": "verificacion",
-          "label": "Conexiones electricas; cables, mufas."
+          "label": "Conexiones eléctricas; cables, mufas."
         },
         {
           "id": "item_004",
@@ -3682,12 +3682,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_005",
           "type": "verificacion",
-          "label": "Ailadores"
+          "label": "Aisladores"
         },
         {
           "id": "item_006",
           "type": "verificacion",
-          "label": "Registrar presion SF6",
+          "label": "Registrar presión SF6",
           "unit": ""
         },
         {
@@ -3709,7 +3709,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_009",
           "type": "verificacion",
-          "label": "Registrar presion SF6",
+          "label": "Registrar presión SF6",
           "unit": ""
         },
         {
@@ -4065,12 +4065,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_068",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_069",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_070",
@@ -4436,12 +4436,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_129",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_130",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_131",
@@ -4807,12 +4807,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_190",
           "type": "verificacion",
-          "label": "Condictiones Físicas y Mecanicas"
+          "label": "Condiciones físicas y mecánicas"
         },
         {
           "id": "item_191",
           "type": "verificacion",
-          "label": "Estados de contactos y lubricacion"
+          "label": "Estados de contactos y lubricación"
         },
         {
           "id": "item_192",
@@ -4828,7 +4828,7 @@ select et.id, wm.id, 1, 'published', $tpl$
     },
     {
       "id": "componente_32",
-      "title": "Tablero electrico (0740-HF-5001-C01)",
+      "title": "Tablero eléctrico (0740-HF-5001-C01)",
       "items": [
         {
           "id": "item_194",
@@ -4843,7 +4843,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_196",
           "type": "verificacion",
-          "label": "Señaletica"
+          "label": "Señalética"
         }
       ]
     },
@@ -4886,7 +4886,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_201",
           "type": "verificacion",
-          "label": "Aumbrado exterior"
+          "label": "Alumbrado exterior"
         }
       ]
     },
@@ -6316,7 +6316,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_010",
           "type": "verificacion",
-          "label": "Perdidas de combustible"
+          "label": "Pérdidas de combustible"
         },
         {
           "id": "item_011",
@@ -6438,7 +6438,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_032",
           "type": "verificacion",
-          "label": "Sensor atmosferico"
+          "label": "Sensor atmosférico"
         },
         {
           "id": "item_033",
@@ -6488,13 +6488,13 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_042",
           "type": "verificacion",
-          "label": "Panel de intrumentos"
+          "label": "Panel de instrumentos"
         }
       ]
     },
     {
       "id": "parametros_de_funcionamiento",
-      "title": "Parametros de funcionamiento",
+      "title": "Parámetros de funcionamiento",
       "items": [
         {
           "id": "item_043",
@@ -6553,7 +6553,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_052",
           "type": "verificacion",
-          "label": "Potencia Kw",
+          "label": "Potencia kW",
           "unit": "kW"
         },
         {
@@ -6586,12 +6586,12 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_057",
           "type": "verificacion",
-          "label": "Señaletica seguridad"
+          "label": "Señalética seguridad"
         },
         {
           "id": "item_058",
           "type": "verificacion",
-          "label": "Procedimineto impacto ambiental"
+          "label": "Procedimiento impacto ambiental"
         },
         {
           "id": "item_059",
@@ -6622,17 +6622,17 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_063",
           "type": "verificacion",
-          "label": "Accesos a sala libre de obstruccion"
+          "label": "Accesos a sala libre de obstrucción"
         },
         {
           "id": "item_064",
           "type": "verificacion",
-          "label": "Sistema de iluminacion interior"
+          "label": "Sistema de iluminación interior"
         },
         {
           "id": "item_065",
           "type": "verificacion",
-          "label": "Sistema de iluminacion emergencia"
+          "label": "Sistema de iluminación emergencia"
         },
         {
           "id": "item_066",
@@ -8332,7 +8332,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_006",
           "type": "verificacion",
-          "label": "Cerco perimetral se encuentra libre de oxido"
+          "label": "Cerco perimetral se encuentra libre de óxido"
         },
         {
           "id": "item_007",

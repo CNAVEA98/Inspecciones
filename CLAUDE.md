@@ -62,6 +62,7 @@ corepack pnpm tsc --noEmit
 corepack pnpm test
 corepack pnpm build
 corepack pnpm supabase start      # requiere Docker (WSL2)
+corepack pnpm seed:usuarios         # 1.ª vez en cada equipo: crea las cuentas locales con claves aleatorias (no se versionan)
 corepack pnpm supabase db reset   # aplica migraciones y seed
 ```
 
@@ -69,7 +70,7 @@ Un paso se considera terminado solo con lint, tsc, tests y build en verde, y la 
 
 ## Mapa rápido
 
-- `supabase/migrations`, `supabase/seed_catalogo.sql` (catálogo y plantilla; seguro para un Supabase remoto) y `supabase/seed_usuarios_dev.sql` (cuentas de prueba, solo local): esquema, RLS, RPC y seed.
+- `supabase/migrations`, `supabase/seed_catalogo.sql` (catálogo y plantilla; seguro para un Supabase remoto) y `supabase/seed_usuarios_dev.plantilla.sql` (cuentas de prueba, solo local; las contraseñas NO se versionan: ver `seed:usuarios`): esquema, RLS, RPC y seed.
 - `src/lib/templates`: esquema Zod y validación de plantillas y respuestas.
 - `src/lib/offline`: Dexie, cola de envío, sincronización, compresión de fotos.
 - `src/lib/tecnico`, `src/components/tecnico`, `src/app/tecnico`: flujo del técnico.

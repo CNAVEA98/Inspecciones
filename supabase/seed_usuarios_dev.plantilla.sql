@@ -1,4 +1,6 @@
--- ---------- Usuarios de desarrollo (solo local) ----------
+-- ---------- Usuarios de desarrollo (solo local) · PLANTILLA ----------
+-- Este archivo NO tiene contraseñas: `corepack pnpm seed:usuarios` genera `seed_usuarios_dev.sql` (ignorado por git)
+-- con claves aleatorias propias de cada equipo y las guarda en `supabase/.claves-dev.json` (también ignorado).
 -- Se entra con el usuario (TECNICO_A, SUPERVISOR_B…); el correo @mlp.local es interno y no se muestra.
 -- El trigger de alta crea los perfiles como 'technician'; rol y turno se asignan aquí por SQL.
 do $$
@@ -8,13 +10,13 @@ declare
 begin
   for u in
     select * from (values
-      ('administrador@mlp.local', 'CLAVE-ELIMINADA', 'Administrador', 'admin', null),
-      ('supervisor_a@mlp.local', 'CLAVE-ELIMINADA', 'Supervisor A', 'supervisor', 'A'),
-      ('supervisor_b@mlp.local', 'CLAVE-ELIMINADA', 'Supervisor B', 'supervisor', 'B'),
-      ('programador_a@mlp.local', 'CLAVE-ELIMINADA', 'Programador A', 'planner', 'A'),
-      ('programador_b@mlp.local', 'CLAVE-ELIMINADA', 'Programador B', 'planner', 'B'),
-      ('tecnico_a@mlp.local', 'CLAVE-ELIMINADA', 'Técnico A', 'technician', 'A'),
-      ('tecnico_b@mlp.local', 'CLAVE-ELIMINADA', 'Técnico B', 'technician', 'B')
+      ('administrador@mlp.local', '{{CLAVE_ADMINISTRADOR}}', 'Administrador', 'admin', null),
+      ('supervisor_a@mlp.local', '{{CLAVE_SUPERVISOR_A}}', 'Supervisor A', 'supervisor', 'A'),
+      ('supervisor_b@mlp.local', '{{CLAVE_SUPERVISOR_B}}', 'Supervisor B', 'supervisor', 'B'),
+      ('programador_a@mlp.local', '{{CLAVE_PROGRAMADOR_A}}', 'Programador A', 'planner', 'A'),
+      ('programador_b@mlp.local', '{{CLAVE_PROGRAMADOR_B}}', 'Programador B', 'planner', 'B'),
+      ('tecnico_a@mlp.local', '{{CLAVE_TECNICO_A}}', 'Técnico A', 'technician', 'A'),
+      ('tecnico_b@mlp.local', '{{CLAVE_TECNICO_B}}', 'Técnico B', 'technician', 'B')
     ) as t(email, pass, full_name, role, shift)
   loop
     v_id := gen_random_uuid();

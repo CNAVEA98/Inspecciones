@@ -89,7 +89,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
 - Verificación del 2026-11-06 (V1.1.2, CLI de Supabase 3.0.0): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
-  `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`.
+  `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-06\`.
 - V1.1.1 (PR #13) corrige las 5 fallas altas de PDF y varias medias.
   Trae `supabase/parche_plantillas_2026-11-06.sql` para las bases que ya tienen plantillas: **no se ha corrido en el remoto**.
 - Remoto: migraciones 0001–0019 aplicadas pegando SQL en el editor (no con `db push`). **La 0020 figura sin aplicar**

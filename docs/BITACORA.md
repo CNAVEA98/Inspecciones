@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |
 | V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
 | V1.1.0 | 2026-11-03 | Punto de partida: todo lo unido hasta el PR #10 más visor del PDF del técnico, pie de página con versión, Privacidad, Condiciones de uso, aviso de privacidad al primer ingreso, fotos sin metadatos y dependencias sin vulnerabilidades |
 
@@ -207,6 +208,20 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-06 · Supabase CLI 3.0.0 (antes 2.122.0), con todas las pruebas repetidas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `chore/supabase-cli-3` (parte de `fix/pdf-fallas-altas`, PR #13) · **Versión:** V1.1.2
+- **Qué se hizo:** `supabase` en `devDependencies` pasó de `^2.122.0` a `^3.0.0` (decisión de Cristóbal: trabajar siempre con la
+  última versión). En `supabase/config.toml` se renombró `enable_signup` por `enabled` en `[auth.email]` y `[auth.sms]` (el CLI 3 avisa
+  que la clave vieja desaparece en la v4; los valores no cambiaron). La primera vez descarga imágenes nuevas (Postgres 17.11).
+- **Archivos:** `package.json`, `pnpm-lock.yaml`, `supabase/config.toml`, `src/lib/version.ts`.
+- **Verificación (2026-11-06, CLI 3.0.0):** `supabase start`, `db reset` y `test db` 76/76 sin avisos · `lint` y `tsc` sin errores ·
+  `test` 253/253 · `build` correcto · `pnpm audit --prod` sin vulnerabilidades · simulación 120/120 PDF · prueba de carga
+  (12 técnicos × 5 + supervisor + programador): 60/60 enviados y firmados, 0 errores ni pegados, envío p95 307 ms.
+- **Pendiente / riesgos:** Manuel debe correr `corepack pnpm install` y `corepack pnpm supabase start` (bajará imágenes) tras unir esto.
+  El contenedor `supabase_vector` (recolector de logs) se reinicia en bucle en este PC (se apaga solo y Docker lo relanza); no
+  afecta a la base, la API ni a las pruebas, y no se investigó más. El **remoto** no se tocó: el `login` del CLI sigue pendiente.
+  Los ajustes del Supabase remoto (p. ej. registro libre) no dependen de `config.toml`.
 
 ### 2026-11-06 · Prueba de estabilidad y rendimiento: 12 técnicos del turno A, supervisor y programador
 - **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1 (sin cambios en la app; solo se agregó el script)

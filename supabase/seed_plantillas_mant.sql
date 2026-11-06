@@ -1321,7 +1321,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_007",
           "type": "verificacion",
-          "label": "Revisar empotrado e tablero",
+          "label": "Revisar empotrado del tablero",
           "estados": [
             "SI",
             "NO"
@@ -1339,7 +1339,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_009",
           "type": "verificacion",
-          "label": "Verificar presencia de oxido",
+          "label": "Verificar ausencia de óxido",
           "estados": [
             "SI",
             "NO"
@@ -7012,7 +7012,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_012",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF001-1XC1: estado del componente",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF001-1XC1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7021,7 +7021,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_013",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF001-1XC1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF001-1XC1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7030,7 +7030,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_014",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL1: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7039,7 +7039,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_015",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7048,7 +7048,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_016",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL2: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7057,7 +7057,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_017",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL2: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7066,7 +7066,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_018",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL3: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7075,7 +7075,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_019",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF001-1XL3: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF001-1XL3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7084,7 +7084,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_020",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR1: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7093,7 +7093,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_021",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7102,7 +7102,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_022",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR2: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7111,7 +7111,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_023",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR2: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7120,7 +7120,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_024",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR3: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7129,7 +7129,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_025",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1XR3: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF001-1XR3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7138,7 +7138,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_026",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Capacitivas · 740HF001-2XC1: estado del componente",
+          "label": "9.ª sintonía · Unidades Capacitivas · 740HF001-2XC1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7147,7 +7147,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_027",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Capacitivas · 740HF001-2XC1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Capacitivas · 740HF001-2XC1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7156,7 +7156,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_028",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL1: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7165,7 +7165,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_029",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7174,7 +7174,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_030",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL2: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7183,7 +7183,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_031",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL2: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7192,7 +7192,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_032",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL3: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7201,7 +7201,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_033",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF001-2XL3: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF001-2XL3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7210,7 +7210,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_034",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR1: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7219,7 +7219,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_035",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7228,7 +7228,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_036",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR2: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7237,7 +7237,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_037",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR2: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7246,7 +7246,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_038",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR3: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7255,7 +7255,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_039",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF001-2XR3: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF001-2XR3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7264,7 +7264,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_040",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C1: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7273,7 +7273,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_041",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C1: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7282,7 +7282,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_042",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C2: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7291,7 +7291,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_043",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C2: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7300,7 +7300,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_044",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C3: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7309,7 +7309,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_045",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF001-3C3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF001-3C3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7318,7 +7318,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_046",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L1: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7327,7 +7327,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_047",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L1: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7336,7 +7336,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_048",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L2: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7345,7 +7345,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_049",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L2: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7354,7 +7354,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_050",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L3: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7363,7 +7363,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_051",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF001-3L3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF001-3L3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7372,7 +7372,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_052",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3: estado del componente",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF001-3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7381,7 +7381,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_053",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF001-3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7396,7 +7396,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_054",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF002-1XC1: estado del componente",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF002-1XC1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7405,7 +7405,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_055",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF002-1XC1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF002-1XC1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7414,7 +7414,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_056",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL1: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7423,7 +7423,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_057",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7432,7 +7432,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_058",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL2: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7441,7 +7441,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_059",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL2: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7450,7 +7450,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_060",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL3: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7459,7 +7459,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_061",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF002-1XL3: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF002-1XL3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7468,7 +7468,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_062",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR1: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7477,7 +7477,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_063",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR1: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7486,7 +7486,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_064",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR2: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7495,7 +7495,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_065",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR2: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7504,7 +7504,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_066",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR3: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7513,7 +7513,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_067",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF002-1XR3: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF002-1XR3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7522,7 +7522,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_068",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Capacitivas · 740HF002-2XC1: estado del componente",
+          "label": "9.ª sintonía · Unidades Capacitivas · 740HF002-2XC1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7531,7 +7531,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_069",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Capacitivas · 740HF002-2XC1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Capacitivas · 740HF002-2XC1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7540,7 +7540,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_070",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL1: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7549,7 +7549,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_071",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7558,7 +7558,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_072",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL2: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7567,7 +7567,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_073",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL2: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7576,7 +7576,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_074",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL3: estado del componente",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7585,7 +7585,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_075",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Inductivas · 740HF002-2XL3: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Inductivas · 740HF002-2XL3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7594,7 +7594,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_076",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR1: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7603,7 +7603,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_077",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR1: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7612,7 +7612,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_078",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR2: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7621,7 +7621,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_079",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR2: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7630,7 +7630,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_080",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR3: estado del componente",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7639,7 +7639,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_081",
           "type": "verificacion",
-          "label": "9na Sintonía · Unidades Resistivas · 740HF002-2XR3: ¿se realizó mantención?",
+          "label": "9.ª sintonía · Unidades Resistivas · 740HF002-2XR3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7648,7 +7648,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_082",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C1: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7657,7 +7657,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_083",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C1: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7666,7 +7666,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_084",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C2: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7675,7 +7675,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_085",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C2: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7684,7 +7684,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_086",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C3: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7693,7 +7693,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_087",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF002-3C3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF002-3C3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7702,7 +7702,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_088",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L1: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L1: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7711,7 +7711,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_089",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L1: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L1: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7720,7 +7720,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_090",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L2: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L2: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7729,7 +7729,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_091",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L2: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L2: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7738,7 +7738,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_092",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L3: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7747,7 +7747,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_093",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF002-3L3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF002-3L3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7756,7 +7756,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_094",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF002-3: estado del componente",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF002-3: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7765,7 +7765,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_095",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF002-3: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF002-3: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7780,7 +7780,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_096",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-A: estado del componente",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7789,7 +7789,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_097",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-A: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7798,7 +7798,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_098",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-B: estado del componente",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7807,7 +7807,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_099",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-B: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7816,7 +7816,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_100",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-C: estado del componente",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7825,7 +7825,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_101",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Capacitivas · 740HF003-1-XC-C: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Capacitivas · 740HF003-1-XC-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7834,7 +7834,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_102",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLA: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7843,7 +7843,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_103",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLA: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7852,7 +7852,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_104",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLB: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7861,7 +7861,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_105",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLB: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7870,7 +7870,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_106",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLC: estado del componente",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7879,7 +7879,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_107",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Inductivas · 740HF003-1XLC: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Inductivas · 740HF003-1XLC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7888,7 +7888,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_108",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-A: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7897,7 +7897,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_109",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-A: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7906,7 +7906,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_110",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-B: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7915,7 +7915,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_111",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-B: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7924,7 +7924,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_112",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-C: estado del componente",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7933,7 +7933,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_113",
           "type": "verificacion",
-          "label": "5ta Sintonía · Unidades Resistivas · 740HF001-1-RD-C: ¿se realizó mantención?",
+          "label": "5.ª sintonía · Unidades Resistivas · 740HF003-1-RD-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7942,7 +7942,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_114",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-A: estado del componente",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7951,7 +7951,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_115",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-A: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7960,7 +7960,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_116",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-B: estado del componente",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7969,7 +7969,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_117",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-B: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7978,7 +7978,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_118",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-C: estado del componente",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -7987,7 +7987,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_119",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Capacitivas · 740HF003-2-XC-C: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Capacitivas · 740HF003-2-XC-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -7996,7 +7996,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_120",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLA: estado del componente",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8005,7 +8005,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_121",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLA: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8014,7 +8014,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_122",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLB: estado del componente",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8023,7 +8023,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_123",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLB: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8032,7 +8032,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_124",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLC: estado del componente",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8041,7 +8041,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_125",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Inductivas · 740HF003-2-XLC: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Inductivas · 740HF003-2-XLC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8050,7 +8050,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_126",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-A: estado del componente",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8059,7 +8059,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_127",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-A: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8068,7 +8068,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_128",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-B: estado del componente",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8077,7 +8077,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_129",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-B: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8086,7 +8086,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_130",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-C: estado del componente",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8095,7 +8095,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_131",
           "type": "verificacion",
-          "label": "7th Sintonía · Unidades Resistivas · 740HF001-2-RD-C: ¿se realizó mantención?",
+          "label": "7.ª sintonía · Unidades Resistivas · 740HF003-2-RD-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8104,7 +8104,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_132",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-A: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8113,7 +8113,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_133",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-A: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8122,7 +8122,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_134",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-B: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8131,7 +8131,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_135",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-B: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8140,7 +8140,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_136",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-C: estado del componente",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8149,7 +8149,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_137",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Capacitivas · 740HF003-3-XC-C: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Capacitivas · 740HF003-3-XC-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8158,7 +8158,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_138",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLA: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8167,7 +8167,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_139",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLA: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8176,7 +8176,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_140",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLB: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8185,7 +8185,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_141",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLB: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8194,7 +8194,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_142",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLC: estado del componente",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8203,7 +8203,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_143",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Inductivas · 740HF003-3-XLC: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Inductivas · 740HF003-3-XLC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8212,7 +8212,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_144",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-A: estado del componente",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-A: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8221,7 +8221,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_145",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-A: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-A: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8230,7 +8230,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_146",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-B: estado del componente",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-B: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8239,7 +8239,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_147",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-B: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-B: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8248,7 +8248,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_148",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-C: estado del componente",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-C: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8257,7 +8257,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_149",
           "type": "verificacion",
-          "label": "11th Sintonía · Unidades Resistivas · 740HF001-3-RD-C: ¿se realizó mantención?",
+          "label": "11.ª sintonía · Unidades Resistivas · 740HF003-3-RD-C: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8398,7 +8398,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_012",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCA: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8407,7 +8407,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_013",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8416,7 +8416,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_014",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCB: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8425,7 +8425,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_015",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8434,7 +8434,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_016",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCC: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8443,7 +8443,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_017",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Capacitivas · 560HF001-1XCC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8452,7 +8452,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_018",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLA: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8461,7 +8461,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_019",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8470,7 +8470,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_020",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLB: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8479,7 +8479,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_021",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8488,7 +8488,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_022",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLC: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8497,7 +8497,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_023",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Inductivas · 560HF001-1XLC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8506,7 +8506,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_024",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDA: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8515,7 +8515,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_025",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8524,7 +8524,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_026",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDB: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8533,7 +8533,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_027",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8542,7 +8542,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_028",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDC: estado del componente",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8551,7 +8551,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_029",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 0,4 MVAR · Unidades Resistivas · 560HF001-1RDC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8560,7 +8560,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_030",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCA: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8569,7 +8569,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_031",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8578,7 +8578,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_032",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCB: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8587,7 +8587,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_033",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8596,7 +8596,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_034",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCC: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8605,7 +8605,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_035",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Capacitivas · 560HF001-2XCC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8614,7 +8614,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_036",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLA: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8623,7 +8623,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_037",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8632,7 +8632,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_038",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLB: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8641,7 +8641,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_039",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8650,7 +8650,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_040",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLC: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8659,7 +8659,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_041",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Inductivas · 560HF001-2XLC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8668,7 +8668,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_042",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDA: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDA: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8677,7 +8677,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_043",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDA: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDA: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8686,7 +8686,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_044",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDB: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDB: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8695,7 +8695,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_045",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDB: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDB: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8704,7 +8704,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_046",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDC: estado del componente",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDC: estado del componente",
           "estados": [
             "BN",
             "ML"
@@ -8713,7 +8713,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_047",
           "type": "verificacion",
-          "label": "5ta Sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDC: ¿se realizó mantención?",
+          "label": "5.ª sintonía Etapa 1 MVAR · Unidades Resistivas · 560HF001-2RDC: ¿se realizó mantención?",
           "estados": [
             "SI",
             "NO"
@@ -8912,15 +8912,15 @@ from public.equipment_types et, public.work_modes wm
 where et.code = 'mant_parrones' and wm.code = 'mantenimiento_programado'
 on conflict (equipment_type_id, work_mode_id, version) do nothing;
 
--- MANT-16 · EST-ELEC-MANT-MLP-BBOSCH-16 · Mantención transformadora de piso (38 ítems)
+-- MANT-16 · EST-ELEC-MANT-MLP-BBOSCH-16 · Mantención transformador de piso (38 ítems)
 insert into public.form_templates (equipment_type_id, work_mode_id, version, status, schema)
 select et.id, wm.id, 1, 'published', $tpl$
 {
-  "title": "Mantención transformadora de piso",
+  "title": "Mantención transformador de piso",
   "meta": {
     "norma": "EST-ELEC-MANT-MLP-BBOSCH-16",
     "revision": "Junio 2026",
-    "titulo": "Mantención transformadora de piso"
+    "titulo": "Mantención transformador de piso"
   },
   "header": [
     {
@@ -9874,7 +9874,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_009",
           "type": "verificacion",
-          "label": "Recepción de señal de alarma GPRT en sala 1"
+          "label": "Recepción de señal de trip GPRT en sala 1"
         }
       ]
     },
@@ -10030,7 +10030,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_031",
           "type": "verificacion",
-          "label": "Recepción de señal de trip OTIA en sala 1"
+          "label": "Recepción de señal de trip OTIT en sala 1"
         }
       ]
     },
@@ -10060,7 +10060,7 @@ select et.id, wm.id, 1, 'published', $tpl$
         {
           "id": "item_035",
           "type": "verificacion",
-          "label": "Recepción de señal de trip WTIA en sala 1"
+          "label": "Recepción de señal de trip WTIT en sala 1"
         }
       ]
     }

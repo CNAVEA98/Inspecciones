@@ -209,6 +209,17 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-06 · PR #13 y #14 unidos a `main`; el sitio publicado pasa a V1.1.2
+- **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-2` · **Versión:** sin cambio (V1.1.2)
+- **Qué se hizo:** se unieron a `main` el PR #13 (V1.1.1: PDF, plantillas, Maestro, prueba de carga) y el PR #14 (V1.1.2: Supabase CLI 3.0.0),
+  en ese orden, sin borrar las ramas. Manuel no revisa hasta la próxima semana: esta vez se unió sin su revisión, por decisión de Cristóbal.
+  Se actualizó el Maestro con el estado real.
+- **Verificación:** `main` = 76f41ec; Vercel desplegó en menos de 1 minuto y `https://inspecciones-bbosch.vercel.app/login` muestra **V1.1.2**,
+  en `gru1`; `/login`, `/privacidad`, `/condiciones` y `/manifest.webmanifest` responden 200 y `/tecnico` redirige (307) sin sesión.
+  No se probó con las cuentas remotas (sus contraseñas las tiene Cristóbal) ni con clics.
+- **Pendiente / riesgos:** Manuel debe hacer `git pull`, `corepack pnpm install` y `corepack pnpm supabase start` (el CLI 3 baja imágenes).
+  Falta recorrer el sitio publicado con los tres roles, las fallas medias y bajas de PDF y la prueba sin señal (en la app nativa).
+
 ### 2026-11-06 · Supabase remoto: migración 0020, parche de plantillas y registro de migraciones (por CLI)
 - **Autor:** Cristóbal (con Claude) · **Rama:** `chore/supabase-cli-3` (PR #14) · **Versión:** sin cambio de código (V1.1.2)
 - **Qué se hizo** (proyecto `inspecciones-bbosch`, tras `supabase login` de Cristóbal; todo con `supabase db query --remote` y `--yes`):

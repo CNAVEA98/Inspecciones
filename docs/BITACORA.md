@@ -229,7 +229,7 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
   envían a la vez (fotos y firma a Storage + `submit_inspection`), 1 sesión de supervisor y 1 de programador que consultan su
   bandeja (carpetas y lista completa), abren cada inspección y la firman, y al final cada técnico descarga su PDF. Marca
   como «pegada» cualquier operación que pase de 60 s.
-- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos6-11-06-carga-*` (fuera del repo).
+- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos\2026-11-06-carga-*` (fuera del repo).
 - **Verificación (app en producción local `next start`, V1.1.1, base local):**
   - 12 técnicos × 5 envíos (60 formularios): **60/60 enviados, 60/60 firmados por supervisor y por programador, 0 errores,
     0 pegados**; envío completo p50 198 ms (p95 349 ms); firmar p50 28 ms.
@@ -258,7 +258,7 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
   `supabase/seed_plantillas_*.sql` (bases nuevas), `supabase/parche_plantillas_2026-11-06.sql` (**bases existentes**),
   tests en `modelo.test.ts` y `seeds-redaccion.test.ts`.
 - **Verificación (2026-11-06):** `lint` y `tsc` sin errores · `test` 253/253 · `build` correcto · `supabase db reset` +
-  `supabase test db` 76/76 · simulación local: 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`
+  `supabase test db` 76/76 · simulación local: 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-06\`
   (fuera del repo), revisados por texto en los 120 y por imagen en INSP-01, INSP-14 y MANT-16: 0 TAG partidos, bloque
   de hallazgos y severidad en 59 de 60 «con hallazgos» (MANT-05 no tiene ML posible, falla X01), 16 de 16 PDF
   «conforme» con foto, 0 mantenciones con «inspección». El parche SQL se probó en la base local: degradando a propósito

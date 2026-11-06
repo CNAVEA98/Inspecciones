@@ -51,12 +51,13 @@ const FIRMA = (() => {
   return png(W, H, (x, y) => (tinta.has(`${x},${y}`) ? [20, 30, 80, 255] : [0, 0, 0, 0]));
 })();
 
+const CLAVES = JSON.parse(readFileSync("supabase/.claves-dev.json", "utf8")); // generado por `corepack pnpm seed:usuarios` (no se versiona)
 // --- sesión del técnico (cookies idénticas a las que usa la app) ---
 const jar = new Map();
 const sb = createServerClient(URL_SB, ANON, {
   cookies: { getAll: () => [...jar].map(([name, value]) => ({ name, value })), setAll: (l) => l.forEach(({ name, value }) => (value ? jar.set(name, value) : jar.delete(name))) },
 });
-const { data: login, error: eLogin } = await sb.auth.signInWithPassword({ email: "tecnico_a@mlp.local", password: "12121212" });
+const { data: login, error: eLogin } = await sb.auth.signInWithPassword({ email: "tecnico_a@mlp.local", password: CLAVES.tecnico_a });
 if (eLogin) { console.error("No se pudo entrar como TECNICO_A:", eLogin.message); process.exit(1); }
 const userId = login.user.id;
 const cookie = () => [...jar].map(([n, v]) => `${n}=${v}`).join("; ");

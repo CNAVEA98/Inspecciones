@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.3 | 2026-11-06 | Contraseñas de las cuentas de prueba fuera del repositorio: plantilla del seed sin claves y `corepack pnpm seed:usuarios` |
 | V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |
 | V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
 | V1.1.0 | 2026-11-03 | Punto de partida: todo lo unido hasta el PR #10 más visor del PDF del técnico, pie de página con versión, Privacidad, Condiciones de uso, aviso de privacidad al primer ingreso, fotos sin metadatos y dependencias sin vulnerabilidades |
@@ -66,7 +67,7 @@ GitHub con la copia local y baje lo último:
   (fuera del repositorio) con `RESUMEN.md` y `CONTEXTO_COWORK_REVISION_FORMATOS.md` para la revisión visual en Cowork.
 - **Trabajo del 2026-10-31:** unido a `main` con el PR #5 (técnico descarga el PDF, PDF sin tablas cortadas, «Equipos con fallas» y seguimiento de hallazgos, correcciones de uso en terreno). **Las migraciones `0012`, `0013` y `0014` ya están aplicadas en el Supabase remoto** (comprobado 6/6 el 2026-10-31); falta probar todo en el sitio publicado.
 - `main` en GitHub ya tiene todo el trabajo (PR #1 unido el 2026-10-30). Siga el flujo de `CLAUDE.md`: rama nueva, bitácora en el mismo commit, PR.
-- **Local:** `corepack pnpm install`, `corepack pnpm supabase start` (Docker), `corepack pnpm dev`. Entre con **usuario** (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); las contraseñas de prueba están en `supabase/seed_usuarios_dev.sql`.
+- **Local:** `corepack pnpm install`, `corepack pnpm supabase start` (Docker), `corepack pnpm dev`. Entre con **usuario** (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…); las contraseñas locales se generan con `corepack pnpm seed:usuarios` (quedan en `supabase/.claves-dev.json`, que no se versiona).
 - **En línea (prueba):** app en https://inspecciones-bbosch.vercel.app (proyecto de Vercel `inspecciones-bbosch`, equipo `cnv10`) y base en el proyecto de Supabase `inspecciones-bbosch` (referencia `etdeiyjzibgihqtvdrpt`, São Paulo, plan Free). Las 7 cuentas existen allí con **contraseñas que eligió el usuario y no están en el repositorio**: pídaselas a Cristóbal.
 - **Plantillas:** las 60 están cargadas en local y, desde el 2026-10-31, también en el Supabase remoto (20 de mantención + 40 de inspección, verificado por conteo). Falta revisarlas en pantalla en el sitio publicado y el resto de «Pendientes». Las plantillas son datos de Supabase: `git push` no las actualiza.
 
@@ -208,6 +209,25 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-06 · Revisión de claves filtradas y contraseñas de prueba fuera del repositorio público
+- **Autor:** Cristóbal (con Claude) · **Rama:** `fix/claves-fuera-del-repo` · **Versión:** V1.1.3
+- **Qué se hizo:** (1) Revisión del historial de git (106 commits, todas las ramas), sin mostrar valores: **no hay** claves `service_role`, `sb_secret_`,
+  tokens, URL de base con contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de los HTML de demo son imágenes
+  en base64. (2) **Sí estaban publicadas las contraseñas de las 7 cuentas de prueba** (`seed_usuarios_dev.sql`), y una consulta de solo lectura al remoto
+  (comparación de hashes) mostró que **las 7 cuentas del Supabase remoto usan esas mismas contraseñas**, incluida `ADMINISTRADOR` (la bitácora decía lo
+  contrario). (3) Se sacaron del árbol de archivos: `supabase/seed_usuarios_dev.plantilla.sql` (sin claves), `scripts/generar-seed-usuarios.mjs`
+  (`corepack pnpm seed:usuarios` genera claves aleatorias por equipo en `supabase/.claves-dev.json` y el SQL en `supabase/seed_usuarios_dev.sql`, ambos en
+  `.gitignore`); `simular-formatos.mjs` y `prueba-carga.mjs` leen las claves de ese JSON.
+- **Archivos:** `supabase/seed_usuarios_dev.plantilla.sql`, `scripts/generar-seed-usuarios.mjs`, `.gitignore`, `package.json`, `scripts/simular-formatos.mjs`,
+  `scripts/prueba-carga.mjs`, `CLAUDE.md`, `docs/MAESTRO.md`.
+- **Verificación (2026-11-06):** `seed:usuarios` + `db reset` + `supabase test db` 76/76; simulación (INSP-01 y MANT-05: 4/4 PDF) y prueba de carga chica
+  (3 técnicos × 2) con las claves nuevas: 6/6 enviados y firmados, 0 errores; ninguna clave vieja queda en archivos versionados ni en la plantilla.
+- **Pendiente / riesgos:** **las contraseñas siguen en el historial público de git** (borrarlas del árbol no las quita) y **siguen vigentes en el remoto**:
+  Cristóbal decidió no rotarlas porque el sistema aún es de prueba; **hay que rotarlas antes de usar datos reales** (cualquiera que vea el repo puede entrar
+  al sitio publicado como administrador; ingresos recientes en `administrador`, `supervisor_b` y `tecnico_b` no se pudieron atribuir). Opciones para el
+  historial: volver privado el repo (Manuel puede ser colaborador) o reescribir el historial con force-push (destructivo; requiere acordarlo con Manuel).
+  El repo público también contiene los formatos Word/Excel de MLP y el Maestro de TAG (1.073 equipos). Cada equipo debe correr `seed:usuarios` una vez.
 
 ### 2026-11-06 · PR #13 y #14 unidos a `main`; el sitio publicado pasa a V1.1.2
 - **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-2` · **Versión:** sin cambio (V1.1.2)

@@ -124,6 +124,8 @@ async function armar(ctx, formato, tpl, hallazgos) {
 }
 
 
+const CLAVES = JSON.parse(readFileSync("supabase/.claves-dev.json", "utf8")); // generado por `corepack pnpm seed:usuarios` (no se versiona)
+
 // ---------- sesiones ----------
 const ahora = () => performance.now();
 const dormir = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -157,7 +159,7 @@ async function sesion(usuario, clave) {
   };
 }
 
-const admin = await sesion("tecnico_a", "12121212");
+const admin = await sesion("tecnico_a", CLAVES.tecnico_a);
 const q = async (p) => { const { data, error } = await p; if (error) throw new Error(error.message); return data; };
 const areas = new Map((await q(admin.sb.from("areas").select("id, code"))).map((a) => [a.code, a.id]));
 const tipos = new Map((await q(admin.sb.from("equipment_types").select("id, code"))).map((a) => [a.code, a.id]));
@@ -190,7 +192,7 @@ const f1 = (x) => (Number.isFinite(x) ? `${Math.round(x)} ms` : "—");
 // ---------- técnicos ----------
 async function tecnico(i) {
   let ctx;
-  try { ctx = await sesion("tecnico_a", "12121212"); } catch (e) { err(`T${i + 1}`, "login", e); tecnicosActivos--; return; }
+  try { ctx = await sesion("tecnico_a", CLAVES.tecnico_a); } catch (e) { err(`T${i + 1}`, "login", e); tecnicosActivos--; return; }
   let ultimo = null;
   for (let r = 0; r < RONDAS; r++) {
     const formato = FORMATOS[(i + r) % FORMATOS.length];
@@ -270,9 +272,9 @@ const latido = setInterval(() => console.log(`  [${Math.round((ahora() - T0) / 1
 
 const trabajos = [
   ...Array.from({ length: N_TEC }, (_, i) => tecnico(i)),
-  revisor({ nombre: "Supervisor", usuario: "supervisor_a", clave: "11112222", ruta: "/supervisor", etapa: "supervisor", visible: M.visibleSup, bandeja: M.bandejaSup, lista: M.listaSup, detalle: M.detalleSup, firma: M.firmaSup, origen: () => enviadas,
+  revisor({ nombre: "Supervisor", usuario: "supervisor_a", clave: CLAVES.supervisor_a, ruta: "/supervisor", etapa: "supervisor", visible: M.visibleSup, bandeja: M.bandejaSup, lista: M.listaSup, detalle: M.detalleSup, firma: M.firmaSup, origen: () => enviadas,
     alTerminar: (it) => firmadasSup.set(it.folio, { id: it.id, tFin: ahora(), formato: it.formato }) }),
-  revisor({ nombre: "Programador", usuario: "programador_a", clave: "55556666", ruta: "/planificador", etapa: "planner", visible: M.visiblePlan, bandeja: M.bandejaPlan, lista: M.listaPlan, detalle: M.detallePlan, firma: M.firmaPlan, origen: () => firmadasSup,
+  revisor({ nombre: "Programador", usuario: "programador_a", clave: CLAVES.programador_a, ruta: "/planificador", etapa: "planner", visible: M.visiblePlan, bandeja: M.bandejaPlan, lista: M.listaPlan, detalle: M.detallePlan, firma: M.firmaPlan, origen: () => firmadasSup,
     alTerminar: (it, bien) => { if (bien) completas.add(it.folio); } }),
 ].map((p, i) => p.catch((e) => err(i < N_TEC ? `T${i + 1}` : "revisor", "sesión caída", e)));
 await Promise.all(trabajos);

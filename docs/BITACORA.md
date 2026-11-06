@@ -204,6 +204,23 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-06 · Barrido de documentos `.md`: lo antiguo pasa a `docs/archivo/`
+- **Autor:** Cristóbal (con Claude) · **Rama:** `docs/limpieza-md` · **Versión:** sin cambio (solo documentación, V1.1.0)
+- **Qué se hizo:** se movieron a `docs/archivo/` (con `git mv`, sin borrar) los documentos desactualizados:
+  `ARBOL_INSPECCIONES.md` (propuesta ya superada), `CONTEXTO_COWORK_TAGS.md` (dice que existe un solo formato),
+  `AUDITORIA_REACT_UI_TECNICO.md` (auditoría puntual del 2026-10-31; el pendiente 29 la menciona) y `formatos/LEEME.md`
+  (ahora `FORMATOS_LEEME.md`). El `README.md` de plantilla de Next se reemplazó por un índice corto. Siguen vigentes:
+  `BITACORA.md`, `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `MAPEO_ZONA_AREA.md`
+  (la regenera el script del Maestro) y `LICENCIAS.md`. Las entradas antiguas de esta bitácora siguen citando las rutas
+  anteriores de esos archivos.
+- **Documento maestro:** se creó `docs/MAESTRO.md` (directorio de documentos, código, recursos fuera del repo y
+  en línea; estado; faltantes y revisiones previas a React Native; contexto SAP, antes solo en la memoria local de
+  Claude). `CLAUDE.md` lo importa con `@docs/MAESTRO.md` y exige leerlo al iniciar cada sesión, y se corrigió su
+  frase sobre repositorio privado.
+- **Verificación:** solo se movieron archivos `.md`; ningún código los importa (revisado con `git grep`). No se corrió build.
+- **Pendiente / riesgos:** «Estado actual» y «Pendientes» de esta bitácora siguen siendo largos y repetidos; falta
+  reescribirlos. `CLAUDE.md` aún dice que el repositorio es privado y GitHub lo muestra como PUBLIC.
+
 ### 2026-11-03 · Prueba de rendimiento y de funciones antes de publicar V1.1.0, con correcciones
 - **Autor:** Cristóbal (con Claude) · rama `feat/legal-version-1.1.0`
 - **Versión:** V1.1.0 (mismo lote, aún sin unir a `main`)

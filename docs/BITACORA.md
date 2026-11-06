@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
 | V1.1.0 | 2026-11-03 | Punto de partida: todo lo unido hasta el PR #10 más visor del PDF del técnico, pie de página con versión, Privacidad, Condiciones de uso, aviso de privacidad al primer ingreso, fotos sin metadatos y dependencias sin vulnerabilidades |
 
 ## Al iniciar cada sesión (obligatorio)
@@ -145,7 +146,7 @@ Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`,
 38. ~~Aplicar en el Supabase remoto las migraciones `0015` a `0019`~~ — **hecho 2026-11-03**, pero **después** de unir el PR #9: mientras tanto el técnico veía «Sin catálogo local» en el sitio publicado. Verificado por consulta (60 formatos con plantilla). Sigue vigente el pendiente 18.
 39. **Después de desplegar:** comprobar que las funciones corren en São Paulo (`curl -sI …/login | grep -i x-vercel-id` → `gru1::gru1`; si sigue en `iad1`, cambiar la región en Vercel → Settings → Functions) y medir el tiempo de apertura en el iPhone. **Borrar y volver a agregar el icono** en la pantalla de inicio del iPhone.
 40. **Probar con clics la pestaña «Formatos»** con `SUPERVISOR_A`, `ADMINISTRADOR` y `PROGRAMADOR_A` (crear en blanco, agregar preguntas y campos de cabecera, publicar, activar/desactivar, aviso al salir con cambios) y el flujo del técnico con un formato nuevo. Reiniciar `npm run dev` antes: un servidor abierto desde antes siguió usando una versión vieja de una acción.
-41. **Revisión visual de los 120 PDF de la simulación** con `CONTEXTO_COWORK_REVISION_FORMATOS.md` (Cowork) y corregir lo que encuentre (generador `src/components/informe/informe-pdf.tsx` o la plantilla del formato con el editor).
+41. **(Parcial 2026-11-06: corregidas las 5 fallas altas y, en redacción, S03, S09, S11, P02, P06, P11, P27 y P28; ver el registro del 2026-11-06.)** **Revisión visual de los 120 PDF de la simulación** con `CONTEXTO_COWORK_REVISION_FORMATOS.md` (Cowork) y corregir lo que encuentre (generador `src/components/informe/informe-pdf.tsx` o la plantilla del formato con el editor).
 42. **Peso del JavaScript del técnico** (~321 KB comprimidos: React, cliente de Supabase con realtime, Zod, Dexie): evaluar cargar Supabase bajo demanda o `zod/mini`. Queda en caché del service worker tras la primera visita.
 43. **Base local con datos de simulación:** ~120 inspecciones de `TECNICO_A` del 2026-11-03; se limpian con `corepack pnpm supabase db reset` (vuelve a aplicar migraciones y seeds).
 44. **Editor de formatos, siguientes pasos:** vista previa del formulario tal como lo ve el técnico; editar firmas, leyenda de estados y lecturas destacadas; copiar entre inspección y mantención.
@@ -155,6 +156,9 @@ Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`,
 45. **Probar el catálogo en el sitio publicado y en el iPhone** tras aplicar 0015–0019: entrar como `TECNICO_A`, recargar la app (o cerrarla y abrirla) y comprobar que aparecen Área → Trabajo → Familia → Formato y que se puede iniciar una inspección; con `SUPERVISOR_A`, abrir la pestaña «Formatos». Si aparece un error, ahora muestra el motivo real (PR #10).
 
 ## Decisiones
+
+- **Sin señal: se migra a React Native (2026-11-06, decisión de Cristóbal):** la PWA se abre desde un enlace y no cumple el trabajo sin señal en terreno; por eso la prueba de aceptación sin señal (pendientes 9 y 21) se hace en la app nativa y no se invierte más en el modo sin red de la PWA.
+- **Repositorio público (2026-11-06):** se mantiene público porque Cristóbal y Manuel trabajan con cuentas distintas. Un repositorio privado también admite colaboradores; el riesgo es que queden expuestos `supabase/seed_usuarios_dev.sql` y lo que la bitácora cita del proyecto remoto. Revisar el historial de git antes de cualquier cambio.
 
 - **Seguimiento de hallazgos (2026-10-31, pedido por MLP):** a la OT padre se le carga la inspección firmada (la evidencia de lo detectado); si hay hallazgo, el supervisor crea un aviso subsecuente en SAP, al que se carga aparte un informe de mejora de la condición (**fuera de la app, no se integra**). Por eso el seguimiento **no bloquea las firmas** ni toca `review_inspection`. Gatillo: el alcance (lo de Bbosch 23 kV lleva aviso; lo que requiere apoyo de terceros se canaliza con MLP), no la severidad, que solo sugiere la prioridad. Solo cuentan los hallazgos «Malo». El seguimiento va en la tabla `finding_followups` porque los hallazgos son inmutables tras el envío; solo lo escribe el RPC `set_finding_followup` (supervisor y administrador; el programador lee). Se dice «dar aviso a Supervisión», no «Torre de Control».
 - **El técnico descarga el PDF de sus inspecciones (2026-10-31):** se reutiliza el generador de los otros roles y la lectura pasa por RLS con su sesión, así que solo obtiene las suyas. Para mostrar quién firmó se le permite leer el perfil de los firmantes de **sus** inspecciones (`0013`). El service worker no intercepta las rutas `/pdf`.
@@ -203,6 +207,68 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-06 · Prueba de estabilidad y rendimiento: 12 técnicos del turno A, supervisor y programador
+- **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1 (sin cambios en la app; solo se agregó el script)
+- **Qué se hizo:** nuevo `scripts/prueba-carga.mjs` (solo contra la app y el Supabase locales). Abre N sesiones de técnico que
+  envían a la vez (fotos y firma a Storage + `submit_inspection`), 1 sesión de supervisor y 1 de programador que consultan su
+  bandeja (carpetas y lista completa), abren cada inspección y la firman, y al final cada técnico descarga su PDF. Marca
+  como «pegada» cualquier operación que pase de 60 s.
+- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos6-11-06-carga-*` (fuera del repo).
+- **Verificación (app en producción local `next start`, V1.1.1, base local):**
+  - 12 técnicos × 5 envíos (60 formularios): **60/60 enviados, 60/60 firmados por supervisor y por programador, 0 errores,
+    0 pegados**; envío completo p50 198 ms (p95 349 ms); firmar p50 28 ms.
+  - 12 técnicos × 15 envíos (180, corrida larga): 180/180, 0 errores; envío p95 829 ms.
+  - 36 técnicos × 4 envíos (144, ráfaga 3 veces mayor): 144/144, 0 errores; envío p95 507 ms.
+  - Lo más lento es el **PDF**: con 12 descargas simultáneas p50 4,9 s (solo ~1 s); con 36 simultáneas p50 12 s. Mientras se
+    generan, el mismo servidor Node tarda hasta 2–6 s en responder otras páginas (máximos de bandeja y de «abrir
+    inspección»); sin ese pico, bandeja y detalle responden en 20–100 ms. No hubo errores ni mensajes de error en el log.
+- **Pendiente / riesgos:** es una prueba **local** (un solo proceso, sin latencia de red, sin Vercel ni Supabase Free con
+  sus límites de conexiones y de Storage), así que **no demuestra el rendimiento del sitio publicado**: repetirla contra el
+  remoto requiere confirmación de Cristóbal y un script que lo permita (hoy se niega a correr contra un Supabase remoto).
+  No ejercita el navegador, Dexie ni la cola offline de la PWA. «Hasta verse en la bandeja» incluye que el supervisor
+  esté ocupado firmando la fila anterior. Dejó ~390 inspecciones de prueba en la base local (`supabase db reset` las limpia).
+
+### 2026-11-06 · PDF: severidad, TAG, mantenciones y plantillas corregidas (5 fallas altas de la revisión)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1
+- **Qué se hizo:** (S02) el PDF muestra la severidad de cada hallazgo (píldora en la fila, bloque «Hallazgos» y pie de
+  foto); (S03) el aviso de resultado dice «N hallazgos» con desglose por severidad y los ítems, sin la tilde mal puesta;
+  (S05) sin guionado automático del texto y ancho máximo del bloque de datos, así el TAG queda en una línea; (S09) las
+  mantenciones dicen «Resultado de la mantención»; (S11) los ítems NA ya no restan: «18 de 21 ítems conformes (3 no
+  aplican)» y «x/y» por grupo; (S01) no era un error del PDF sino del script de simulación (no adjuntaba la foto en los
+  ítems de foto cuando no eran obligatorios): corregido, y un test comprueba que la foto de un ítem de foto sale sin
+  hallazgos; (P01) MANT-13, sección 740HF003, ahora usa TAG 740HF003; (P04) MANT-05 «Verificar ausencia de óxido»;
+  además erratas de MANT-05/16/19, INSP-27/28/31 y otros (tildes, «chisporroteo», OTIT/WTIT, ordinales «5.ª sintonía»).
+- **Archivos:** `src/lib/informe/modelo.ts`, `src/components/informe/informe-pdf.tsx`, `scripts/simular-formatos.mjs`,
+  `supabase/seed_plantillas_*.sql` (bases nuevas), `supabase/parche_plantillas_2026-11-06.sql` (**bases existentes**),
+  tests en `modelo.test.ts` y `seeds-redaccion.test.ts`.
+- **Verificación (2026-11-06):** `lint` y `tsc` sin errores · `test` 253/253 · `build` correcto · `supabase db reset` +
+  `supabase test db` 76/76 · simulación local: 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`
+  (fuera del repo), revisados por texto en los 120 y por imagen en INSP-01, INSP-14 y MANT-16: 0 TAG partidos, bloque
+  de hallazgos y severidad en 59 de 60 «con hallazgos» (MANT-05 no tiene ML posible, falla X01), 16 de 16 PDF
+  «conforme» con foto, 0 mantenciones con «inspección». El parche SQL se probó en la base local: degradando a propósito
+  MANT-05 y MANT-13 crea la versión siguiente y una segunda ejecución no hace nada.
+- **Pendiente / riesgos:** **el parche SQL no se ha ejecutado en el Supabase remoto** (requiere confirmación de
+  Cristóbal; pegarlo en el SQL Editor como «postgres (Superuser)»); las inspecciones ya enviadas conservan su versión.
+  Siguen abiertas las fallas medias de plantilla no tratadas (P03, P05, P07, P08, P14, P16, P19, P37, P38, P41, S06,
+  S19–S22, S04, S07 y S13) y las bajas.
+
+### 2026-11-06 · Barrido de documentos `.md`: lo antiguo pasa a `docs/archivo/`
+- **Autor:** Cristóbal (con Claude) · **Rama:** `docs/limpieza-md` · **Versión:** sin cambio (solo documentación, V1.1.0)
+- **Qué se hizo:** se movieron a `docs/archivo/` (con `git mv`, sin borrar) los documentos desactualizados:
+  `ARBOL_INSPECCIONES.md` (propuesta ya superada), `CONTEXTO_COWORK_TAGS.md` (dice que existe un solo formato),
+  `AUDITORIA_REACT_UI_TECNICO.md` (auditoría puntual del 2026-10-31; el pendiente 29 la menciona) y `formatos/LEEME.md`
+  (ahora `FORMATOS_LEEME.md`). El `README.md` de plantilla de Next se reemplazó por un índice corto. Siguen vigentes:
+  `BITACORA.md`, `CLAUDE.md`, `AGENTS.md`, `DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `MAPEO_ZONA_AREA.md`
+  (la regenera el script del Maestro) y `LICENCIAS.md`. Las entradas antiguas de esta bitácora siguen citando las rutas
+  anteriores de esos archivos.
+- **Documento maestro:** se creó `docs/MAESTRO.md` (directorio de documentos, código, recursos fuera del repo y
+  en línea; estado; faltantes y revisiones previas a React Native; contexto SAP, antes solo en la memoria local de
+  Claude). `CLAUDE.md` lo importa con `@docs/MAESTRO.md` y exige leerlo al iniciar cada sesión, y se corrigió su
+  frase sobre repositorio privado.
+- **Verificación:** solo se movieron archivos `.md`; ningún código los importa (revisado con `git grep`). No se corrió build.
+- **Pendiente / riesgos:** «Estado actual» y «Pendientes» de esta bitácora siguen siendo largos y repetidos; falta
+  reescribirlos. `CLAUDE.md` aún dice que el repositorio es privado y GitHub lo muestra como PUBLIC.
 
 ### 2026-11-03 · Prueba de rendimiento y de funciones antes de publicar V1.1.0, con correcciones
 - **Autor:** Cristóbal (con Claude) · rama `feat/legal-version-1.1.0`

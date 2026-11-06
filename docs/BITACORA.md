@@ -160,6 +160,7 @@ Verificación global más reciente (2026-11-03, rama `feat/legal-version-1.1.0`,
 ## Decisiones
 
 - **Sin señal: se migra a React Native (2026-11-06, decisión de Cristóbal):** la PWA se abre desde un enlace y no cumple el trabajo sin señal en terreno; por eso la prueba de aceptación sin señal (pendientes 9 y 21) se hace en la app nativa y no se invierte más en el modo sin red de la PWA.
+- **Contraseñas de las cuentas de prueba (2026-11-06):** salieron del repositorio (V1.1.3) pero siguen en el historial público y vigentes en el remoto; Cristóbal decidió no rotarlas ni volver privado el repo por ahora. Rotarlas antes de usar datos reales.
 - **Repositorio público (2026-11-06):** se mantiene público porque Cristóbal y Manuel trabajan con cuentas distintas. Un repositorio privado también admite colaboradores; el riesgo es que queden expuestos `supabase/seed_usuarios_dev.sql` y lo que la bitácora cita del proyecto remoto. Revisar el historial de git antes de cualquier cambio.
 
 - **Seguimiento de hallazgos (2026-10-31, pedido por MLP):** a la OT padre se le carga la inspección firmada (la evidencia de lo detectado); si hay hallazgo, el supervisor crea un aviso subsecuente en SAP, al que se carga aparte un informe de mejora de la condición (**fuera de la app, no se integra**). Por eso el seguimiento **no bloquea las firmas** ni toca `review_inspection`. Gatillo: el alcance (lo de Bbosch 23 kV lleva aviso; lo que requiere apoyo de terceros se canaliza con MLP), no la severidad, que solo sugiere la prioridad. Solo cuentan los hallazgos «Malo». El seguimiento va en la tabla `finding_followups` porque los hallazgos son inmutables tras el envío; solo lo escribe el RPC `set_finding_followup` (supervisor y administrador; el programador lee). Se dice «dar aviso a Supervisión», no «Torre de Control».
@@ -209,6 +210,21 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-06 · Cierre de la jornada: PR #16 unido, sitio en V1.1.3 y estado al día
+- **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-3` · **Versión:** sin cambio (V1.1.3)
+- **Qué se hizo:** Cristóbal unió el PR #16 (contraseñas de prueba fuera del repo). Se verificó que `main` = d765aaf, que `supabase/` solo
+  versiona `seed_usuarios_dev.plantilla.sql` y que el sitio publicado muestra **V1.1.3**. Resumen del día, en orden: barrido de `.md` y creación del
+  Maestro (`docs/MAESTRO.md`, lectura obligatoria al iniciar sesión); V1.1.1 (PDF: severidad, TAG, mantenciones, NA; plantillas corregidas;
+  prueba de carga); V1.1.2 (Supabase CLI 3.0.0); remoto al día por CLI (0020, 10 plantillas v2, historial de migraciones, registro libre cerrado);
+  PR #13 a #16 unidos; revisión de claves del historial; V1.1.3.
+- **Decisiones del día** (también en «Decisiones»): sin señal se resuelve migrando a React Native; el repo sigue público; las contraseñas del remoto
+  no se rotan por ahora (sistema de prueba) y se vuelve a revisar antes de datos reales; el repo no pasa a privado de momento.
+- **Verificación:** `main` y sitio comprobados con `git log`, `gh pr list` y `curl` del 2026-11-06; las pruebas de cada mejora están en sus entradas.
+- **Pendiente / riesgos (en orden):** (1) rotar contraseñas del remoto y volver privado el repo antes de datos reales; (2) recorrer el sitio publicado con
+  los tres roles; (3) fallas medias y bajas de PDF (Maestro 5.3); (4) prueba sin señal en la app nativa; (5) decidir cuentas por persona y qué ve cada
+  supervisor; (6) separar la lógica de las pantallas para React Native (proponer el diseño primero); (7) Manuel: `git pull`, `corepack pnpm install`,
+  `corepack pnpm seed:usuarios` y `corepack pnpm supabase start`.
 
 ### 2026-11-06 · Revisión de claves filtradas y contraseñas de prueba fuera del repositorio público
 - **Autor:** Cristóbal (con Claude) · **Rama:** `fix/claves-fuera-del-repo` · **Versión:** V1.1.3

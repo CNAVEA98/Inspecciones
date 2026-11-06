@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/alt-text -- el <Image> de @react-pdf/renderer dibuja en el PDF; no es un <img> HTML y no admite alt. */
-import { Document, Image, Page, Text, View } from "@react-pdf/renderer";
-import type { EstadoVer, Informe, LecturaAncha, LecturaChica } from "@/lib/informe/modelo";
-import { ESTADOS_VER, fmtNumero } from "@/lib/informe/modelo";
+import { Document, Font, Image, Page, Text, View } from "@react-pdf/renderer";
+import type { EstadoVer, Informe, LecturaAncha, LecturaChica, SeveridadInforme } from "@/lib/informe/modelo";
+import { ESTADOS_VER, ORDEN_SEVERIDAD, fmtNumero } from "@/lib/informe/modelo";
 import { cortarEnTramos } from "@/lib/informe/paginado";
 
 /** Imagen ya descargada, lista para incrustar. */
@@ -15,6 +15,9 @@ export interface RecursosPdf {
   /** Por URL firmada original. */
   imagenes: Map<string, ImagenPdf>;
 }
+
+// Sin guionado automático: un TAG como «740-XF-001» debe quedar en una sola línea, nunca «740--» / «XF-001».
+Font.registerHyphenationCallback((palabra) => [palabra]);
 
 // Tokens del diseño «Cobre» (docs/DESIGN.md, muestra docs/muestras/informe-transformador-piso.html).
 const C = {
@@ -51,6 +54,23 @@ const SEGMENTO: Record<EstadoVer, string> = {
   SI: "#1d7a46",
   NO: "#9aa1a8",
 };
+
+/** Colores de severidad de hallazgo (docs/DESIGN.md). */
+const SEV: Record<SeveridadInforme, { bg: string; fg: string; texto: string }> = {
+  baja: { bg: "#e1f2e8", fg: "#0b6b3a", texto: "Baja" },
+  media: { bg: "#f4ecce", fg: "#6e5700", texto: "Media" },
+  alta: { bg: "#fbe3cf", fg: "#8a3d00", texto: "Alta" },
+  critica: { bg: "#bb0000", fg: "#ffffff", texto: "Crítica" },
+};
+
+function PildoraSeveridad({ severidad }: { severidad: SeveridadInforme }) {
+  const c = SEV[severidad];
+  return (
+    <View style={{ backgroundColor: c.bg, borderRadius: 8, paddingVertical: 1.5, paddingHorizontal: 6, marginRight: 5 }}>
+      <Text style={{ fontFamily: MONO_B, fontSize: 6.5, color: c.fg, textTransform: "uppercase" }}>{c.texto}</Text>
+    </View>
+  );
+}
 
 const MARGEN = 31; // 11 mm
 const MONO = "Courier";
@@ -117,7 +137,7 @@ function Hero({ r, rec }: { r: Informe; rec: RecursosPdf }) {
           <Text style={{ fontFamily: MONO_B, fontSize: 32, marginTop: 5, marginBottom: 3 }}>{r.tag}</Text>
           <Text style={{ fontSize: 10, color: "#c9d0d6" }}>{r.lugar || "—"}</Text>
         </View>
-        <View>
+        <View style={{ maxWidth: 190 }}>
           {meta.map(([k, v]) => (
             <View key={k} style={{ flexDirection: "row", justifyContent: "flex-end", marginTop: 2 }}>
               <Text style={{ fontSize: 8, color: "#8c97a1", marginRight: 8 }}>{k}</Text>
@@ -166,16 +186,25 @@ function Specs({ r }: { r: Informe }) {
   );
 }
 
+function desgloseSeveridad(hallazgos: Informe["resumen"]["hallazgos"]): string {
+  const partes = ORDEN_SEVERIDAD.map((sv) => [sv, hallazgos.filter((h) => h.severidad === sv).length] as const)
+    .filter(([, n]) => n > 0)
+    .map(([sv, n]) => `${n} ${SEV[sv].texto.toLowerCase()}${n > 1 ? "s" : ""}`);
+  const sin = hallazgos.filter((h) => h.severidad === null).length;
+  if (sin) partes.push(`${sin} sin severidad`);
+  return partes.join(", ");
+}
+
 function Resumen({ r }: { r: Informe }) {
-  const { cuenta, conformes, total, criticos } = r.resumen;
+  const { cuenta, conformes, total, aplicables, hallazgos } = r.resumen;
   const presentes = ESTADOS_VER.filter((e) => cuenta[e] > 0);
   return (
     <View wrap={false} style={{ flexDirection: "row", marginHorizontal: MARGEN, marginTop: 14 }}>
       <View style={{ flex: 1.4, paddingRight: 18 }}>
-        <Text style={etiqueta}>Resultado de la inspección</Text>
+        <Text style={etiqueta}>{r.esMantencion ? "Resultado de la mantención" : "Resultado de la inspección"}</Text>
         <View style={{ flexDirection: "row", alignItems: "flex-end", marginTop: 2 }}>
           <Text style={{ fontFamily: MONO_B, fontSize: 20 }}>{conformes}</Text>
-          <Text style={{ fontSize: 8.5, color: C.sub, marginLeft: 5, marginBottom: 3 }}>de {total} ítems conformes</Text>
+          <Text style={{ fontSize: 8.5, color: C.sub, marginLeft: 5, marginBottom: 3 }}>de {aplicables} ítems conformes{total !== aplicables ? ` (${total - aplicables} no aplican)` : ""}</Text>
         </View>
         <View style={{ flexDirection: "row", height: 8, borderRadius: 4, overflow: "hidden", backgroundColor: C.hair, marginTop: 5, marginBottom: 5 }}>
           {presentes.map((e) => (
@@ -198,19 +227,17 @@ function Resumen({ r }: { r: Informe }) {
           flex: 1,
           borderRadius: 10,
           borderWidth: 1,
-          borderColor: criticos.length ? "#ecc9b5" : "#bfe2cd",
-          backgroundColor: criticos.length ? C.cuSoft : "#e4f3ea",
+          borderColor: hallazgos.length ? "#ecc9b5" : "#bfe2cd",
+          backgroundColor: hallazgos.length ? C.cuSoft : "#e4f3ea",
           padding: 8,
         }}
       >
-        <Text style={{ ...etiqueta, fontFamily: MONO_B, color: criticos.length ? C.cu : "#1d7a46" }}>
-          {criticos.length
-            ? `${criticos.length} observación${criticos.length > 1 ? "es" : ""} crítica${criticos.length > 1 ? "s" : ""}`
-            : "Sin observaciones críticas"}
+        <Text style={{ ...etiqueta, fontFamily: MONO_B, color: hallazgos.length ? C.cu : "#1d7a46" }}>
+          {hallazgos.length ? `${hallazgos.length} hallazgo${hallazgos.length > 1 ? "s" : ""}` : "Sin hallazgos"}
         </Text>
         <Text style={{ fontSize: 8, marginTop: 3 }}>
-          {criticos.length
-            ? `Ítem ${criticos.map((c) => c.n).join(", ")} · ${criticos[0].obs || criticos[0].texto}`
+          {hallazgos.length
+            ? `${desgloseSeveridad(hallazgos)} · Ítem ${hallazgos.map((h) => h.n).join(", ")}. Detalle más abajo.`
             : "Todos los ítems realizados quedaron conformes."}
         </Text>
       </View>
@@ -309,8 +336,9 @@ function FilaItem({ f, ultima, medir }: { f: Fila; ultima: boolean; medir?: (pag
         <Pill estado={f.estado} />
       </View>
       {f.obs ? (
-        <View style={{ marginLeft: 22, marginTop: 3, backgroundColor: C.cuSoft, borderRadius: 6, paddingVertical: 3, paddingHorizontal: 7 }}>
-          <Text style={{ fontSize: 8, color: C.cuTexto }}>{f.obs}</Text>
+        <View style={{ marginLeft: 22, marginTop: 3, backgroundColor: C.cuSoft, borderRadius: 6, paddingVertical: 3, paddingHorizontal: 7, flexDirection: "row", alignItems: "center" }}>
+          {f.severidad ? <PildoraSeveridad severidad={f.severidad} /> : null}
+          <Text style={{ fontSize: 8, color: C.cuTexto, flex: 1 }}>{f.obs}</Text>
         </View>
       ) : null}
       {f.traza ? (
@@ -345,7 +373,7 @@ function Grupos({ r, paginado }: { r: Informe; paginado: Paginado }) {
               <View wrap={false}>
                 <View style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 3 }}>
                   <Text style={{ fontFamily: TEXTO_B, fontSize: 9.5 }}>{g.titulo}</Text>
-                  <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.total} conformes` : `${g.filas.length} ítems`}</Text>
+                  <Text style={{ ...etiqueta, marginLeft: 8 }}>{g.total ? `${g.conformes}/${g.aplicables} conformes` : `${g.filas.length} ítems`}</Text>
                 </View>
                 {fila(tramo[0], tramo.length === 1)}
               </View>
@@ -357,6 +385,29 @@ function Grupos({ r, paginado }: { r: Informe; paginado: Paginado }) {
         ));
       })}
     </>
+  );
+}
+
+function Hallazgos({ r }: { r: Informe }) {
+  const lista = r.resumen.hallazgos;
+  if (lista.length === 0) return null;
+  return (
+    <View style={{ marginHorizontal: MARGEN, marginTop: 14, borderWidth: 1, borderColor: C.hair, borderRadius: 12, paddingTop: 7, paddingBottom: 3, paddingHorizontal: 11 }}>
+      <View wrap={false} style={{ flexDirection: "row", alignItems: "flex-end", marginBottom: 3 }}>
+        <Text style={{ fontFamily: TEXTO_B, fontSize: 9.5 }}>Hallazgos</Text>
+        <Text style={{ ...etiqueta, marginLeft: 8 }}>{desgloseSeveridad(lista)}</Text>
+      </View>
+      {lista.map((h, i) => (
+        <View key={h.n} wrap={false} style={{ flexDirection: "row", alignItems: "flex-start", borderTopWidth: i === 0 ? 0 : 1, borderTopColor: C.hair, paddingVertical: 3.5 }}>
+          <Text style={{ fontFamily: MONO, fontSize: 7.5, color: C.sub, width: 22 }}>{String(h.n).padStart(2, "0")}</Text>
+          {h.severidad ? <PildoraSeveridad severidad={h.severidad} /> : null}
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontFamily: TEXTO_B, fontSize: 8.5 }}>{h.texto}</Text>
+            {h.obs ? <Text style={{ fontSize: 8, color: C.cuTexto, marginTop: 1 }}>{h.obs}</Text> : null}
+          </View>
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -418,6 +469,7 @@ function Fotos({ r, rec }: { r: Informe; rec: RecursosPdf }) {
             <Image src={rec.imagenes.get(f.url)!} style={{ height: 200, borderRadius: 10, objectFit: "cover" }} />
             <Text style={{ fontSize: 8, marginTop: 4 }}>
               Punto {f.n}: {f.texto}
+              {f.severidad ? ` · Severidad ${SEV[f.severidad].texto.toLowerCase()}` : ""}
             </Text>
           </View>
         ))}
@@ -461,6 +513,7 @@ export function InformePdf({
         <Resumen r={r} />
         <Lecturas r={r} />
         <Grupos r={r} paginado={paginado} />
+        <Hallazgos r={r} />
         {/* Cierre (observaciones y firmas) siempre junto: las firmas no quedan solas en una página. */}
         <View wrap={false}>
           <Diagnostico r={r} />

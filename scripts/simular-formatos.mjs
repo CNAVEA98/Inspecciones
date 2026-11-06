@@ -118,7 +118,7 @@ async function armar(formato, tpl, hallazgos) {
       answers.push({ item_key: it.id, value: v });
     } else if (it.type === "number") answers.push({ item_key: it.id, value: num(it) });
     else if (it.type === "text") answers.push({ item_key: it.id, value: it.multiline ? "Texto de simulación.\nSegunda línea del campo." : "Simulación" });
-    else if (it.type === "photo") answers.push({ item_key: it.id, value: it.required || hallazgos ? [fotoOk.id] : [] });
+    else if (it.type === "photo") answers.push({ item_key: it.id, value: [fotoOk.id] });
     else if (it.type === "nameplate") answers.push({ item_key: it.id, value: Object.fromEntries(it.fields.map((f) => [f.key, `SIM-${f.key}`])) });
   }
 

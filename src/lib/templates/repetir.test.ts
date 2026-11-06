@@ -135,7 +135,7 @@ describe("informe y detalle con varias estructuras", () => {
     const r = armarInforme(d);
     expect(r.grupos.map((g) => g.titulo)).toEqual(["Estructura 1", "Estructura 2", "Cierre"]);
     expect(r.grupos[1].filas.map((f) => f.estado)).toEqual([null, "ML"]);
-    expect(r.resumen.criticos.map((c) => c.texto)).toEqual(["Estado del poste"]);
+    expect(r.resumen.hallazgos.map((c) => c.texto)).toEqual(["Estado del poste"]);
     expect(r.resumen.total).toBe(3);
   });
 });

@@ -27,7 +27,7 @@ PWA de inspecciones y mantenciones de terreno de **BBOSCH** para infraestructura
 Supabase (Postgres, Auth, Storage, RLS), Vercel. UI en español (Chile), fechas en `America/Santiago`.
 Roles: técnico, supervisor, planificador/programador, administrador. Turnos A/B. Cuentas genéricas por **usuario**
 (`TECNICO_A`, `SUPERVISOR_A`, `PROGRAMADOR_A`, `ADMINISTRADOR`…), sin correo.
-Repositorio: `CNAVEA98/Inspecciones_BBOSCH` (hoy figura **PUBLIC** en GitHub; debe ser privado, ver sección 5).
+Repositorio: `CNAVEA98/Inspecciones_BBOSCH` (**PUBLIC** a propósito: Cristóbal y Manuel trabajan con cuentas distintas; ver sección 5.1).
 Equipo: 2 personas (Cristóbal y Manuel).
 
 ## 3. Directorio: dónde buscar cada cosa
@@ -85,8 +85,10 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - `main` incluye hasta el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
-- Verificación del 2026-11-06 (rama de V1.1.0): lint, tsc, build en verde; tests 245/245. `supabase test db` no se
-  corrió (Docker apagado); último registro 76/76 el 2026-11-03.
+- Verificación del 2026-11-06 (V1.1.1): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
+  `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`.
+- V1.1.1 (rama `fix/pdf-fallas-altas`, pendiente de PR) corrige las 5 fallas altas de PDF y varias medias.
+  Trae `supabase/parche_plantillas_2026-11-06.sql` para las bases que ya tienen plantillas: **no se ha corrido en el remoto**.
 - Remoto: migraciones 0001–0019 aplicadas pegando SQL en el editor (no con `db push`). **La 0020 figura sin aplicar**
   (no verificado hoy: no se consultó el remoto). Cristóbal indicó que ya subió una versión a Vercel y Supabase:
   **confirmar contra el remoto qué migraciones y qué versión están realmente desplegadas.**
@@ -98,7 +100,8 @@ Estados: **Abierto** · **Necesita a Cristóbal** · **Sin probar**. Detalle num
 Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueba sin señal → 5 decisión de cuentas → 6 separar lógica.
 
 ### 5.1 Repositorio y seguridad
-- **Repo PUBLIC** pero la intención es privado → Necesita a Cristóbal (cambiarlo en GitHub).
+- **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también
+  admite colaboradores; el riesgo es la exposición de lo de abajo, así que lo de abajo es lo que importa.
 - `supabase/seed_usuarios_dev.sql` (contraseñas de prueba) y referencias al proyecto Supabase están versionados.
   Falta revisar el **historial de git** buscando claves reales (la búsqueda falló por archivos `.docx`; usar
   `git -c diff.word.textconv= log -G… --no-textconv`). Cinco HTML de `demo/` y `docs/muestras/` tienen cadenas
@@ -112,25 +115,28 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
 - Identificar proyectos sobrantes (`inspecciones-mlp-prueba` en Supabase, `inspecciones-mlp-demo-formatos` en Vercel).
 - Definir dónde se guardan las contraseñas remotas y cambiarlas antes de producción.
 
-### 5.3 Fallas de PDF (condición para pasar a React Native: las 5 altas corregidas y comprobadas)
-Abiertas al 2026-11-06 (verificado en código; PDF no regenerados):
-- **S01** fotos de ítems de foto no salen en PDF «conforme» (`modelo.ts` ya recoge ítems `photo`; falta regenerar para confirmar).
-- **S02** la severidad de los hallazgos no aparece en ningún PDF (`informe-pdf.tsx` no la usa).
-- **S05** el TAG del encabezado se parte con guion («740--»/«XF-001»): desactivar guionado y limitar ancho del horario.
-- **P01** MANT-13: unidades resistivas del filtro 740HF003 con TAG de 740HF001 (`seed_plantillas_mant.sql`).
-- **P04** MANT-05: «Verificar presencia de oxido» con lógica invertida y sin tilde.
-- 27 medias y 43 bajas siguen en el Excel; entre ellas S03 («OBSERVACIÓNES CRÍTICAS» y solo el primer hallazgo,
-  `informe-pdf.tsx:208`), S07 (sin fuentes Geist) y S09 («Resultado de la inspección» también en mantenciones).
-- Corregir datos de plantilla exige **migración nueva** (no editar seeds ya aplicados).
+### 5.3 Fallas de PDF (las 5 altas: corregidas y comprobadas en la V1.1.1, rama `fix/pdf-fallas-altas`)
+Comprobado el 2026-11-06 regenerando los 120 PDF con la base local (0 TAG partidos; severidad y bloque «Hallazgos»;
+foto en los 16 formatos «conforme» con ítem de foto; mantenciones con «Resultado de la mantención»):
+- **S01** era un error del script de simulación (no adjuntaba la foto), no del PDF. **S02** severidad en fila, bloque
+  «Hallazgos» y pie de foto. **S05** TAG en una línea (sin guionado). **P01** TAG 740HF003 en MANT-13. **P04** «ausencia de óxido».
+- También corregidas: S03, S09, S11 (NA fuera del denominador) y la redacción de P02, P06, P11, P27, P28 y otras erratas.
+- **Falta ejecutar `supabase/parche_plantillas_2026-11-06.sql` en el remoto** (SQL Editor, «postgres (Superuser)»);
+  mientras tanto el sitio publicado sigue con las plantillas viejas. Las bases nuevas ya vienen corregidas por los seeds.
+- Siguen abiertas (medias y bajas): P03, P05, P07, P08, P14, P16, P19, P37, P38, P41, S04, S06, S07 (fuentes Geist),
+  S13, S19–S22 y X01; el detalle está en el Excel de revisión (fuera del repo).
+- Corregir datos de plantilla exige un parche/versión nueva (no editar una plantilla ya publicada).
 
-### 5.4 Trabajo sin señal (lo más importante)
+### 5.4 Trabajo sin señal (decisión: se resuelve en React Native)
+- **Decisión de Cristóbal (2026-11-06):** la PWA se abre desde un enlace y no sirve para trabajar sin señal; por eso se
+  migra a React Native. La prueba de aceptación sin señal se hará **en la app nativa**, no en la PWA.
 - Los 120 PDF **no prueban** el modo sin señal: `simular-formatos.mjs` llama a `submit_inspection` con conexión.
-- Prueba de aceptación en iPhone y Android reales: señal → catálogo → modo avión → abrir app desde cero → inspección
-  con fotos y firma → cerrar y reabrir sin perder nada → enviar sin señal (queda pendiente) → reconectar (se envía una
-  sola vez, con folio, visible para el supervisor con fotos). Necesita a Cristóbal.
-- Abiertos y sin prueba: sesión vencida sin señal; falta `navigator.storage.persist` y el aviso de borradores sin
-  enviar (iPhone puede borrar datos); cerrar sesión con envíos pendientes (`SignOutButton` solo borra páginas en caché);
-  formato desactivado o con versión nueva sin señal; fotos reales de cámara (que el archivo en Storage no traiga GPS).
+- Prueba de aceptación (en la app nativa, iPhone y Android reales): señal → catálogo → modo avión → abrir app desde
+  cero → inspección con fotos y firma → cerrar y reabrir sin perder nada → enviar sin señal (queda pendiente) →
+  reconectar (se envía una sola vez, con folio, visible para el supervisor con fotos). Necesita a Cristóbal.
+- Casos a diseñar bien en la app nativa (hoy sin prueba en la PWA): sesión vencida sin señal; almacenamiento que el
+  sistema puede borrar y aviso de borradores sin enviar; cerrar sesión con envíos pendientes (`SignOutButton` solo
+  borra páginas en caché); formato desactivado o con versión nueva sin señal; fotos reales de cámara sin GPS.
 
 ### 5.5 Decisiones de Cristóbal pendientes
 - Cuentas **por persona** o genéricas (trazabilidad, RLS, firmas, historial). Preferencia inicial: por persona.
@@ -150,8 +156,8 @@ lo atado al navegador/Next: `compress.ts` (canvas), detección de red, firma, `l
 `/tecnico/[id]/pdf` (cookies). **No invertir ahora** en retoques visuales del técnico, auditoría restante, service
 worker fino, peso del JavaScript ni el visor de PDF en iPhone, salvo errores que impidan probar.
 
-**Cuándo terminamos:** repo privado y sin secretos; 0020 confirmada y registro libre cerrado; 5 fallas altas
-corregidas; prueba sin señal hecha en iPhone y Android con su resultado escrito; decisión de cuentas tomada; lógica
+**Cuándo terminamos:** sin secretos reales en el repo ni en su historial; 0020 confirmada y registro libre cerrado; 5 fallas altas
+corregidas; prueba sin señal hecha en la app nativa, en iPhone y Android, con su resultado escrito; decisión de cuentas tomada; lógica
 separada con tests en verde; todo con evidencia en la bitácora.
 
 ## 6. Contexto de negocio que no está en el código

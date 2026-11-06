@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.0 · `main` = commit 6eccd9a (PR #12).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-06 · versión V1.1.2 (rama `chore/supabase-cli-3`, sobre `fix/pdf-fallas-altas` = PR #13) · `main` = commit 6eccd9a (PR #12, V1.1.0); nada de V1.1.1 ni V1.1.2 está unido a `main` aún.** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -16,6 +16,8 @@ se corrige en el mismo commit.
    entradas del «Registro»).
 3. Trabajar en rama nueva (`tipo/descripcion`), nunca directo en `main`. Reglas completas en `CLAUDE.md`.
 4. Si cambian dependencias o migraciones: `corepack pnpm install` y `corepack pnpm supabase db reset`.
+   El CLI de Supabase es dependencia del proyecto (v3.0.0): se usa siempre como `corepack pnpm supabase …`; no hay uno global.
+   Para el remoto hace falta `corepack pnpm supabase login` en una terminal interactiva (no funciona desde Claude Code).
 5. Al terminar: lint, tsc, tests y build en verde; entrada en la bitácora y versión nueva en el mismo commit; PR.
    `push`, PR, deploy, borrados y cualquier conexión a Supabase remoto **requieren confirmación explícita** del usuario.
 
@@ -86,9 +88,9 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - `main` incluye hasta el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
-- Verificación del 2026-11-06 (V1.1.1): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
+- Verificación del 2026-11-06 (V1.1.2, CLI de Supabase 3.0.0): lint, tsc y build en verde; tests 253/253; `supabase db reset` y
   `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos6-11-06\`.
-- V1.1.1 (rama `fix/pdf-fallas-altas`, pendiente de PR) corrige las 5 fallas altas de PDF y varias medias.
+- V1.1.1 (PR #13) corrige las 5 fallas altas de PDF y varias medias.
   Trae `supabase/parche_plantillas_2026-11-06.sql` para las bases que ya tienen plantillas: **no se ha corrido en el remoto**.
 - Remoto: migraciones 0001–0019 aplicadas pegando SQL en el editor (no con `db push`). **La 0020 figura sin aplicar**
   (no verificado hoy: no se consultó el remoto). Cristóbal indicó que ya subió una versión a Vercel y Supabase:

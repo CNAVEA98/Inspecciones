@@ -62,6 +62,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/app/supervisor` · `planificador` · `admin` | Áreas por rol |
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
+| `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)
@@ -92,6 +93,9 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - Remoto: migraciones 0001–0019 aplicadas pegando SQL en el editor (no con `db push`). **La 0020 figura sin aplicar**
   (no verificado hoy: no se consultó el remoto). Cristóbal indicó que ya subió una versión a Vercel y Supabase:
   **confirmar contra el remoto qué migraciones y qué versión están realmente desplegadas.**
+- Prueba de carga local del 2026-11-06 (12 técnicos del turno A + supervisor + programador, hasta 36 técnicos): sin errores ni
+  operaciones pegadas, 384 formularios enviados y firmados. Lo más lento es generar el PDF (1 s solo; 5 s con 12 a la vez).
+  No es prueba del sitio publicado ni de la PWA en navegador.
 - Nada se ha probado en teléfono ni con clics en el sitio publicado.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native

@@ -208,6 +208,27 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-06 · Prueba de estabilidad y rendimiento: 12 técnicos del turno A, supervisor y programador
+- **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1 (sin cambios en la app; solo se agregó el script)
+- **Qué se hizo:** nuevo `scripts/prueba-carga.mjs` (solo contra la app y el Supabase locales). Abre N sesiones de técnico que
+  envían a la vez (fotos y firma a Storage + `submit_inspection`), 1 sesión de supervisor y 1 de programador que consultan su
+  bandeja (carpetas y lista completa), abren cada inspección y la firman, y al final cada técnico descarga su PDF. Marca
+  como «pegada» cualquier operación que pase de 60 s.
+- **Archivos:** `scripts/prueba-carga.mjs`; resultados en `C:\Proyectos\simulacion-formatos6-11-06-carga-*` (fuera del repo).
+- **Verificación (app en producción local `next start`, V1.1.1, base local):**
+  - 12 técnicos × 5 envíos (60 formularios): **60/60 enviados, 60/60 firmados por supervisor y por programador, 0 errores,
+    0 pegados**; envío completo p50 198 ms (p95 349 ms); firmar p50 28 ms.
+  - 12 técnicos × 15 envíos (180, corrida larga): 180/180, 0 errores; envío p95 829 ms.
+  - 36 técnicos × 4 envíos (144, ráfaga 3 veces mayor): 144/144, 0 errores; envío p95 507 ms.
+  - Lo más lento es el **PDF**: con 12 descargas simultáneas p50 4,9 s (solo ~1 s); con 36 simultáneas p50 12 s. Mientras se
+    generan, el mismo servidor Node tarda hasta 2–6 s en responder otras páginas (máximos de bandeja y de «abrir
+    inspección»); sin ese pico, bandeja y detalle responden en 20–100 ms. No hubo errores ni mensajes de error en el log.
+- **Pendiente / riesgos:** es una prueba **local** (un solo proceso, sin latencia de red, sin Vercel ni Supabase Free con
+  sus límites de conexiones y de Storage), así que **no demuestra el rendimiento del sitio publicado**: repetirla contra el
+  remoto requiere confirmación de Cristóbal y un script que lo permita (hoy se niega a correr contra un Supabase remoto).
+  No ejercita el navegador, Dexie ni la cola offline de la PWA. «Hasta verse en la bandeja» incluye que el supervisor
+  esté ocupado firmando la fila anterior. Dejó ~390 inspecciones de prueba en la base local (`supabase db reset` las limpia).
+
 ### 2026-11-06 · PDF: severidad, TAG, mantenciones y plantillas corregidas (5 fallas altas de la revisión)
 - **Autor:** Cristóbal (con Claude) · **Rama:** `fix/pdf-fallas-altas` · **Versión:** V1.1.1
 - **Qué se hizo:** (S02) el PDF muestra la severidad de cada hallazgo (píldora en la fila, bloque «Hallazgos» y pie de

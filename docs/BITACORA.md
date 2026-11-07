@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.4 | 2026-11-07 | Endpoint `/api/movil/informe/[id]` para que la app móvil descargue el PDF con su token (sin tocar el PDF ni las rutas de la web) |
 | V1.1.3 | 2026-11-06 | Contraseñas de las cuentas de prueba fuera del repositorio: plantilla del seed sin claves y `corepack pnpm seed:usuarios` |
 | V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |
 | V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
@@ -210,6 +211,22 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-07 · Endpoint del PDF para la app móvil
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Versión:** V1.1.4
+- **Qué se hizo:** la app móvil no tiene las cookies del navegador, así que no podía pedir el PDF oficial. Se agregó `GET /api/movil/informe/[id]`,
+  que lee `Authorization: Bearer <token de Supabase>`, verifica el token con Supabase, comprueba el rol y genera el mismo PDF de siempre.
+  La lectura de la inspección pasa por RLS con ese token (un técnico solo ve las de su cuenta; una ajena responde 404). `obtenerDetalle` y
+  el responder del PDF aceptan ahora un cliente de Supabase opcional (sin él, todo funciona igual que antes por cookies). Las rutas
+  `/tecnico/[id]/pdf`, `/supervisor/[id]/pdf`, etc. no cambian.
+- **Archivos:** `src/app/api/movil/informe/[id]/route.ts`, `src/lib/informe/responder-movil.ts`, `src/lib/informe/responder.ts`,
+  `src/lib/revision/queries.ts`, `src/lib/auth/bearer.ts` (+ `bearer.test.ts`), `package.json`, `src/lib/version.ts`.
+- **Verificación:** `corepack pnpm lint` sin errores · `tsc --noEmit` sin errores (tras `next typegen`) · `corepack pnpm test` 31 archivos, 255 pruebas
+  en verde (incluye `bearer.test.ts`) · `corepack pnpm build` correcto, la ruta aparece en `.next/server/app/api/movil/informe`.
+  **No verificado:** la descarga real con un token; el sitio publicado aún responde 404 en esa ruta porque no está desplegado.
+- **Pendiente / riesgos:** desplegar en Vercel (requiere confirmación) y probar con la app. La ruta no tiene límite de uso propio: un token válido
+  puede pedir PDF repetidamente (cada uno cuesta CPU en el servidor). Es la misma exposición que la ruta por cookies.
 
 ### 2026-11-06 · Cierre de la jornada: PR #16 unido, sitio en V1.1.3 y estado al día
 - **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-3` · **Versión:** sin cambio (V1.1.3)

@@ -3,7 +3,7 @@ import { Directory, File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import type { Almacen } from "@/lib/offline/almacen";
 import { redNativa } from "@/lib/offline/red";
-import { nombreSeguro } from "@/lib/informe/archivo";
+import { nombreDeContentDisposition, nombreSeguro } from "@/lib/informe/archivo";
 import { generarPdfLocal } from "@/lib/informe/local-nativo";
 import { WEB_URL } from "@/lib/supabase";
 import type { Catalog } from "@/lib/tecnico/catalog";
@@ -23,35 +23,22 @@ async function descargarOficial(supabase: SupabaseClient, id: string): Promise<F
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
   if (!token) throw new Error("Su sesión venció. Cierre sesión e ingrese de nuevo con señal.");
-  // Cada descarga va a una carpeta temporal propia y después se mueve al nombre final. Antes se descargaba siempre sobre el mismo
-  // archivo y, al repetir «Ver PDF», la hoja de compartir fallaba con «You don't have access to the provided file».
-  const temporal = new Directory(Paths.cache, `informe-${Date.now()}`);
   try {
-    temporal.create({ intermediates: true });
-    const bajado = await File.downloadFileAsync(`${WEB_URL}/api/movil/informe/${id}`, temporal, {
-      headers: { Authorization: `Bearer ${token}` },
-      idempotent: true,
-    });
-    let nombre = bajado.name;
-    try {
-      nombre = decodeURIComponent(nombre);
-    } catch {
-      // nombre ya decodificado
-    }
+    // `fetch` y no `File.downloadFileAsync`: así se lee el nombre que manda el servidor (Content-Disposition) en vez de usar el id de la URL.
+    const r = await fetch(`${WEB_URL}/api/movil/informe/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const bytes = new Uint8Array(await r.arrayBuffer());
+    if (bytes.length === 0) throw new Error("El servidor devolvió un PDF vacío.");
+    const nombre = nombreDeContentDisposition(r.headers.get("content-disposition")) ?? `Informe ${id.slice(0, 8)}.pdf`;
     const carpeta = new Directory(Paths.document, "informes");
     if (!carpeta.exists) carpeta.create({ intermediates: true });
     const destino = new File(carpeta, nombreSeguro(nombre, `Informe ${id.slice(0, 8)}.pdf`));
     if (destino.exists) destino.delete();
-    await bajado.move(destino);
+    destino.create();
+    await destino.write(bytes);
     return destino;
   } catch (e) {
     throw new Error(mensajeErrorInforme(e instanceof Error ? e.message : String(e)));
-  } finally {
-    try {
-      if (temporal.exists) temporal.delete();
-    } catch {
-      // la caché del sistema se limpia sola
-    }
   }
 }
 

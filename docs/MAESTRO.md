@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit b33bb0a (PR #17 unido; identificadores reescritos el 2026-11-07, ver 5.1) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-07 · versión V1.1.4 · `main` = commit 19358da (PR #18 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado).** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -47,6 +47,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `docs/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
 | `docs/EXPORT_MAESTRO.md` · `docs/MAPEO_ZONA_AREA.md` | Cómo se genera el Maestro de TAG y el mapeo zona → área (el segundo lo escribe el script; no editar a mano) |
 | `docs/LICENCIAS.md` | Licencias de dependencias |
+| `docs/COMPARATIVA_MANUALES_2026-11-07.md` | Papel de terreno vs formatos digitales: diferencias, auditoría del menú y pendientes |
 | `docs/muestras/` · `demo/` | HTML de referencia del formato, formulario e informe; demo estática |
 | `docs/archivo/` | Documentos antiguos, **solo historia**; pueden estar desactualizados |
 
@@ -86,7 +87,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - Supabase: proyecto `inspecciones-bbosch` (São Paulo, plan Free). Las contraseñas de las cuentas remotas las tiene
   Cristóbal; **no están ni deben estar en el repositorio**. No se tocan archivos `.env*`.
 
-## 4. Estado actual (V1.1.3)
+## 4. Estado actual (V1.1.4)
 
 - `main` incluye hasta el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
@@ -100,7 +101,10 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - Prueba de carga local del 2026-11-06 (12 técnicos del turno A + supervisor + programador, hasta 36 técnicos): sin errores ni
   operaciones pegadas, 384 formularios enviados y firmados. Lo más lento es generar el PDF (1 s solo; 5 s con 12 a la vez).
   No es prueba del sitio publicado ni de la PWA en navegador.
-- Nada se ha probado en teléfono ni con clics en el sitio publicado.
+- **App móvil (`app-movil/`, PR #18 unido el 2026-11-07):** flujo del técnico probado en un **emulador Android** (API 37, Expo Go): ingreso, inspección con foto y firma, modo avión, cierre y reapertura sin señal,
+  envío único con folio, PDF del teléfono y PDF oficial del servidor (V1.1.4 ya está desplegado). 292 pruebas de la app en verde (incluye el recorrido de las 59 plantillas reales). Envío en segundo plano escrito (solo funciona en un APK/TestFlight).
+  El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `app-movil/BITACORA.md` para el estado del segundo intento.
+- **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico, el APK, el envío en segundo plano real y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native
 

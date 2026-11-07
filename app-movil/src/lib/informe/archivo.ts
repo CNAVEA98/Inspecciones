@@ -15,3 +15,21 @@ export function nombreSeguro(nombre: string, porDefecto = "Informe.pdf"): string
     .trim();
   return `${base || porDefecto.replace(/\.pdf$/i, "")}.pdf`;
 }
+
+/**
+ * Nombre de archivo que declara el servidor en `Content-Disposition` (prefiere `filename*=UTF-8''…`, con tildes, y si no `filename="…"`).
+ * Devuelve null si no hay cabecera o no trae nombre.
+ */
+export function nombreDeContentDisposition(cabecera: string | null | undefined): string | null {
+  if (!cabecera) return null;
+  const utf8 = cabecera.match(/filename\*\s*=\s*UTF-8''([^;]+)/i)?.[1];
+  if (utf8) {
+    try {
+      return decodeURIComponent(utf8.trim());
+    } catch {
+      // cae al nombre simple
+    }
+  }
+  const simple = cabecera.match(/filename\s*=\s*"([^"]+)"/i)?.[1] ?? cabecera.match(/filename\s*=\s*([^;]+)/i)?.[1];
+  return simple ? simple.trim() : null;
+}

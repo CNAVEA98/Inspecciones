@@ -2,9 +2,11 @@ import { Stack, type ErrorBoundaryProps } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { AlmacenProvider } from "@/lib/almacen-contexto";
+import { registrarEnvioSegundoPlano } from "@/lib/offline/segundo-plano";
 import { SesionProvider, useSesion } from "@/lib/sesion";
 import { TecnicoProvider } from "@/lib/tecnico-contexto";
 import { color } from "@/ui/tema";
+import { useEffect } from "react";
 
 /** Pantalla de respaldo ante un error inesperado: los borradores y la cola están en el teléfono y no se pierden. */
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
@@ -63,6 +65,9 @@ function Navegador() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    void registrarEnvioSegundoPlano();
+  }, []);
   return (
     <AlmacenProvider>
       <SesionProvider>

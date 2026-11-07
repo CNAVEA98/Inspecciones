@@ -105,6 +105,18 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 
 ## Registro
 
+### 2026-11-07 · Envío en segundo plano y primer APK de Android (EAS Build)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Autorizado por Cristóbal:** dependencias `expo-background-task` y `expo-task-manager`, y subir el proyecto a EAS con su cuenta de Expo.
+- **Envío en segundo plano:** `src/lib/offline/envio-segundo-plano.ts` (lógica pura: si la cola tiene algo, `processOutbox`; sin señal no es un fallo y no gasta intentos) y `segundo-plano.ts` (define la tarea con `TaskManager.defineTask` y la registra cada ~15 min con `BackgroundTask`;
+  se importa desde `_layout.tsx`). **Solo funciona en un build propio (APK/TestFlight):** en Expo Go el registro se ignora en silencio y la app sigue enviando al abrirse y al volver la señal. El sistema decide cuándo corre (en iPhone suele ser de noche).
+- **EAS:** `eas.json` (perfil `preview` = APK interno, `production`), proyecto `@cnaveavaldes/inspecciones-mlp` (ID en `app.json`), keystore de Android generado por EAS (guardado en los servidores de Expo; no está en el repo), variables `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+  en los entornos `preview` y `production` de EAS (clave pública anon; `.env` no se sube). Compilación lanzada: https://expo.dev/accounts/cnaveavaldes/projects/inspecciones-mlp/builds/9f31da24-4920-4d96-b182-7070051f55ca
+- **Verificación:** `tsc` sin errores · Vitest 16 archivos, **288 pruebas en verde** (5 nuevas del envío en segundo plano: cola vacía, envío, sin señal, repetición sin duplicar, error inesperado) · en el emulador (Expo Go) la app arranca sin errores con el módulo nuevo.
+  La web (V1.1.4): lint, tsc, 255 pruebas y build en verde.
+- **No verificado:** que la tarea corra realmente con la app cerrada (necesita el APK en un teléfono; se puede forzar en un build de desarrollo con `triggerTaskWorkerForTestingAsync`); el resultado de la compilación del APK (ver más abajo si ya hay una entrada nueva).
+- **Pendiente / riesgos:** el APK del perfil `preview` usa el Supabase remoto (igual que Expo Go); la firma de Android es la de EAS: guardar sus credenciales si algún día se publica en Play Store. Pedir al técnico que no «fuerce el cierre» la app (Android detiene las tareas de apps cerradas a la fuerza).
+
 ### 2026-11-07 · Recorrido automático de las plantillas reales y recuerdo del último nombre
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Qué se hizo:** (1) `src/lib/tecnico/plantillas-seeds.test.ts` lee las **59 plantillas reales** de `supabase/seed_plantillas_*.sql` y, con el código propio de la app, comprueba para cada una: que `validateTemplate` la acepta,

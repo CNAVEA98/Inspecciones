@@ -18,7 +18,10 @@
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "cl.bbosch.inspecciones"
+      "package": "cl.bbosch.inspecciones",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,8 +36,20 @@
           "photosPermission": "Inspecciones MLP accede a sus fotos solo si usted elige adjuntar una a la inspección."
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      "expo-background-task"
     ],
-    "scheme": "inspeccionesmlp"
+    "scheme": "inspeccionesmlp",
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "2db60960-f8ee-4b6a-aa5f-10d6a4489e25"
+      }
+    },
+    "owner": "cnaveavaldes"
   }
 }

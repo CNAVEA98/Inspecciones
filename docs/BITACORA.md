@@ -212,6 +212,16 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-07 · V1.1.4 desplegada y app móvil del técnico unida a `main` (PR #18)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` (unida) · **Versión:** V1.1.4
+- **Qué se hizo:** PR #18 (`feat/app-movil` → `main`, merge `19358da`) con la carpeta `app-movil/` (app nativa del técnico, Expo SDK 58) y el endpoint `GET /api/movil/informe/[id]` de la web. Cristóbal autorizó el push, el PR y la unión.
+  Vercel desplegó en menos de 1 minuto. El detalle de la app (pantallas, cola sin señal, PDF, envío en segundo plano, EAS) está en `app-movil/BITACORA.md`; aquí solo lo que toca a la web y al repositorio.
+- **Verificación:** antes de unir, `corepack pnpm lint` sin errores · `tsc --noEmit` sin errores · `test` 31 archivos, 255 pruebas en verde · `build` correcto (V1.1.4 en `package.json` y `src/lib/version.ts`).
+  Después de unir: `curl …/login` muestra **V1.1.4**; `GET /api/movil/informe/<id>` sin token responde **401** (antes de desplegar daba 404). En el emulador Android (con señal) el PDF oficial de una inspección enviada se descargó con folio y estado «ENVIADA».
+- **Resuelve de «Pendientes»:** desplegar la V1.1.4 para que la app móvil pueda pedir el PDF oficial.
+- **Pendiente / riesgos:** el APK de Android (EAS Build, proyecto `@cnaveavaldes/inspecciones-mlp`) estaba compilando al cerrar esta entrada (primer intento falló por `npm ci`, corregido con `app-movil/.npmrc`); su resultado se anota en `app-movil/BITACORA.md`.
+  Quedan 3 commits locales sin subir (PDF con el nombre del servidor, `.npmrc`, Maestro): requieren otro PR y la confirmación de Cristóbal. Las contraseñas de las cuentas de prueba del Supabase remoto siguen sin cambiarse (se rotarán después).
+
 ### 2026-11-07 · Historial de GitHub reescrito: claves de las cuentas de prueba eliminadas
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Qué se hizo:** las 7 contraseñas de las cuentas de prueba (números de 8 dígitos) estaban en el historial público en `supabase/seed.sql` (primer commit),

@@ -105,6 +105,14 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 
 ## Registro
 
+### 2026-11-07 · Estado del APK al cierre de la sesión
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué pasó:** segundo intento de `eas build --platform android --profile preview` (build `140db843-1593-403f-bc78-d5daaf06ee3a`, tras agregar `.npmrc`). **Al cerrar esta entrada seguía «en progreso»** (el servidor de EAS tarda varios minutos en la cola gratuita); el resultado final **no está verificado**.
+  Seguimiento: https://expo.dev/accounts/cnaveavaldes/projects/inspecciones-mlp/builds/140db843-1593-403f-bc78-d5daaf06ee3a
+- **Cómo instalarlo cuando termine:** abrir ese enlace desde un teléfono Android y descargar el APK (permitir «instalar apps desconocidas»). Al ser un build propio, aquí sí corre el envío en segundo plano.
+- **Qué probar primero en el teléfono:** ingreso, una inspección con la cámara real, modo avión, **cerrar la app y esperar ~15 min con señal** para ver si la tarea la envía sola, PDF del teléfono y PDF oficial, y el margen del PDF local.
+- **Estado de las pruebas:** `tsc` sin errores · 292 pruebas de la app en verde.
+
 ### 2026-11-07 · PDF oficial verificado en Android, nombre legible, y APK: primer intento fallido por `npm ci`
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` (continuación tras el PR #18)
 - **Despliegue (hecho con autorización de Cristóbal):** PR #18 unido a `main` (merge `19358da`). El sitio publicado pasó a **V1.1.4** (comprobado con `curl`) y `GET /api/movil/informe/{id}` responde **401 sin token** (antes 404).

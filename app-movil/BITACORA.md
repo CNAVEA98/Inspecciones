@@ -105,6 +105,16 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 
 ## Registro
 
+### 2026-11-07 · Recorrido automático de las plantillas reales y recuerdo del último nombre
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** (1) `src/lib/tecnico/plantillas-seeds.test.ts` lee las **59 plantillas reales** de `supabase/seed_plantillas_*.sql` y, con el código propio de la app, comprueba para cada una: que `validateTemplate` la acepta,
+  que se puede llenar completa y `validateDraft` no devuelve pendientes, y que con un hallazgo forzado se arma el envío (`buildSubmission`, con la firma adjunta) y se genera el informe HTML. Es la versión automática de abrir cada formato.
+  (2) «Realizada por» se precarga con el último nombre escrito en ese teléfono (`src/lib/tecnico/ejecutor.ts`, guardado en la tabla local de catálogo, por cuenta; se guarda al terminar de editar el campo y no viaja al servidor).
+- **Archivos:** `app-movil/src/lib/tecnico/{plantillas-seeds.test,ejecutor,ejecutor.test}.ts`, `src/app/nueva.tsx`, `src/app/inspeccion/[id].tsx`.
+- **Verificación:** `tsc` sin errores · Vitest 15 archivos, **283 pruebas en verde** (177 del recorrido de plantillas, 4 del nombre) · en el emulador Android: se escribió «Nombre Recordado», se salió, y el borrador nuevo de otro formato lo trajo precargado.
+- **Pendiente / riesgos:** los seeds traen 59 plantillas para 60 formatos (14 + 25 + 20, igual que en la web); no se averiguó a cuál formato le falta (no verificado). El recorrido valida lógica y HTML, no el aspecto en pantalla ni el PDF real de cada formato
+  (eso sigue necesitando abrirlos en el teléfono o un APK). El nombre precargado también se copia a quien use otro técnico el mismo teléfono: se puede editar.
+
 ### 2026-11-07 · Arreglos de diseño tras la prueba en Android y pruebas sin señal de «Enviadas» y borradores
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Qué se hizo:** (1) el aviso de sincronización pasó a su propia fila bajo el saludo: antes el saludo se cortaba («Técnico · Tur…») con «Sin conexión, 1 guardada en el teléfono»; (2) en las fotos, «Agregar otra foto» ahora es «Otra foto» y los botones tienen menos relleno, para que «Galería» no baje de línea; (3) «Eliminar» sube a 48 px de alto y 96 de ancho (antes 44 y solo el texto).

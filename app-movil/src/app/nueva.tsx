@@ -16,7 +16,8 @@ import {
   type TipoTrabajo,
 } from "@/lib/formatos/catalogo";
 import { templateFor, type CatalogEntry } from "@/lib/tecnico/catalog";
-import { newDraft } from "@/lib/tecnico/draft";
+import { META, newDraft } from "@/lib/tecnico/draft";
+import { leerUltimoEjecutor } from "@/lib/tecnico/ejecutor";
 import { useTecnico } from "@/lib/tecnico-contexto";
 
 type Paso = "area" | "trabajo" | "familia" | "formato";
@@ -79,6 +80,8 @@ export default function NuevaInspeccion() {
       templateId: plantilla.template.id,
     });
     draft.header = { fecha: hoyIso(), formato: formato.id };
+    const ultimo = await leerUltimoEjecutor(almacen, userId);
+    if (ultimo) draft.answers[META.ejecutor] = ultimo;
     await almacen.guardarBorrador(draft);
     router.replace({ pathname: "/inspeccion/[id]", params: { id: draft.id } });
   };

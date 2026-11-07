@@ -37,6 +37,7 @@ import {
 } from "@/lib/tecnico/draft";
 import { deletePhoto, saveSignature } from "@/lib/tecnico/photos";
 import { useTecnico } from "@/lib/tecnico-contexto";
+import { guardarUltimoEjecutor } from "@/lib/tecnico/ejecutor";
 import { Aparecer, BarraProgreso, MarcaExito } from "@/ui/animacion";
 import { Aviso, Boton, Campo } from "@/ui/componentes";
 import { color } from "@/ui/tema";
@@ -297,6 +298,7 @@ export default function Formulario() {
               etiqueta="Nombre de quien realiza la inspección"
               value={getEjecutor(draft.answers)}
               onChangeText={(t) => setAnswer(META.ejecutor, t)}
+              onEndEditing={(e) => void guardarUltimoEjecutor(almacen, userId, e.nativeEvent.text)}
               editable={!bloqueado}
               autoComplete="name"
             />

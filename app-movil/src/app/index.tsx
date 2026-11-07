@@ -460,13 +460,14 @@ export default function Inicio() {
             <Text style={estilos.salirTexto}>Cerrar sesión</Text>
           </Pressable>
         </View>
-        <View style={[estilos.filaEntre, { alignItems: "flex-end", marginTop: 20 }]}>
-          <View style={estilos.bienvenida}>
-            <Text style={estilos.kicker}>BIENVENIDO</Text>
-            <Text style={estilos.rol} numberOfLines={1}>
-              {rolConTurno(perfil)}
-            </Text>
-          </View>
+        <View style={[estilos.bienvenida, { marginTop: 20 }]}>
+          <Text style={estilos.kicker}>BIENVENIDO</Text>
+          <Text style={estilos.rol} numberOfLines={1}>
+            {rolConTurno(perfil)}
+          </Text>
+        </View>
+        {/* En su propia fila: junto al saludo lo cortaba («Técnico · Tur…») cuando el aviso era largo. */}
+        <View style={estilos.filaSync}>
           <SyncIndicador />
         </View>
         </View>
@@ -543,6 +544,7 @@ const estilos = StyleSheet.create({
   },
   salirTexto: { color: color.blanco, fontSize: 15, fontWeight: "600" },
   bienvenida: { flexShrink: 1 },
+  filaSync: { alignSelf: "stretch" },
   kicker: { color: "#9aa4ad", fontSize: 11, letterSpacing: 1.2 },
   rol: { color: color.blanco, fontSize: 22, fontWeight: "700" },
   encabezadoLista: { gap: 20, marginBottom: 20 },
@@ -588,8 +590,8 @@ const estilos = StyleSheet.create({
   sub: { color: color.sub, fontSize: 16 },
   mono: { color: color.sub, fontSize: 14, fontVariant: ["tabular-nums"] },
   correccion: { color: color.cuTexto, fontSize: 14, fontWeight: "500" },
-  eliminar: { minHeight: 44, justifyContent: "center", alignSelf: "flex-start" },
-  eliminarTexto: { color: color.malo, fontSize: 14, fontWeight: "600" },
+  eliminar: { minHeight: 48, minWidth: 96, justifyContent: "center", alignSelf: "flex-start" },
+  eliminarTexto: { color: color.malo, fontSize: 15, fontWeight: "600" },
   pdf: { marginTop: 8 },
   rechazo: { marginTop: 8, borderRadius: 12, backgroundColor: "#fbe4e4", padding: 12, gap: 8 },
   rechazoTitulo: { color: "#8a0000", fontSize: 14, fontWeight: "600" },

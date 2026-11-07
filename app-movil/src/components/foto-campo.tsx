@@ -107,7 +107,7 @@ export function FotoCampo({
       {ids.length < max ? (
         <>
           <Pressable accessibilityRole="button" disabled={ocupado} onPress={() => void tomar()} style={[estilos.agregar, ocupado && { opacity: 0.6 }]}>
-            <Text style={estilos.agregarTexto}>{ocupado ? "Guardando…" : ids.length ? "Agregar otra foto" : "Tomar foto"}</Text>
+            <Text style={estilos.agregarTexto}>{ocupado ? "Guardando…" : ids.length ? "Otra foto" : "Tomar foto"}</Text>
           </Pressable>
           <Pressable accessibilityRole="button" disabled={ocupado} onPress={() => void elegir()} style={[estilos.agregar, ocupado && { opacity: 0.6 }]}>
             <Text style={estilos.agregarTexto}>Galería</Text>
@@ -134,7 +134,7 @@ const estilos = StyleSheet.create({
     borderStyle: "dashed",
     borderColor: "#6f695f",
     backgroundColor: "#faf8f4",
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   agregarTexto: { color: color.graf, fontSize: 16, fontWeight: "600" },
   error: { width: "100%", color: color.maloTexto, fontSize: 14, fontWeight: "500" },

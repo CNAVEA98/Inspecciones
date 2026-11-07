@@ -50,7 +50,7 @@ export function SyncIndicador() {
 }
 
 const estilos = StyleSheet.create({
-  fila: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1 },
+  fila: { flexDirection: "row", alignItems: "center", gap: 8, flexShrink: 1, marginTop: 10 },
   insignia: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 4, flexShrink: 1 },
   texto: { fontSize: 13, fontWeight: "600" },
   reintentar: {

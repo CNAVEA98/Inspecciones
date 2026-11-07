@@ -105,6 +105,13 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 
 ## Registro
 
+### 2026-11-07 · Arreglos de diseño tras la prueba en Android y pruebas sin señal de «Enviadas» y borradores
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** (1) el aviso de sincronización pasó a su propia fila bajo el saludo: antes el saludo se cortaba («Técnico · Tur…») con «Sin conexión, 1 guardada en el teléfono»; (2) en las fotos, «Agregar otra foto» ahora es «Otra foto» y los botones tienen menos relleno, para que «Galería» no baje de línea; (3) «Eliminar» sube a 48 px de alto y 96 de ancho (antes 44 y solo el texto).
+- **Verificación (emulador Android API 37, sin señal):** encabezado correcto con «Sin conexión» en su fila; «Actualizar» avisa «Sin conexión: se muestra la última copia guardada en el teléfono.»; el buscador filtra en local («444sg001» → 1 de 4, contadores correctos); un borrador queda «En curso» al salir con «Salir», y «Eliminar» pide confirmación («Sí, eliminar») y lo borra. `tsc` sin errores.
+- **No verificado:** el aspecto de «Galería» con miniatura (no se volvió a abrir el formulario tras el cambio); «Cerrar sesión» con envíos pendientes; «Ver más»; búsqueda en el servidor.
+- **Pendiente / riesgos:** el margen derecho del PDF local no se pudo medir (Expo Go no deja leer el archivo; el diálogo de impresión lo reescala a Letter): revisar con un PDF real cuando haya APK. En desarrollo el engranaje flotante de Expo Go tapa «Inicio» del formulario; desaparece en un build propio.
+
 ### 2026-11-07 · Prueba completa en Android (emulador): flujo del técnico, sin señal y PDF; 2 fallos corregidos
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Cómo:** emulador `Medium_Phone_API_37.0` (Android 37, 1080×2400) con Expo Go; Cristóbal ingresó con `TECNICO_B` (turno B); el resto con `adb` (capturas, `uiautomator`, `input`, `cmd connectivity airplane-mode`). Datos de prueba: «PRUEBA ANDROID CLAUDE», TAG 430-SG-431 (Switchgear 23 kV, INSP-13). **La inspección se envió al Supabase remoto: INS-2026-000005** (dato de prueba; conviene borrarla o rechazarla desde la web).

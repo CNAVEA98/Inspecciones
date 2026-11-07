@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit d765aaf (PR #16 unido) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit b33bb0a (PR #17 unido; identificadores reescritos el 2026-11-07, ver 5.1) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -111,9 +111,10 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
 - **Revisión de claves en el historial (106 commits, todas las ramas): NO hay** claves `service_role`, `sb_secret_`, tokens, URL de base con
   contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de `demo/` y `docs/muestras/` son imágenes base64.
 - **Contraseñas de las 7 cuentas de prueba:** estuvieron publicadas en `seed_usuarios_dev.sql`. Desde la V1.1.3 salieron del árbol de archivos
-  (plantilla sin claves + `corepack pnpm seed:usuarios`), pero **siguen en el historial público** y **las 7 cuentas del Supabase remoto aún las usan**
-  (comprobado por hash; incluye `ADMINISTRADOR`). Cristóbal decidió no rotarlas ni volver privado el repo por ahora (sistema de prueba).
-  **Obligatorio antes de datos reales:** rotarlas (y cerrar sesiones) y volver privado el repo o reescribir el historial.
+  (plantilla sin claves + `corepack pnpm seed:usuarios`). **El 2026-11-07 se reescribió el historial de GitHub** y se reemplazaron por `CLAVE-ELIMINADA` en los 112 commits
+  (todos cambiaron de identificador; ver `docs/BITACORA.md`). **Quedan:** las 17 referencias `refs/pull/*` de GitHub con commits viejos (hay que pedir su limpieza a GitHub Support),
+  cualquier copia previa del repo, y **las 7 cuentas del Supabase remoto siguen usando esas mismas contraseñas** (incluye `ADMINISTRADOR`): Cristóbal decidió no rotarlas (sistema de prueba).
+  **Obligatorio antes de datos reales:** rotarlas y cerrar sesiones.
   Ingresos recientes en `administrador` (3 nov), `supervisor_b` (4 nov) y `tecnico_b` (6 nov) no se pudieron atribuir (sin registro de auditoría).
 - **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también admite colaboradores. El repo público
   contiene además los formatos Word/Excel de MLP/Bbosch (36 archivos) y el Maestro de TAG (1.073 equipos): información del cliente.

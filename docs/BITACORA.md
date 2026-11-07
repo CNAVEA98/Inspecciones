@@ -212,6 +212,24 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-07 · Historial de GitHub reescrito: claves de las cuentas de prueba eliminadas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** las 7 contraseñas de las cuentas de prueba (números de 8 dígitos) estaban en el historial público en `supabase/seed.sql` (primer commit),
+  `supabase/seed_usuarios_dev.sql`, `scripts/prueba-carga.mjs` y `scripts/simular-formatos.mjs`. Se reemplazaron por el texto `CLAVE-ELIMINADA` en **todos** los commits
+  (`git filter-branch` sobre una copia, sin borrar archivos ni commits) y se subió con `--force-with-lease` a las 20 ramas remotas. **Los 112 commits cambiaron de identificador**
+  (p. ej. `main` pasó de `d765aaf` a `b33bb0a`). El repo sigue **público**, como decidió Cristóbal (Manuel no puede enviar mejoras a uno privado). **Las contraseñas NO se cambiaron.**
+- **Verificación:** antes de subir, 0 apariciones de las claves en los 1.003 archivos y los mensajes de commit de la copia; mismas rutas en las 48 ramas y solo cambian esos 4 archivos
+  (los árboles de `main` y `origin/main` son idénticos). Después de subir, se clonó GitHub de nuevo: 0 apariciones en las 20 ramas (108 commits alcanzables).
+- **Lo que NO se pudo limpiar:** (1) las **17 referencias `refs/pull/*`** de GitHub siguen apuntando a commits antiguos con las 34 apariciones; no se pueden borrar con git: hay que pedir a GitHub Support
+  la eliminación de datos sensibles y de las vistas en caché; (2) cualquier clon o copia que alguien ya hizo del repo público (0 forks al momento de reescribir); (3) las cuentas del Supabase remoto
+  **siguen usando esas mismas contraseñas**, así que quien las haya visto puede ingresar: reescribir el historial no sustituye a rotarlas.
+- **Para Manuel:** su `main` local ya no coincide con GitHub. Lo más simple: clonar de nuevo. Para no perder trabajo sin unir: en su clon viejo, `git log --oneline origin/main..<su-rama>` (con el `origin/main` viejo)
+  identifica sus commits; en el clon nuevo, `git switch -c <su-rama> origin/main` y `git cherry-pick <commits>`. No usar `git pull` ni `git push --force` desde el clon viejo (volvería a subir las claves).
+- **Respaldo:** copia completa del historial anterior (con las claves) en la carpeta temporal de la sesión de Claude (`…\scratchpadespaldo.git`), fuera del repo. **Borrarla cuando se confirme que todo está bien.** El repo local de Cristóbal conserva
+  los commits viejos en el reflog y en un stash antiguo; se pueden purgar con `git reflog expire --expire=now --all` y `git gc --prune=now`.
+- **Archivos:** ninguno del código; solo el historial de git y esta bitácora / `docs/MAESTRO.md` (sección 5.1).
+- **Pendiente:** pedir a GitHub Support la limpieza de `refs/pull/*`; decidir cuándo rotar las contraseñas.
+
 ### 2026-11-07 · Endpoint del PDF para la app móvil
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Versión:** V1.1.4

@@ -1,0 +1,443 @@
+# Bitácora de la migración · App móvil (React Native / Expo)
+
+Registro **propio de la app nativa del técnico** (`app-movil/`). Aquí se anota todo lo de la migración: qué se hizo,
+qué se probó, qué falta y qué se decidió.
+
+**Regla: cada cambio en `app-movil/` (código, dependencias, configuración, pruebas en teléfono o decisiones) se
+registra aquí, en el mismo commit, antes de darlo por cerrado.** Vale para personas y para Claude (también desde VS Code).
+
+- Los cambios de la web (`src/`, `supabase/`) siguen en `docs/BITACORA.md`. Si un cambio toca ambos (p. ej. separar la
+  lógica compartida), se registra en las dos con una línea que apunte a la otra.
+- Al iniciar una sesión de trabajo en la app: leer «Estado actual», «Pendientes» y las 3 últimas entradas del «Registro».
+- No borrar entradas antiguas; si algo se revierte, agregar una entrada nueva.
+- Si algo no se pudo probar, escribir «no verificado» y por qué. No marcar como hecho lo no probado.
+
+## Cómo registrar un cambio
+
+Entrada nueva **al inicio** de «Registro» (la más reciente arriba):
+
+```
+### AAAA-MM-DD · Título corto
+- **Autor:** nombre · **Rama:** `tipo/descripcion`
+- **Qué se hizo:** 1 a 3 líneas
+- **Archivos:** rutas principales
+- **Verificación:** comandos y resultado real (tsc, expo-doctor, export, prueba en Expo Go / teléfono) o «no verificado» y por qué
+- **Pendiente / riesgos:** lo que quedó sin hacer o sin probar
+```
+
+Después actualice «Estado actual», «Pendientes» y «Decisiones» si cambian.
+
+## Cómo correr la app (Windows, PowerShell o terminal de VS Code)
+
+En PowerShell 5.1 **no se puede usar `&&`**: escriba los comandos en líneas separadas.
+
+```powershell
+cd C:\Proyectos\mlp-inspecciones\app-movil
+npm install              # solo la primera vez o si cambió package.json
+npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (Expo Go instalado, misma Wi-Fi)
+```
+
+- Si el teléfono no conecta: permitir Node.js en el Firewall (redes privadas) o usar `npx expo start --tunnel`.
+- Verificar antes de cerrar un cambio: `npm run typecheck` · `npx expo-doctor` · `npx expo export --platform android`
+  (comprueba que empaqueta). Instalar paquetes siempre con `npx expo install <paquete>` (elige la versión compatible).
+- Esta carpeta usa **npm** (lockfile propio), no pnpm como la web.
+
+## Estado actual (2026-11-07)
+
+| Área | Estado |
+|---|---|
+| Proyecto Expo SDK 58 (React Native 0.88, React 19.3, TypeScript estricto) | Creado en la rama `feat/app-movil`, **sin commit** |
+| Navegación `expo-router` (stack nativo, rutas protegidas), rutas en `src/app/` | Hecho: `login`, `index` (inicio), `nueva`, `inspeccion/[id]` |
+| Módulos: SQLite, archivos, cámara, compresión de fotos, red, firma, Supabase, Zod | Instalados (autorizados el 2026-11-07). En uso en el código: SQLite, archivos, red, Supabase, Zod, cámara/galería, compresión, firma, FlashList, expo-image (**todo sin probar en el teléfono salvo SQLite**) |
+| Verificación técnica | `tsc` sin errores · `expo-doctor` 20/20 · Vitest 49 pruebas en verde · empaqueta para Android e iOS (4,6 MB) |
+| Prueba en teléfono | **Fase 1 verificada en iPhone con Expo Go (2026-11-07)**: abre la base local y muestra los datos. Las pantallas nuevas no se han abierto. Android no probado |
+| Lógica del técnico (esquemas, borradores, cola, catálogo, enviadas) | **Fase 1 hecha (2026-11-07):** copiada de la web y adaptada a SQLite (`src/lib/`); diseño en `DISENO.md`. La base abre en pantalla; **no probada en el teléfono** |
+| Pantallas del técnico | **Escritas (2026-11-07), sin probar en el teléfono:** ingreso, inicio (resumen, en curso, enviadas, corregir rechazadas), nueva inspección (4 pasos), formulario completo (secciones, repetibles, fotos, firma, selector de TAG, revisión y envío). PDF local y oficial escritos, sin probar |
+| Conexión a Supabase | Cliente listo (`src/lib/supabase.ts`); `app-movil/.env` creado el 2026-11-07 con la URL y la clave anon del proyecto `inspecciones-bbosch` (ref `etdeiyjzibgihqtvdrpt`); responde (HTTP 200). **Ingreso no probado** |
+| Prueba de aceptación sin señal | Sin empezar (requiere app instalada; ver Decisiones) |
+
+## Pendientes
+
+1. ~~Abrir la app en el iPhone con Expo Go~~ — **hecho el 2026-11-07** (ver Registro).
+2. **Hacer el commit** de la rama `feat/app-movil` (y luego PR, con confirmación de Cristóbal).
+3. ~~Diseño de la lógica compartida~~ — **hecho** (`DISENO.md`; se duplica la lógica en la app, no se comparte). Fase 1 aplicada.
+4. **Probar las pantallas del técnico** (escritas, sin probar; requieren `.env` y la cuenta de un técnico): ingreso → descarga del catálogo, plantillas y Maestro de TAG («Listo para trabajar sin
+   señal» con fecha) → Área, Trabajo, Familia, Formato → formulario con fotos y firma → cola que envía al reconectar.
+5. **Sesión sin señal:** el primer ingreso requiere señal; después la sesión queda guardada y se renueva al reconectar.
+6. **Prueba sin señal completa** en Android con un APK (EAS Build, gratis) y después en iPhone con TestFlight.
+7. **Decisiones de Cristóbal que afectan la app:** cuentas por persona o genéricas; si el técnico necesita un PDF
+   preliminar sin folio en el teléfono (`expo-print`, dependencia nueva).
+8. ~~Dependencias de la skill~~ — instaladas el 2026-11-07 (`@shopify/flash-list`, `expo-image`, `expo-crypto`), más `vitest`, `vite` y `react-dom` (ver Registro).
+9. Confirmar que `react-native-signature-canvas` (no es del SDK de Expo) funciona en iPhone y Android.
+10. ~~Crear `app-movil/.env`~~ — hecho el 2026-11-07. **Probar el ingreso** con la cuenta de un técnico (reiniciar con `npx expo start --clear`).
+11. ~~Abrir en el iPhone la fase 1~~ — hecho. **Ahora abrir la versión con pantallas:** sin `.env` debe mostrar el ingreso con «Falta configurar la conexión».
+12. ~~PDF de las enviadas~~ — escrito el 2026-11-07: PDF oficial del servidor (endpoint nuevo de la web, **falta desplegar V1.1.4**) y PDF generado en el teléfono sin señal con `expo-print` + `expo-sharing`. **Falta probar ambos en el teléfono.**
+13. **Envío en segundo plano:** sin hacer (solo al abrir la app y al volver la señal con la app abierta).
+
+## Decisiones
+
+- **React Native con Expo para el técnico (2026-11-06):** la PWA no sirve para trabajar sin señal. Supervisor,
+  programador y administrador siguen en la web Next. Mismo Supabase (Auth, RLS, Storage, RPC `submit_inspection`).
+- **Carpeta `app-movil/` dentro del mismo repositorio (2026-11-07):** comparte lógica y documentación con la web. Está
+  excluida del `tsc` y del lint de la web; tiene su propio `tsconfig.json`.
+- **npm en `app-movil` (2026-11-07):** Expo y Metro funcionan mejor así; no se mezcla con el `pnpm-lock.yaml` de la raíz.
+- **Identificador `cl.bbosch.inspecciones`, solo teléfono (sin tablet) (2026-11-07).**
+- **Instalación en iPhone sin pagar mientras se desarrolla (2026-11-07):** se prueba con **Expo Go** (gratis); la cuenta
+  Apple Developer (USD 99/año) y TestFlight quedan para cuando la app esté estable. La prueba sin señal completa se puede
+  adelantar en Android con un APK gratuito. Desde Windows no hay forma práctica de instalar una app propia en iPhone sin
+  la cuenta pagada.
+- **PDF oficial después del envío:** lleva el folio del servidor y las firmas del supervisor y el programador; la
+  inspección (con fotos y firma del encargado) sí se completa 100 % sin señal.
+- **Envío automático:** al abrir la app y al volver la señal con la app abierta. Envío con la app cerrada (tarea en
+  segundo plano) solo si hace falta; en iPhone es limitado.
+- **Skill `react-native-skills` (Vercel) en `.claude/skills/` (2026-11-07):** revisarla antes de crear pantallas.
+- **Cuenta compartida por turno, varias sesiones a la vez (2026-11-07, Cristóbal):** varios técnicos de un turno (p. ej. TECNICO_B) usan
+  la misma cuenta en sus propios teléfonos, hasta unas 5 sesiones simultáneas, y escriben su nombre en cada inspección (`performed_by`,
+  migración 0008). Borradores, fotos y cola son locales de cada teléfono (no se mezclan). El servidor limita por cuenta (RLS
+  `technician_id = auth.uid()`): cada teléfono ve en «Enviadas» las de todo el turno, por eso la lista muestra «Realizada por».
+- **Duplicar la lógica de la web en la app, no compartirla (2026-11-07):** se copia a `src/lib/` con la misma estructura de
+  carpetas y el alias `@/`, y se adapta solo el almacenamiento (`Almacen`: SQLite en el teléfono, memoria en las pruebas).
+  La web no se toca. Costo: una regla que cambie en la web hay que replicarla (cada copia lleva la ruta de origen en su cabecera).
+  Esto reemplaza la idea del Maestro 5.7 de separar la lógica dentro de la web.
+- **Supabase del sitio publicado (remoto) para la app (2026-11-07):** autorizado por Cristóbal; las claves van en `app-movil/.env` (ignorado por git).
+- **Dependencias autorizadas el 2026-11-07:** `@shopify/flash-list`, `expo-image`, `expo-crypto`, Vitest (solo `src/lib`).
+- **`--legacy-peer-deps` al instalar (2026-11-07):** `npm` fallaba (ERESOLVE) porque pedía `react-dom@19.3.1` con `react@19.3.0`. Se fijó `react-dom@19.3.0` y se instala con `--legacy-peer-deps`.
+
+## Registro
+
+### 2026-11-07 · «You don't have access to the provided file» persiste (captura p4): se comparte una copia
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (captura `p4.jpeg`):** con el botón único, «PDF · Guardar o compartir» seguía fallando con «Calling the 'shareAsync' function has failed → You don't have access to the provided file», ya con el nombre sin tildes
+  (`.../informes/Inspeccion%20Switchgear%2023%20kV%20-%20444-SG-001%20-%202026-11-07.pdf`). La hipótesis anterior (tilde descompuesta y descarga sobre el mismo archivo) **no era la causa de fondo**.
+- **Qué se sabe:** en `expo-sharing` (iOS) ese mensaje sale solo si `FileSystemUtilities.isReadableFile` es falso: el permiso por carpeta (la ruta está dentro de la carpeta de la app) y que `FileManager.isReadableFile` sea verdadero, o sea que el archivo exista y se pueda leer en ese momento. La causa exacta de que no se pueda leer **no se determinó**.
+  Además, esa inspección probablemente salió del PDF local (el servidor responde 404 hasta desplegar V1.1.4).
+- **Qué se hizo:** `abrirArchivo` ya no comparte el archivo guardado: comprueba que existe y pesa más de 0, crea una **copia nueva** en `cache/compartir-<hora>/` (borrando las anteriores) y comparte esa copia. Si algo falla, el aviso incluye si el archivo existe, su tamaño y la ruta.
+- **Archivos:** `app-movil/src/lib/tecnico/informe.ts`.
+- **Verificación:** `tsc`, Vitest, `expo-doctor` y `expo export` (ver sesión). **No verificado en el teléfono;** no se reprodujo el error.
+- **Pendiente / riesgos:** si vuelve a fallar, el nuevo aviso dirá si el problema es el archivo (no existe / pesa 0) o la hoja de compartir; con eso se corrige la causa real. Alternativa de respaldo: guardar con `expo-file-system` en una carpeta elegida por el usuario (selector de carpeta).
+
+### 2026-11-07 · Un solo botón de PDF
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Pregunta de Cristóbal:** qué diferencia había entre «Ver PDF» y «Compartir PDF»: en su teléfono hacían lo mismo.
+- **Respuesta:** en Expo Go `File.canPreview` es falso (sin visor de PDF para la app), así que «Ver PDF» caía a la hoja de compartir. Eran dos botones para una sola acción.
+- **Qué se hizo:** un solo botón, «PDF · Guardar o compartir», que abre la hoja de compartir del teléfono (Archivos, WhatsApp, correo, abrir con otra app). Se quitó la ruta del visor (`File.preview` / `canPreview`) y el parámetro de acción de `entregarPdf`.
+  Se mantiene la lógica de origen: PDF oficial del servidor si está enviada y hay señal; si no, el generado en el teléfono.
+- **Archivos:** `app-movil/src/components/boton-pdf.tsx`, `app-movil/src/lib/tecnico/informe.ts`.
+- **Verificación:** `tsc`, Vitest, `expo-doctor` y `expo export` (ver resultado en la sesión). **No verificado en el teléfono.**
+- **Pendiente / riesgos:** si más adelante se instala la app como build propio, se puede evaluar un visor integrado (en Android requeriría un componente nuevo, con autorización).
+
+### 2026-11-07 · «Enviadas»: últimas 5, botón Actualizar, buscador y filtros por estado
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Pedido de Cristóbal:** cuando haya muchas enviadas la pantalla se llenaría: dejar solo las últimas 5, agregar un botón para actualizar y un buscador, y que el buscador sea el más adecuado.
+- **Qué se hizo:**
+  - Se muestran las **últimas 5** enviadas; «Ver más (n)» agrega 5 más cada vez.
+  - **Actualizar** (título de la sección): vuelve a pedir las enviadas al servidor y muestra «Actualizado {fecha}». Sin señal, o si falla, deja la última copia y lo avisa.
+  - **Buscador** sobre la copia guardada en el teléfono, que ahora trae las últimas **200** (antes 50): es instantáneo y funciona sin señal. Busca por TAG, folio, quién la realizó, área, equipo, estado y fecha; ignora tildes,
+    mayúsculas y signos («444sg001», «444-SG-001», «cristobal» y «Cristóbal» funcionan) y exige todas las palabras escritas, en cualquier orden. El texto se aplica con 180 ms de espera para no recalcular en cada letra.
+  - **Filtros por estado** con contador: Todas · En revisión · Aprobadas · Rechazadas (se combinan con el texto; los contadores respetan el texto escrito).
+  - **«Buscar en todo el historial»**: aparece al escribir; consulta al servidor (TAG, folio o nombre, sin distinguir mayúsculas, hasta 50 resultados) para lo que ya no está en las últimas 200. Requiere señal; «Volver a las últimas» regresa a la lista local.
+  - Mensaje de «sin coincidencias» y de «aún no hay enviadas».
+- **Archivos:** `app-movil/src/lib/tecnico/{buscar-enviadas,buscar-enviadas.test,enviadas}.ts`, `src/components/enviadas-controles.tsx`, `src/app/index.tsx`.
+- **Verificación:** `tsc` sin errores · Vitest con 14 pruebas nuevas de `buscar-enviadas` (TAG con y sin guiones, folio, nombre con y sin tilde, área y equipo, varias palabras en cualquier orden, estado, fecha, combinación con el filtro de estado,
+  contadores y texto para el servidor) · `expo-doctor` · `expo export`. **No verificado en el teléfono:** la pantalla, el teclado con el buscador dentro de la lista, «Actualizar» y la búsqueda en el servidor (la consulta `or(ilike…)` no se ejecutó contra Supabase).
+- **Pendiente / riesgos:**
+  - Los contadores de arriba (Enviadas, Aceptadas, Rechazadas) cuentan las últimas 200 guardadas, no el total histórico.
+  - La búsqueda en el servidor distingue tildes (`ilike`): «Cristóbal» no encuentra «Cristobal» allí; la búsqueda local sí.
+  - Cada teléfono del turno comparte la cuenta, así que las enviadas son las de todo el turno (ver decisión de cuenta compartida).
+
+### 2026-11-07 · Segunda pulsación de «Ver PDF» fallaba («You don't have access to the provided file»)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (captura `error p3.jpeg` de Cristóbal):** la primera vez «Ver PDF» funcionaba (abre la hoja de compartir porque `File.canPreview` es falso en iOS con Expo Go: «este teléfono no tiene visor de PDF»); al pulsarlo otra vez salía
+  «compartir: Calling the 'shareAsync' function has failed → You don't have access to the provided file», con la ruta `.../informes/Inspeccio%CC%81n%20Switchgear%2023%20kV%20-%20444-SG-001%20-%202026-11-07.pdf`.
+- **Causa probable (no reproducida):** (1) cada descarga del PDF oficial se hacía sobre el mismo archivo (`downloadFileAsync` con `idempotent`), que la primera hoja de compartir ya había usado; (2) el nombre llevaba una tilde que iOS guarda descompuesta
+  (`%CC%81`). Ambas cosas dejan la ruta devuelta apuntando a un archivo que la hoja de compartir no puede leer.
+- **Qué se hizo:** `lib/informe/archivo.ts` (`nombreSeguro`: sin tildes ni caracteres raros, siempre `.pdf`) se usa en el PDF del servidor y en el generado en el teléfono. El PDF del servidor se descarga ahora a una carpeta temporal única
+  (`cache/informe-<hora>`), se mueve a `Documentos/informes/<nombre sin tildes>.pdf` (borrando antes el anterior) y se limpia la carpeta temporal. El PDF local también borra el archivo previo antes de moverlo.
+- **Archivos:** `app-movil/src/lib/informe/{archivo,archivo.test,local-nativo}.ts`, `app-movil/src/lib/tecnico/informe.ts`.
+- **Verificación:** `tsc` sin errores · Vitest (incluye 5 pruebas nuevas de `nombreSeguro`, con tildes compuestas y descompuestas) · `expo-doctor` · `expo export` Android e iOS. **No verificado en el teléfono:** repetir «Ver PDF» varias veces debe abrir la hoja de compartir cada vez.
+- **Pendiente / riesgos:** «Ver PDF» seguirá abriendo la hoja de compartir en Expo Go (no hay visor integrado); en una app instalada (build) puede abrir el visor nativo. Si la repetición vuelve a fallar, anotar el aviso.
+
+### 2026-11-07 · «No se pudo abrir el PDF»: alternativa de compartir y motivo real
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal):** al pulsar el botón del PDF salía «No se pudo abrir el PDF». Ese texto solo aparece en el último paso (el PDF ya estaba generado o descargado) y escondía el motivo.
+- **Causa:** **no determinada**: el error del visor (`File.preview`) no se mostraba. Sospecha: el visor nativo del teléfono no abrió el archivo (en Expo Go o por el nombre del archivo, que lleva espacios y tildes).
+- **Qué se hizo:** `abrirArchivo` en `lib/tecnico/informe.ts`: «Ver PDF» comprueba `File.canPreview` y, si no hay visor o falla, abre la hoja de compartir (Archivos, WhatsApp, otras apps) en lugar de rendirse. «Compartir PDF» va directo a esa hoja.
+  Si también falla, el aviso incluye el motivo real (visor y compartir) y la ruta del archivo guardado.
+- **Archivos:** `app-movil/src/lib/tecnico/informe.ts`.
+- **Verificación:** `tsc` sin errores · Vitest 75 en verde · `expo-doctor` 20/20 · `expo export` Android e iOS empaquetan. **No verificado en el teléfono:** no se reprodujo el error; el cambio no puede probarse sin el dispositivo.
+- **Pendiente / riesgos:** si vuelve a salir el aviso, anotar el motivo que muestra para corregir la causa de fondo.
+
+### 2026-11-07 · PDF del teléfono: el contenido ocupaba solo el 75 % del ancho
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal, muestras `p1.pdf` y `p2.pdf` en su escritorio):** el nuevo PDF salía «cargado a la izquierda»: el contenido llegaba a ~75 % del ancho y quedaba un margen blanco enorme a la derecha.
+- **Causa:** el HTML estaba dibujado a 595 px de ancho (los puntos de React-PDF), pero `expo-print` imprime la hoja A4 con 793 px de ancho CSS (96 px por pulgada): 595 / 793 = 75 %. En el navegador de escritorio no se veía
+  porque la prueba usaba `@page { size: 595px 842px }`, un tamaño de página propio que el teléfono no usa.
+- **Qué se hizo:** la hoja se sigue dibujando a 595 px (así las medidas son las mismas del PDF de la web) y se amplía con `zoom: 4/3` (`table.hoja`); `@page` pasó a `size: A4; margin: 0`; el cuerpo usa el ancho completo.
+- **Archivos:** `app-movil/src/lib/informe/html.ts`.
+- **Verificación:** `tsc` sin errores · Vitest 75 en verde · `expo-doctor` 20/20 · `expo export` Android e iOS empaquetan. Se imprimió un informe de ejemplo a PDF con Chrome usando `@page { size: A4 }` (la hoja que usa el teléfono):
+  página de 595 × 842 pt y contenido hasta x = 564 (595 − 31 de margen), o sea márgenes iguales a ambos lados; 3 páginas, filas sin partir y pie en cada página. **No verificado en el teléfono** tras este cambio.
+- **Pendiente / riesgos:** probar de nuevo en el iPhone. El WebView de Android también debería aplicar el `zoom` (Blink), pero no se probó en Android.
+
+### 2026-11-07 · El PDF del teléfono reproduce el diseño del PDF de la web
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (pregunta de Cristóbal):** el PDF generado en el teléfono no tenía el mismo formato que el del servidor.
+- **Causa:** el PDF de la web se dibuja con React-PDF (`src/components/informe/informe-pdf.tsx`), que no corre en el teléfono. La primera versión del PDF local era una interpretación propia en HTML con los
+  mismos datos y colores, pero otro diseño (la tabla de datos, el resumen y los recuadros eran distintos).
+- **Qué se hizo:** `lib/informe/html.ts` se reescribió como réplica del diseño de `informe-pdf.tsx`, con las mismas medidas (en `px` con el número de los puntos de React-PDF; página 595 × 842), colores y orden:
+  encabezado oscuro con logo a color en pastilla blanca, norma y estado, TAG grande, lugar y folio/OT/fecha/horario; cuadrícula de datos de 3 columnas; resultado con barra de segmentos y leyenda más la
+  caja de hallazgos (naranja o verde); tarjetas de lecturas; una caja por sección con filas, píldoras de estado, observación en franja cobre y trazabilidad; caja de hallazgos con severidad; nomenclatura;
+  observaciones y consideraciones; firmas en tarjetas (la firma del encargado y «Pendiente de firma» para supervisión y programación); registro fotográfico en página aparte (2 por fila).
+  Los márgenes (28 arriba, 50 abajo) y el pie «norma · TAG · Generado digitalmente fecha» se repiten en cada página con una tabla de una celda. El logo a color se incrusta reducido (21 KB).
+- **Diferencias que quedan respecto al PDF del servidor:** no tiene «Página X de Y» (el HTML no sabe en qué página cae); el recuadro de una sección que cruza una página se corta en vez de cerrarse en cada página
+  (el servidor lo cierra con una segunda pasada de medición); y lleva el aviso «Copia generada en el teléfono…». Las filas nunca se parten y el cierre (observaciones y firmas) va siempre junto, como en la web.
+- **Archivos:** `app-movil/src/lib/informe/{html,logo}.ts`, `app-movil/src/lib/informe/local.test.ts`.
+- **Verificación:** `tsc` sin errores · Vitest 75 en verde (incluye que el HTML sigue el orden hero → datos → resumen → secciones → hallazgos → cierre → fotos y los textos del PDF de la web) · `expo-doctor` 20/20 ·
+  `expo export` Android e iOS empaquetan. **Revisión visual:** se generó un informe de ejemplo (3 secciones, hallazgos, lecturas, firma y fotos) y se imprimió a PDF con Chrome de escritorio (motor Blink): 4 páginas,
+  encabezado pegado al borde superior, pie en cada página, filas sin partir. **No verificado en el iPhone ni en Android real:** `expo-print` usa WKWebView en iOS y el WebView del sistema en Android; la repetición del
+  encabezado/pie de la tabla y los saltos de página pueden variar.
+- **Pendiente / riesgos:** probar en el teléfono; si en iOS los márgenes o saltos salen distintos, ajustar. Una inspección sin lecturas ni datos extra simplemente omite esos bloques, igual que la web.
+
+### 2026-11-07 · PDF generado en el teléfono (sin internet), guardar y compartir
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal):** «Ver PDF» mostraba «Falta configurar la dirección del sitio (EXPO_PUBLIC_WEB_URL)». Además, el PDF dependía de internet, y un técnico
+  debe poder generar el informe desde su teléfono, guardarlo en una carpeta y mandarlo por WhatsApp o respaldarlo en Archivos sin conexión.
+- **Causa del aviso:** Expo solo lee el `.env` al arrancar; la variable se había agregado con Expo ya abierto. Ahora `WEB_URL` tiene el sitio publicado como valor por defecto, sin depender del `.env`.
+- **Decisión (Cristóbal):** autorizó `expo-print` y `expo-sharing`.
+- **Qué se hizo:**
+  - `lib/informe/modelo.ts` (copia de `armarInforme` de la web, con su test) y `lib/informe/html.ts`: el mismo contenido del PDF de la web (encabezado con TAG, datos, resumen y hallazgos,
+    lecturas, tablas por sección, observaciones, firmas, registro fotográfico, nomenclatura) en HTML con los colores «Cobre». El texto del técnico se escapa.
+  - `lib/informe/local.ts`: `detalleLocal` arma el mismo `DetalleInspeccion` con datos del teléfono usando `buildSubmission` (lo que se envía al servidor). `local-nativo.ts` incrusta fotos y firma,
+    lo convierte a PDF con `expo-print` y lo guarda en `Documentos de la app/informes/` con el nombre «Título - TAG - fecha.pdf» (con «(sin enviar)» si no se ha enviado).
+  - `lib/tecnico/informe.ts` (`entregarPdf`): inspección enviada con señal → PDF oficial del servidor; sin señal, en cola o sin enviar → PDF del teléfono. Después se abre en el visor (`Ver PDF`) o en la
+    hoja de compartir (`Compartir PDF`: WhatsApp, Archivos, correo…).
+  - `BotonPdf` con los dos botones. Aparece al enviar (aunque quede en cola sin señal), en las inspecciones en cola o enviadas de este teléfono y en «Enviadas».
+  - **Cambio en la cola:** las fotos y la firma de una inspección enviada ya no se borran al instante: se conservan para poder generar su PDF sin señal y se liberan a los 14 días
+    (`limpiarFotosEnviadas`, al iniciar sesión). El test de la cola se actualizó a ese comportamiento.
+- **Archivos:** `app-movil/src/lib/informe/{html,local,local-nativo,logo,modelo,nombre-archivo}.ts`, `src/lib/revision/{estado,fallas,queries}.ts`, `src/lib/tecnico/{informe,eliminar}.ts`,
+  `src/lib/offline/outbox.ts`, `src/lib/supabase.ts`, `src/lib/tecnico-contexto.tsx`, `src/components/boton-pdf.tsx`, `src/app/{index,inspeccion/[id]}.tsx`, tests, `package.json`, `app.json`.
+- **Verificación:** `tsc` sin errores · Vitest 9 archivos, 74 pruebas en verde (incluye el armado con datos locales, el HTML y el escape, la limpieza de fotos y la copia de `modelo.test.ts`) ·
+  `expo-doctor` 20/20 · `expo export` Android (4,7 MB) e iOS (4,8 MB) empaquetan. **No verificado en el teléfono:** la conversión con `expo-print`, el aspecto y la paginación del PDF, el guardado en la carpeta
+  y la hoja de compartir (WhatsApp / Archivos).
+- **Pendiente / riesgos:**
+  - Probar en iPhone y Android: PDF con muchas fotos (cada una se incrusta en base64; puede pesar o tardar), saltos de página, y compartir por WhatsApp.
+  - El PDF del teléfono no tiene las firmas de supervisión y programación ni seguimiento de hallazgos (los agrega el servidor); lo dice un aviso en el informe.
+  - Una inspección enviada desde **otro** teléfono del turno no tiene datos locales: sin señal no se puede generar su PDF.
+  - El PDF oficial del servidor sigue requiriendo desplegar la web V1.1.4 (el sitio publicado está en V1.1.3).
+  - Las inspecciones enviadas hace más de 14 días pierden sus fotos locales: su PDF local saldría sin imágenes (el oficial sí las tiene).
+
+### 2026-11-07 · Pulido visual: animaciones, pie de página y menos banners
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Pedido de Cristóbal:** quitar el botón «Cerrar sesión» de abajo de la lista, poner al pie de página lo que tiene la web (aviso, términos y
+  versión), sacar el banner verde «Todo sincronizado» y el de «Listo para trabajar sin señal», y mejorar las animaciones para que se vea más profesional.
+- **Qué se hizo:**
+  - Se quitó el botón de abajo (queda «Cerrar sesión» en la cabecera del inicio). Se quitaron los banners: «Todo sincronizado» ya no se muestra
+    (el indicador solo aparece si hay algo por enviar, sin conexión, enviando o con error) y «Listo para trabajar sin señal» se eliminó (solo queda el aviso
+    de error si el catálogo no se pudo descargar y no hay copia).
+  - `pie-pagina.tsx`, igual al de la web: «© 2026 Bbosch · Uso exclusivo del personal autorizado de Bbosch y MLP», «Privacidad» y «Condiciones de
+    uso» (abren las páginas del sitio en el navegador; necesitan señal) y la versión de la app (`lib/version.ts`, tomada de `app.json`). Está al final del inicio y
+    en el ingreso.
+  - `ui/animacion.tsx` (API `Animated` de React Native, solo `transform` y `opacity` con driver nativo, respeta «Reducir movimiento»): `Aparecer` (fundido y
+    desplazamiento al montar), `Presionable` (se hunde y rebota al tocar; lo usan botones, opciones y «Nuevo Standard»), `BarraProgreso` (crece con `scaleX`),
+    `Esqueleto` (marcador de carga que parpadea) y `MarcaExito` (✓ que salta al enviar).
+  - Aplicado en: ingreso (logo y campos entran escalonados), inicio (cabecera baja, botón «Nuevo Standard», resumen y tarjetas de la lista escalonados, esqueletos
+    mientras carga en vez de «sin inspecciones»), nueva inspección (esqueleto del catálogo y cambio de paso animado), formulario (barra de progreso animada y cambio
+    de paso animado), pantalla «Inspección enviada» (✓ animado) y transiciones de pantalla (fundido, desde abajo).
+  - Sombras suaves en tarjetas, opciones y botones.
+- **Archivos:** `app-movil/src/ui/{animacion,componentes}.tsx`, `src/components/{pie-pagina,sync-indicador}.tsx`, `src/lib/{version,tecnico-contexto}.ts(x)`,
+  `src/app/{_layout,login,index,nueva}.tsx`, `src/app/inspeccion/[id].tsx`.
+- **Verificación:** `tsc` sin errores · Vitest 49 en verde · `expo-doctor` 20/20 · `expo export` Android (4,6 MB) e iOS (4,7 MB) empaquetan. **No verificado en el
+  teléfono:** no se vio ninguna animación ni el pie de página en un dispositivo real; falta ajustar tiempos a ojo.
+- **Pendiente / riesgos:**
+  - Sin dependencias nuevas: no se usó Reanimated. Si las animaciones se sienten entrecortadas en teléfonos antiguos, evaluar Reanimated (pedir autorización).
+  - El cambio de paso del formulario vuelve a montar la lista de ítems (el scroll vuelve arriba, que es lo esperado); no se probó con muchas fotos.
+  - Los enlaces del pie abren el sitio publicado (`EXPO_PUBLIC_WEB_URL`); sin señal no cargan. Los textos legales no están copiados en la app.
+  - La web desplegada (https://inspecciones-bbosch.vercel.app) está en V1.1.3 y todavía **no tiene** el endpoint del PDF (V1.1.4, rama `feat/app-movil` sin commit):
+    «Ver PDF» seguirá dando 404 hasta que esa rama se una a `main` y se vuelva a desplegar.
+
+### 2026-11-07 · Ver PDF de las inspecciones enviadas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal):** al enviar no aparecía la opción de ver el PDF y en «Enviadas» tampoco se podía descargar.
+- **Decisión (Cristóbal):** endpoint nuevo en la web que acepta el token de la app (ver `docs/BITACORA.md`, V1.1.4), en vez de imitar la
+  cookie de sesión o generar el PDF en el teléfono.
+- **Qué se hizo:** `src/lib/tecnico/informe.ts` descarga `GET {EXPO_PUBLIC_WEB_URL}/api/movil/informe/{id}` con `Authorization: Bearer` a un archivo
+  en caché y lo abre con el visor del teléfono (`File.preview`: compartir o guardar en Archivos). `boton-pdf.tsx` es el botón «Ver PDF», con mensajes
+  de error claros (sin señal, sesión vencida, 404, falta de configuración). Aparece en cada tarjeta de «Enviadas» y, al enviar, en la pantalla
+  «Inspección enviada» cuando el servidor ya la recibió (si quedó en cola sin señal, avisa que podrá verlo después). `EXPO_PUBLIC_WEB_URL` se agregó al `.env`
+  (autorizado por Cristóbal).
+- **Archivos:** `app-movil/src/lib/tecnico/informe.ts`, `app-movil/src/components/boton-pdf.tsx`, `app-movil/src/lib/supabase.ts`,
+  `app-movil/src/app/index.tsx`, `app-movil/src/app/inspeccion/[id].tsx`, `app-movil/.env`.
+- **Verificación:** `tsc` sin errores · Vitest 49 en verde · `expo-doctor` 20/20 · `expo export` iOS empaqueta (4,7 MB). **No verificado en el teléfono ni con
+  el servidor real:** el sitio publicado responde 404 en `/api/movil/informe/...` hasta desplegar la web V1.1.4.
+- **Pendiente / riesgos:** desplegar la web; probar `File.preview` en iPhone y Android (en Expo Go); el PDF no está disponible sin señal;
+  la pantalla «Inspección enviada» consulta el estado cada 1,5 s hasta que el servidor confirma.
+
+### 2026-11-07 · Cuenta compartida por turno: «Realizada por» en Enviadas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Contexto (Cristóbal):** la app es transversal; varios técnicos de un turno usan el mismo perfil y solo escriben su nombre en cada
+  inspección, así que puede haber unas 5 sesiones simultáneas de la misma cuenta (p. ej. turno B).
+- **Revisión:** cada teléfono guarda sus borradores, fotos y cola en su propia base local; los id de inspección y de foto son UUID
+  generados en el teléfono, así que no chocan entre teléfonos. Supabase Auth permite varias sesiones por usuario y la ruta de las fotos
+  `{usuario}/{inspección}/{foto}` no se repite. La RLS limita por cuenta: todos los teléfonos del turno ven las mismas «Enviadas» y los mismos
+  contadores (Enviadas, Aceptadas, Rechazadas).
+- **Qué se hizo:** «Enviadas» ahora trae `performed_by` y muestra «Realizada por {nombre}» en cada tarjeta, para distinguir quién hizo cada
+  inspección. El nombre ya se pide en «Datos del equipo» y es obligatorio para enviar. Un borrador de corrección copia el nombre de la original
+  (editable).
+- **Archivos:** `app-movil/src/lib/tecnico/enviadas.ts`, `app-movil/src/app/index.tsx`.
+- **Verificación:** `tsc` sin errores · Vitest 49 en verde. **No verificado** con dos teléfonos reales a la vez.
+- **Pendiente / riesgos:**
+  - Probar 2 o más teléfonos con la misma cuenta en paralelo (envíos simultáneos, «Enviadas» común).
+  - **No verificado:** si el proyecto Supabase tiene activado «una sola sesión por usuario» (Dashboard → Authentication → Sessions; solo en
+    planes de pago). Si estuviera activo, cada ingreso cerraría la sesión de los demás teléfonos del turno.
+  - «Corregir y reenviar» lo puede hacer cualquier teléfono del turno sobre una rechazada de otro: no hay candado.
+  - El campo del nombre no se recuerda entre inspecciones; se puede precargar el último usado en ese teléfono si ayuda.
+  - La cola de envío es del teléfono, no del usuario: aceptable mientras un teléfono sea de un solo turno.
+
+### 2026-11-07 · Botón «Cerrar sesión» y acceso «Inicio» en el formulario
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal):** faltaba un botón visible para salir de la sesión y volver a la pantalla de ingreso
+  (existía un «Salir» de texto pequeño en la cabecera del inicio).
+- **Qué se hizo:** en el inicio, botón «Cerrar sesión» en la cabecera y otro al final de la lista, con confirmación. Si hay
+  inspecciones por enviar, el aviso dice cuántas y que quedan guardadas en el teléfono. Cierra la sesión solo en el teléfono (no
+  necesita señal) y lleva al ingreso; borradores y cola se conservan. En el formulario, «Inicio» en la cabecera vuelve al menú desde
+  cualquier paso (lo escrito se guarda solo).
+- **Archivos:** `app-movil/src/app/index.tsx`, `app-movil/src/app/inspeccion/[id].tsx`.
+- **Verificación:** `tsc` sin errores. **No verificado en el teléfono.**
+- **Pendiente / riesgos:** con la sesión cerrada la cola no envía hasta volver a ingresar. Si ingresa otro técnico en el mismo teléfono,
+  la cola de envío es del teléfono y no por usuario: probar ese caso.
+
+### 2026-11-07 · Selector de hora y fecha, y botones de la firma
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró (prueba de Cristóbal en el iPhone):** (1) los campos de hora no tenían el reloj desplegable de la web (eran texto
+  libre); (2) en la firma se podía dibujar pero solo se veía el botón «Cancelar»: los botones «Limpiar» y «Guardar firma» del lienzo
+  (`react-native-signature-canvas`) no aparecían, así que no se podía guardar la firma ni enviar.
+- **Qué se hizo:**
+  - `campo-fecha-hora.tsx`: al tocar el campo se abre un menú inferior con columnas desplazables (Hora y Minutos; o Día, Mes y Año) y
+    botones «Cancelar», «Ahora» (solo hora, en horario de Chile) y «Aceptar». Guarda `HH:MM` y `AAAA-MM-DD`, igual que los `input`
+    de la web. Se usa en los campos de cabecera de tipo `time` y `date`. Sin dependencias nuevas.
+  - `firma-campo.tsx`: se oculta el pie del lienzo y los botones son de la app: «Limpiar», «Guardar firma» (lee la firma y la guarda)
+    y «Cancelar». Si se toca «Guardar firma» sin dibujar, avisa «Dibuje su firma dentro del recuadro antes de guardar».
+- **Archivos:** `app-movil/src/components/campo-fecha-hora.tsx`, `app-movil/src/components/firma-campo.tsx`, `app-movil/src/app/inspeccion/[id].tsx`.
+- **Verificación:** `tsc` sin errores · Vitest 49 en verde · `expo export` iOS empaqueta (4,6 MB). **No verificado en el teléfono**:
+  el selector y los botones de la firma deben probarse en Expo Go.
+- **Pendiente / riesgos:** si el lienzo sigue sin mostrarse completo en algún modelo, probar `webviewProps` o un tamaño fijo. La causa
+  exacta de que el pie quedara fuera de vista no se reprodujo (se evitó ocultándolo).
+
+### 2026-11-07 · `app-movil/.env` creado con el CLI de Supabase
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** Cristóbal autorizó expresamente crear `app-movil/.env` (excepción a «No tocar archivos .env*» del `CLAUDE.md`) y
+  elegir el proyecto `inspecciones-bbosch` (activo, sa-east-1). Con el CLI del repositorio (`corepack pnpm supabase`, solo lectura:
+  `projects list` y `projects api-keys`) se escribieron únicamente `EXPO_PUBLIC_SUPABASE_URL` y `EXPO_PUBLIC_SUPABASE_ANON_KEY`.
+  La clave `service_role` no se leyó ni se guardó. El otro proyecto (`inspecciones-mlp-prueba`) está inactivo.
+- **Archivos:** `app-movil/.env` (ignorado por git, confirmado con `git check-ignore`).
+- **Verificación:** `GET /auth/v1/settings` y `GET /rest/v1/areas` con la clave anon responden HTTP 200. El ingreso desde la app no se probó.
+- **Pendiente / riesgos:** las cuentas de técnico del proyecto remoto y sus contraseñas no están en el repositorio (no se versionan);
+  hay que usar una que ya exista. Si el proyecto remoto no tiene aplicadas las migraciones 0016 en adelante, el catálogo de formatos fallará.
+
+### 2026-11-07 · Pantallas del técnico (ingreso, inicio, nueva inspección, formulario)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** réplica de las pantallas del técnico de la web, con las reglas de la skill (FlashList con tipos de ítem, `Pressable`,
+  `StyleSheet.create`, `expo-image`, modales nativos, `contentInsetAdjustmentBehavior`, estado mínimo). Rutas protegidas con
+  `Stack.Protected`: sin sesión solo existe `login`.
+  - `login`: usuario y contraseña (usuario → correo interno, igual que la web). Solo ingresa el rol técnico. La sesión queda guardada
+    en el teléfono; sin señal se usa la guardada y el perfil (rol/turno) se lee de una copia local.
+  - `index` (inicio): botón «Nuevo Standard», resumen Enviadas/Aceptadas/Rechazadas, «Mis inspecciones» (en curso y cola, con
+    «Eliminar»), «Enviadas» con motivo de rechazo y «Corregir y reenviar», indicador de sincronización y «Listo para trabajar sin
+    señal · fecha de descarga» del catálogo.
+  - `nueva`: Área → Trabajo → Familia → Formato con `formatosVisibles` / `familiasVisibles`.
+  - `inspeccion/[id]`: datos del equipo, una pantalla por sección, secciones repetibles, ítems de verificación / número / texto /
+    foto / placa, severidad en ML, cierre (observaciones, participantes, roles, firma), revisión con lista navegable de lo que
+    falta y envío a la cola. Guardado automático (350 ms) y al salir de la pantalla.
+  - Componentes: `foto-campo` (cámara y galería, compresión 1600 px JPEG 0,7), `firma-campo` (hoja a pantalla completa con
+    `react-native-signature-canvas`), `selector-tag` (Maestro de TAG en una hoja con búsqueda, sectores, «Ver todas las áreas»,
+    «Equipo sin TAG» y «+ Equipo»), `sync-indicador`.
+  - Proveedores: `sesion.tsx` (ingreso/salida/perfil) y `tecnico-contexto.tsx` (sincronización, catálogo local, `useConsulta`).
+  - `app.json`: plugin `expo-image-picker` con los textos de permiso de cámara y fotos.
+- **Archivos:** `app-movil/src/app/{_layout,login,index,nueva}.tsx`, `src/app/inspeccion/[id].tsx`, `src/components/*`,
+  `src/lib/{sesion,tecnico-contexto}.tsx`, `src/ui/*`, `assets/bbosch-logo-solo.png`, `app.json`.
+- **Verificación:** `tsc` sin errores · Vitest 49 pruebas en verde · `expo-doctor` 20/20 · `expo export` Android e iOS empaquetan
+  (4,6 MB cada uno). **No verificado en el teléfono** (ni una sola de estas pantallas); tampoco el ingreso: no existe `app-movil/.env`.
+- **Pendiente / riesgos:**
+  - Crear `app-movil/.env` y probar con la cuenta de un técnico. Hasta entonces la app muestra «Falta configurar la conexión».
+  - Sin probar: cámara y galería, compresión y guardado de archivos, firma (WebView), subida de fotos al Storage, envío real
+    contra `submit_inspection`, corrección de rechazadas, selector de TAG con el Maestro completo, `AppState`/NetInfo.
+  - Diferencias con la web: no hay PDF; «Eliminar» usa un aviso nativo en vez de deslizar; el buscador de TAG no limita a 30 filas.
+  - El token de acceso vencido sin señal: la app deja trabajar con la sesión guardada y los envíos reintentan hasta renovarla; no
+    se probó el caso de refresco fallido al reconectar.
+
+### 2026-11-07 · Diseño y fase 1: lógica del técnico en la app (SQLite)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** se escribió `DISENO.md` (réplica del modelo de la web, con las reglas de la skill `react-native-skills`) y se
+  aplicó la fase 1. Se copió de la web, con su ruta de origen en la cabecera: plantillas (`schema`, `validate`, `repetir`),
+  formatos (`catalogo`, `tags`), `draft`, `catalog`, `enviadas`, `eliminar`, `outbox`, `transport`, `sync`, `fecha`, `usuario` y el
+  Maestro de TAG (`data/maestro-tags.json`). Se adaptó el almacenamiento: interfaz `Almacen` con `AlmacenSqlite` (`expo-sqlite`,
+  fotos como archivos) y `AlmacenMemoria` (pruebas). Red con NetInfo y `AppState`; sesión de Supabase en `expo-sqlite/kv-store`;
+  UUID con `expo-crypto`. La pantalla de inicio muestra «Base local: lista», conexión a Supabase y hora de Chile.
+- **Instalado (autorizado):** `@shopify/flash-list`, `expo-image`, `expo-crypto`, `vitest`, `vite`, `react-dom@19.3.0`.
+  `react-dom` y `vite` son peers de paquetes ya instalados: sin `react-dom` `expo-doctor` marca un `react` duplicado (el de la web).
+- **Otros cambios:** `tsconfig.json` (alias `@/*`, `types: ["node"]`), `vitest.config.ts`, `test/expo-crypto.ts`, script `npm test`,
+  `.gitignore` ahora ignora `.env` y `.env.*` (antes solo `.env*.local`: la clave se habría subido al repositorio).
+- **Archivos:** `app-movil/DISENO.md`, `app-movil/src/lib/**`, `app-movil/src/data/maestro-tags.json`, `app-movil/src/app/_layout.tsx`,
+  `app-movil/src/app/index.tsx`, `app-movil/package.json`, `app-movil/tsconfig.json`, `app-movil/vitest.config.ts`, `app-movil/.gitignore`.
+- **Verificación:** `tsc --noEmit` sin errores · `vitest run` 6 archivos, 49 pruebas en verde (borradores, validación, cola con
+  reintentos e idempotencia, eliminar, enviadas y corrección, plantillas; son las de la web adaptadas a `AlmacenMemoria`) ·
+  `expo-doctor` 20/20 · `expo export --platform android` empaqueta (3,3 MB).
+- **Pendiente / riesgos:**
+  - **No verificado en el teléfono:** `AlmacenSqlite`, la lectura y escritura de archivos y el cliente de Supabase solo se
+    comprobaron con `tsc` y el empaquetado (los tests usan la copia en memoria). Abrir en Expo Go (pendiente 11).
+  - `savePhoto` y `saveSignature` están escritos pero sin usar ni probar (API nueva de `expo-file-system` y `expo-image-manipulator`).
+  - Falta `app-movil/.env` (pendiente 10). No se portó `repetir.test.ts` (depende del informe PDF de la web).
+  - `npm install --legacy-peer-deps` deja bloqueado el script de `esbuild` (no afecta a las pruebas).
+  - Si cambia una regla en la web (`draft`, `validate`, `outbox`…), hay que replicarla en la copia.
+
+### 2026-11-07 · Primera prueba en iPhone con Expo Go
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** se abrió la app en el iPhone con Expo Go. Muestra la pantalla provisoria «App móvil en construcción»
+  (BBOSCH · técnico · inspección sin señal). No hubo cambios de código.
+- **Problemas y solución:**
+  1. La lista «local server» de Expo Go no mostró el servidor (el descubrimiento automático no funcionó). Se usó el QR.
+  2. Expo anunciaba una IP que el teléfono no alcanzaba (hay adaptadores VMware). Se fijó la IP de la Wi-Fi antes de
+     arrancar: `$env:REACT_NATIVE_PACKAGER_HOSTNAME="<IP de la Wi-Fi>"` y luego `npx expo start`.
+  3. «The request timed out»: el Firewall de Windows solo permitía `node.exe` en el perfil Público y la Wi-Fi es
+     Privada. Se creó una regla de entrada para `node.exe` (nombre «Node.js Expo (Privada)»; quedó con perfil `Any` por un
+     salto de línea al pegar; se recomendó dejarla en `Private` con `Set-NetFirewallRule`).
+  4. Al abrir `localhost:8081` en un navegador sale «Unable to resolve react-native-web/dist/index»: es el bundle web,
+     que no se usa (la app es solo para teléfono). No se instaló `react-native-web`.
+- **Archivos:** solo esta bitácora.
+- **Verificación:** probado en iPhone con Expo Go; carga la pantalla provisoria. Android no probado.
+- **Pendiente / riesgos:** la IP de la Wi-Fi puede cambiar (DHCP); si deja de conectar, revisar la IP con `ipconfig`.
+  Comprobar que la regla del Firewall quedó solo en `Private`.
+
+### 2026-11-07 · Bitácora propia de la migración y rutas en `src/app/`
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** se creó esta bitácora con la regla de actualizarla en cada cambio (también en `app-movil/CLAUDE.md` y el
+  `CLAUDE.md` de la raíz). Las pantallas se movieron de `app/` a `src/app/`, la convención del `AGENTS.md` de Expo.
+- **Archivos:** `app-movil/BITACORA.md`, `app-movil/CLAUDE.md`, `app-movil/src/app/`, `app-movil/README.md`, `CLAUDE.md`, `docs/MAESTRO.md`, `docs/BITACORA.md`.
+- **Verificación:** `tsc --noEmit` sin errores; `expo export --platform android` empaqueta e incluye las rutas.
+- **Pendiente / riesgos:** abrir en el iPhone con Expo Go (pendiente 1).
+
+### 2026-11-07 · Comando para PowerShell 5.1
+- **Autor:** Cristóbal (con Claude)
+- **Qué se hizo:** el primer intento de `npx expo start` falló porque PowerShell 5.1 no acepta `&&`. Se documentó correr
+  `cd` y `npx expo start` en líneas separadas, y qué hacer si el iPhone no conecta (Firewall, `--tunnel`).
+- **Verificación:** no verificado en el teléfono; Cristóbal seguirá desde VS Code.
+
+### 2026-11-07 · Skill `react-native-skills` (Vercel Labs)
+- **Autor:** Cristóbal (con Claude)
+- **Qué se hizo:** copiada a `.claude/skills/react-native-skills/` (38 reglas). Las pantallas actuales ya cumplen sus reglas
+  (stack nativo, `gap`, `StyleSheet.create`); no hubo cambios de código.
+- **Verificación:** archivos copiados completos.
+
+### 2026-11-07 · Proyecto Expo SDK 58 y módulos
+- **Autor:** Cristóbal (con Claude)
+- **Qué se hizo:** plantilla `blank-typescript`; módulos `expo-sqlite`, `expo-file-system`, `expo-image-picker`,
+  `expo-image-manipulator`, `@react-native-community/netinfo`, `react-native-signature-canvas` + `react-native-webview`,
+  `expo-router` (y dependencias), `@supabase/supabase-js`, `zod`. `overrides` de `glob`/`minimatch` por vulnerabilidades
+  moderadas del CLI de Expo. `app.json`: «Inspecciones MLP», `cl.bbosch.inspecciones`, esquema `inspeccionesmlp`. Se
+  borró el `LICENSE` MIT de la plantilla (el repo contiene información del cliente).
+- **Verificación:** `tsc` sin errores; `expo-doctor` 20/20; `expo install --check` al día; `npm audit` 0; `expo export
+  --platform android` 2,5 MB. No probado en teléfono.
+
+### 2026-11-07 · Carpeta `app-movil/`
+- **Autor:** Cristóbal (con Claude)
+- **Qué se hizo:** carpeta y `README.md`; `app-movil` excluida de `tsconfig.json` y `eslint.config.mjs` de la raíz.
+- **Verificación:** lint y tsc de la raíz sin errores.

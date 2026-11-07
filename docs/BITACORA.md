@@ -228,6 +228,53 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 - **Pendiente / riesgos:** desplegar en Vercel (requiere confirmación) y probar con la app. La ruta no tiene límite de uso propio: un token válido
   puede pedir PDF repetidamente (cada uno cuesta CPU en el servidor). Es la misma exposición que la ruta por cookies.
 
+### 2026-11-07 · Bitácora propia para la migración a React Native
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3)
+- **Qué se hizo:** desde ahora, **todo lo de la app nativa se registra en `app-movil/BITACORA.md`** (estado, pendientes, decisiones y
+  registro de la migración); esta bitácora sigue para la web y Supabase. Regla escrita en `CLAUDE.md` y `app-movil/CLAUDE.md`.
+- **Archivos:** `app-movil/BITACORA.md`, `app-movil/CLAUDE.md`, `CLAUDE.md`, `docs/MAESTRO.md`.
+- **Verificación:** documentos; sin cambios en la web.
+
+### 2026-11-07 · Skill `react-native-skills` (Vercel Labs) para la app móvil
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3)
+- **Qué se hizo:** se copió `react-native-skills` (Vercel, MIT, 38 reglas) desde `Documents\Code\Skills\agent-skills-main` a `.claude/skills/`,
+  junto a `react-best-practices` y `web-design-guidelines`. Se revisaron `app-movil/app/_layout.tsx` e `index.tsx` con ella: ya usan el stack nativo
+  de `expo-router` (`navigation-native-navigators`) y `gap`/`StyleSheet` (`ui-styling`); no hubo que cambiar código. Reglas que aplicarán al construir
+  el técnico: listas virtualizadas para el selector de TAG (1.073 equipos) y los borradores (`list-performance-*`), `expo-image` para miniaturas de
+  fotos (`ui-expo-image`), `Pressable` (`ui-pressable`), `contentInsetAdjustmentBehavior` en vez de `SafeAreaView` (`ui-safe-area-scroll`), estado que
+  represente la verdad (`state-ground-truth`) y dependencias nativas instaladas en `app-movil` (`monorepo-native-deps-in-app`).
+- **Archivos:** `.claude/skills/react-native-skills/`, `app-movil/README.md`, `docs/MAESTRO.md`.
+- **Verificación:** archivos copiados completos (SKILL.md, AGENTS.md, 38 reglas); sin cambios de código, no aplica lint ni tests.
+- **Pendiente / riesgos:** las reglas recomiendan `@legendapp/list` o `@shopify/flash-list` y `expo-image`: son dependencias nuevas, **pedir autorización**
+  cuando se construyan esas pantallas.
+
+### 2026-11-07 · Proyecto Expo creado en `app-movil/` (SDK 58) con sus módulos
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3; no toca la app web)
+- **Qué se hizo:** con autorización de Cristóbal se creó el proyecto Expo (plantilla `blank-typescript`, SDK 58, React Native 0.88, TypeScript
+  estricto) y se instalaron `expo-sqlite`, `expo-file-system`, `expo-image-picker`, `expo-image-manipulator`, `@react-native-community/netinfo`,
+  `react-native-signature-canvas` + `react-native-webview`, `expo-router` (y sus dependencias), `@supabase/supabase-js` y `zod`. Navegación con
+  `expo-router` y pantalla provisoria en español con colores Cobre. `app.json`: nombre «Inspecciones MLP», identificador `cl.bbosch.inspecciones`
+  (iOS y Android), solo teléfono, esquema `inspeccionesmlp`. La carpeta usa **npm** (lockfile propio), no pnpm. Se borró el `LICENSE` MIT que crea
+  la plantilla (el repo contiene información del cliente).
+- **Archivos:** `app-movil/` (`package.json`, `package-lock.json`, `app.json`, `app/_layout.tsx`, `app/index.tsx`, `README.md`, `tsconfig.json`,
+  `.gitignore`, `assets/`, `AGENTS.md`, `.claude/settings.json`), `docs/MAESTRO.md`.
+- **Verificación (2026-11-07):** en `app-movil`: `tsc --noEmit` sin errores; `expo-doctor` 20/20; `expo install --check` al día; `npm audit` 0
+  vulnerabilidades (con `overrides` de `glob`/`minimatch`); `expo export --platform android` empaqueta (2,5 MB). En la raíz: lint y tsc sin errores.
+  **No probado en un teléfono ni en emulador** (no se abrió con Expo Go).
+- **Pendiente / riesgos:** abrir con Expo Go en un teléfono real; `react-native-signature-canvas` es de terceros (no del SDK de Expo): confirmar que
+  funciona en iPhone y Android; la app final necesita una compilación propia (EAS/development build) porque la prueba sin señal no se puede hacer en
+  Expo Go con todos los módulos; siguiente paso: diseño de la interfaz de almacenamiento compartida (Maestro 5.7).
+
+### 2026-11-07 · Carpeta `app-movil/` para la app nativa (React Native)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3; no toca la app web)
+- **Qué se hizo:** inicio de la migración a React Native: carpeta `app-movil/` con un `README.md` (propósito, plan, qué se rehace para el
+  teléfono). Se excluyó `app-movil` de `tsconfig.json` y de `eslint.config.mjs` para que el futuro proyecto Expo no rompa `tsc` ni el lint de Next.
+  **Sin dependencias nuevas:** instalar Expo y sus módulos (SQLite, archivos, cámara, estado de red, firma) espera autorización de Cristóbal.
+- **Archivos:** `app-movil/README.md`, `tsconfig.json`, `eslint.config.mjs`, `docs/MAESTRO.md`.
+- **Verificación (2026-11-07):** `corepack pnpm lint` y `corepack pnpm tsc --noEmit` sin errores. No se corrieron tests ni build (no cambia código de la app).
+- **Pendiente / riesgos:** autorizar dependencias de Expo; proponer el diseño de la interfaz de almacenamiento (Maestro 5.7) antes de mover lógica;
+  decidir cuentas por persona o genéricas (afecta el ingreso en la app nativa).
+
 ### 2026-11-06 · Cierre de la jornada: PR #16 unido, sitio en V1.1.3 y estado al día
 - **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-3` · **Versión:** sin cambio (V1.1.3)
 - **Qué se hizo:** Cristóbal unió el PR #16 (contraseñas de prueba fuera del repo). Se verificó que `main` = d765aaf, que `supabase/` solo

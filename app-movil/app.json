@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Inspecciones MLP",
+    "slug": "inspecciones-mlp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "cl.bbosch.inspecciones"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#14181d",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "cl.bbosch.inspecciones"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Inspecciones MLP usa la cámara para tomar las fotos de la inspección.",
+          "photosPermission": "Inspecciones MLP accede a sus fotos solo si usted elige adjuntar una a la inspección."
+        }
+      ],
+      "expo-sharing"
+    ],
+    "scheme": "inspeccionesmlp"
+  }
+}

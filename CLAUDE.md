@@ -26,6 +26,12 @@ mejora, actualice el Maestro (secciones 4, 5 y 6) en el mismo commit que la bit�
 - Antes de empezar a trabajar, lea la bitácora para saber el estado y no repetir ni pisar el trabajo de otra persona.
 - No borre entradas antiguas; si algo se revierte, agregue una entrada nueva.
 
+### App móvil (`app-movil/`)
+
+**Los cambios de la app nativa (React Native/Expo) se registran en `app-movil/BITACORA.md`**, su bitácora propia, con
+la misma regla (mismo commit, verificación real). Instrucciones de esa carpeta en `app-movil/CLAUDE.md`. Si un cambio
+toca la web y la app, se anota en ambas bitácoras.
+
 ## Flujo de trabajo en equipo (GitHub)
 
 Trazabilidad: **la entrada de la bitácora viaja en el mismo commit que el cambio** (no en uno aparte).

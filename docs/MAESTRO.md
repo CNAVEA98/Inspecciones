@@ -41,6 +41,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 |---|---|
 | `docs/MAESTRO.md` | Este documento: entrada, directorio, estado y faltantes |
 | `docs/BITACORA.md` | Historial de cada mejora, «Estado actual», «Pendientes» numerados y «Decisiones» |
+| `.claude/skills/` | Skills de Vercel Labs: `react-best-practices` y `web-design-guidelines` (web), `react-native-skills` (app móvil, 2026-11-07) |
 | `CLAUDE.md` · `AGENTS.md` | Reglas de trabajo en equipo; aviso de que este Next 16 difiere de lo conocido (leer `node_modules/next/dist/docs/`) |
 | `docs/DESIGN.md` | Sistema visual «Cobre» (colores, estados BN/ML/NT/NA/NR, severidades) |
 | `docs/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
@@ -66,6 +67,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
 | `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
+| `app-movil/` | App nativa del técnico: proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); **bitácora propia `app-movil/BITACORA.md`** (estado, pendientes y decisiones de la migración; se actualiza en cada cambio) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)
@@ -163,6 +165,8 @@ región `gru1`; pestaña «Formatos» con clics; firma del planificador y rechaz
 guardar el PDF final firmado en Storage como registro oficial.
 
 ### 5.7 Preparación para React Native (solo después de 5.1 a 5.4)
+> **Actualización 2026-11-07:** se decidió **duplicar** la lógica en `app-movil/src/lib/` (`app-movil/DISENO.md`), no separarla dentro de la web; la web no se toca. Una regla que cambie en la web hay que replicarla en la app.
+
 Separar la lógica (esquemas, validación, borradores, cola) de Dexie, `window` y `next/*` detrás de una interfaz de
 almacenamiento, sin cambiar comportamiento y con los tests en verde: **primero proponer el diseño**. Inventario de
 lo atado al navegador/Next: `compress.ts` (canvas), detección de red, firma, `login/actions.ts` y rutas

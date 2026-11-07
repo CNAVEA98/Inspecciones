@@ -29,6 +29,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.4 | 2026-11-07 | Endpoint `/api/movil/informe/[id]` para que la app móvil descargue el PDF con su token (sin tocar el PDF ni las rutas de la web) |
 | V1.1.3 | 2026-11-06 | Contraseñas de las cuentas de prueba fuera del repositorio: plantilla del seed sin claves y `corepack pnpm seed:usuarios` |
 | V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |
 | V1.1.1 | 2026-11-06 | Informe PDF: severidad de hallazgos, TAG sin guionado, NA fuera del denominador, rótulo de mantención; plantillas con TAG y redacción corregidos |
@@ -210,6 +211,87 @@ Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/EX
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 
 ## Registro
+
+### 2026-11-07 · Historial de GitHub reescrito: claves de las cuentas de prueba eliminadas
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** las 7 contraseñas de las cuentas de prueba (números de 8 dígitos) estaban en el historial público en `supabase/seed.sql` (primer commit),
+  `supabase/seed_usuarios_dev.sql`, `scripts/prueba-carga.mjs` y `scripts/simular-formatos.mjs`. Se reemplazaron por el texto `CLAVE-ELIMINADA` en **todos** los commits
+  (`git filter-branch` sobre una copia, sin borrar archivos ni commits) y se subió con `--force-with-lease` a las 20 ramas remotas. **Los 112 commits cambiaron de identificador**
+  (p. ej. `main` pasó de `d765aaf` a `b33bb0a`). El repo sigue **público**, como decidió Cristóbal (Manuel no puede enviar mejoras a uno privado). **Las contraseñas NO se cambiaron.**
+- **Verificación:** antes de subir, 0 apariciones de las claves en los 1.003 archivos y los mensajes de commit de la copia; mismas rutas en las 48 ramas y solo cambian esos 4 archivos
+  (los árboles de `main` y `origin/main` son idénticos). Después de subir, se clonó GitHub de nuevo: 0 apariciones en las 20 ramas (108 commits alcanzables).
+- **Lo que NO se pudo limpiar:** (1) las **17 referencias `refs/pull/*`** de GitHub siguen apuntando a commits antiguos con las 34 apariciones; no se pueden borrar con git: hay que pedir a GitHub Support
+  la eliminación de datos sensibles y de las vistas en caché; (2) cualquier clon o copia que alguien ya hizo del repo público (0 forks al momento de reescribir); (3) las cuentas del Supabase remoto
+  **siguen usando esas mismas contraseñas**, así que quien las haya visto puede ingresar: reescribir el historial no sustituye a rotarlas.
+- **Para Manuel:** su `main` local ya no coincide con GitHub. Lo más simple: clonar de nuevo. Para no perder trabajo sin unir: en su clon viejo, `git log --oneline origin/main..<su-rama>` (con el `origin/main` viejo)
+  identifica sus commits; en el clon nuevo, `git switch -c <su-rama> origin/main` y `git cherry-pick <commits>`. No usar `git pull` ni `git push --force` desde el clon viejo (volvería a subir las claves).
+- **Respaldo:** copia completa del historial anterior (con las claves) en la carpeta temporal de la sesión de Claude (`…\scratchpadespaldo.git`), fuera del repo. **Borrarla cuando se confirme que todo está bien.** El repo local de Cristóbal conserva
+  los commits viejos en el reflog y en un stash antiguo; se pueden purgar con `git reflog expire --expire=now --all` y `git gc --prune=now`.
+- **Archivos:** ninguno del código; solo el historial de git y esta bitácora / `docs/MAESTRO.md` (sección 5.1).
+- **Pendiente:** pedir a GitHub Support la limpieza de `refs/pull/*`; decidir cuándo rotar las contraseñas.
+
+### 2026-11-07 · Endpoint del PDF para la app móvil
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Versión:** V1.1.4
+- **Qué se hizo:** la app móvil no tiene las cookies del navegador, así que no podía pedir el PDF oficial. Se agregó `GET /api/movil/informe/[id]`,
+  que lee `Authorization: Bearer <token de Supabase>`, verifica el token con Supabase, comprueba el rol y genera el mismo PDF de siempre.
+  La lectura de la inspección pasa por RLS con ese token (un técnico solo ve las de su cuenta; una ajena responde 404). `obtenerDetalle` y
+  el responder del PDF aceptan ahora un cliente de Supabase opcional (sin él, todo funciona igual que antes por cookies). Las rutas
+  `/tecnico/[id]/pdf`, `/supervisor/[id]/pdf`, etc. no cambian.
+- **Archivos:** `src/app/api/movil/informe/[id]/route.ts`, `src/lib/informe/responder-movil.ts`, `src/lib/informe/responder.ts`,
+  `src/lib/revision/queries.ts`, `src/lib/auth/bearer.ts` (+ `bearer.test.ts`), `package.json`, `src/lib/version.ts`.
+- **Verificación:** `corepack pnpm lint` sin errores · `tsc --noEmit` sin errores (tras `next typegen`) · `corepack pnpm test` 31 archivos, 255 pruebas
+  en verde (incluye `bearer.test.ts`) · `corepack pnpm build` correcto, la ruta aparece en `.next/server/app/api/movil/informe`.
+  **No verificado:** la descarga real con un token; el sitio publicado aún responde 404 en esa ruta porque no está desplegado.
+- **Pendiente / riesgos:** desplegar en Vercel (requiere confirmación) y probar con la app. La ruta no tiene límite de uso propio: un token válido
+  puede pedir PDF repetidamente (cada uno cuesta CPU en el servidor). Es la misma exposición que la ruta por cookies.
+
+### 2026-11-07 · Bitácora propia para la migración a React Native
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3)
+- **Qué se hizo:** desde ahora, **todo lo de la app nativa se registra en `app-movil/BITACORA.md`** (estado, pendientes, decisiones y
+  registro de la migración); esta bitácora sigue para la web y Supabase. Regla escrita en `CLAUDE.md` y `app-movil/CLAUDE.md`.
+- **Archivos:** `app-movil/BITACORA.md`, `app-movil/CLAUDE.md`, `CLAUDE.md`, `docs/MAESTRO.md`.
+- **Verificación:** documentos; sin cambios en la web.
+
+### 2026-11-07 · Skill `react-native-skills` (Vercel Labs) para la app móvil
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3)
+- **Qué se hizo:** se copió `react-native-skills` (Vercel, MIT, 38 reglas) desde `Documents\Code\Skills\agent-skills-main` a `.claude/skills/`,
+  junto a `react-best-practices` y `web-design-guidelines`. Se revisaron `app-movil/app/_layout.tsx` e `index.tsx` con ella: ya usan el stack nativo
+  de `expo-router` (`navigation-native-navigators`) y `gap`/`StyleSheet` (`ui-styling`); no hubo que cambiar código. Reglas que aplicarán al construir
+  el técnico: listas virtualizadas para el selector de TAG (1.073 equipos) y los borradores (`list-performance-*`), `expo-image` para miniaturas de
+  fotos (`ui-expo-image`), `Pressable` (`ui-pressable`), `contentInsetAdjustmentBehavior` en vez de `SafeAreaView` (`ui-safe-area-scroll`), estado que
+  represente la verdad (`state-ground-truth`) y dependencias nativas instaladas en `app-movil` (`monorepo-native-deps-in-app`).
+- **Archivos:** `.claude/skills/react-native-skills/`, `app-movil/README.md`, `docs/MAESTRO.md`.
+- **Verificación:** archivos copiados completos (SKILL.md, AGENTS.md, 38 reglas); sin cambios de código, no aplica lint ni tests.
+- **Pendiente / riesgos:** las reglas recomiendan `@legendapp/list` o `@shopify/flash-list` y `expo-image`: son dependencias nuevas, **pedir autorización**
+  cuando se construyan esas pantallas.
+
+### 2026-11-07 · Proyecto Expo creado en `app-movil/` (SDK 58) con sus módulos
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3; no toca la app web)
+- **Qué se hizo:** con autorización de Cristóbal se creó el proyecto Expo (plantilla `blank-typescript`, SDK 58, React Native 0.88, TypeScript
+  estricto) y se instalaron `expo-sqlite`, `expo-file-system`, `expo-image-picker`, `expo-image-manipulator`, `@react-native-community/netinfo`,
+  `react-native-signature-canvas` + `react-native-webview`, `expo-router` (y sus dependencias), `@supabase/supabase-js` y `zod`. Navegación con
+  `expo-router` y pantalla provisoria en español con colores Cobre. `app.json`: nombre «Inspecciones MLP», identificador `cl.bbosch.inspecciones`
+  (iOS y Android), solo teléfono, esquema `inspeccionesmlp`. La carpeta usa **npm** (lockfile propio), no pnpm. Se borró el `LICENSE` MIT que crea
+  la plantilla (el repo contiene información del cliente).
+- **Archivos:** `app-movil/` (`package.json`, `package-lock.json`, `app.json`, `app/_layout.tsx`, `app/index.tsx`, `README.md`, `tsconfig.json`,
+  `.gitignore`, `assets/`, `AGENTS.md`, `.claude/settings.json`), `docs/MAESTRO.md`.
+- **Verificación (2026-11-07):** en `app-movil`: `tsc --noEmit` sin errores; `expo-doctor` 20/20; `expo install --check` al día; `npm audit` 0
+  vulnerabilidades (con `overrides` de `glob`/`minimatch`); `expo export --platform android` empaqueta (2,5 MB). En la raíz: lint y tsc sin errores.
+  **No probado en un teléfono ni en emulador** (no se abrió con Expo Go).
+- **Pendiente / riesgos:** abrir con Expo Go en un teléfono real; `react-native-signature-canvas` es de terceros (no del SDK de Expo): confirmar que
+  funciona en iPhone y Android; la app final necesita una compilación propia (EAS/development build) porque la prueba sin señal no se puede hacer en
+  Expo Go con todos los módulos; siguiente paso: diseño de la interfaz de almacenamiento compartida (Maestro 5.7).
+
+### 2026-11-07 · Carpeta `app-movil/` para la app nativa (React Native)
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` · **Versión:** sin cambio (V1.1.3; no toca la app web)
+- **Qué se hizo:** inicio de la migración a React Native: carpeta `app-movil/` con un `README.md` (propósito, plan, qué se rehace para el
+  teléfono). Se excluyó `app-movil` de `tsconfig.json` y de `eslint.config.mjs` para que el futuro proyecto Expo no rompa `tsc` ni el lint de Next.
+  **Sin dependencias nuevas:** instalar Expo y sus módulos (SQLite, archivos, cámara, estado de red, firma) espera autorización de Cristóbal.
+- **Archivos:** `app-movil/README.md`, `tsconfig.json`, `eslint.config.mjs`, `docs/MAESTRO.md`.
+- **Verificación (2026-11-07):** `corepack pnpm lint` y `corepack pnpm tsc --noEmit` sin errores. No se corrieron tests ni build (no cambia código de la app).
+- **Pendiente / riesgos:** autorizar dependencias de Expo; proponer el diseño de la interfaz de almacenamiento (Maestro 5.7) antes de mover lógica;
+  decidir cuentas por persona o genéricas (afecta el ingreso en la app nativa).
 
 ### 2026-11-06 · Cierre de la jornada: PR #16 unido, sitio en V1.1.3 y estado al día
 - **Autor:** Cristóbal (con Claude) · **Rama:** `docs/estado-v1-1-3` · **Versión:** sin cambio (V1.1.3)

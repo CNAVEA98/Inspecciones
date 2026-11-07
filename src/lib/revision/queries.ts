@@ -1,3 +1,4 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { CLAVE_REPETICIONES, expandirPlantilla } from "@/lib/templates/repetir";
 import { templateSchema, type FormTemplateSchema } from "@/lib/templates/schema";
@@ -214,8 +215,8 @@ export async function listarBandeja(estados: InspectionStatus[]): Promise<FilaBa
 }
 
 /** Devuelve null si la inspección no existe o el usuario no puede verla (RLS). */
-export async function obtenerDetalle(id: string): Promise<DetalleInspeccion | null> {
-  const supabase = await createClient();
+export async function obtenerDetalle(id: string, cliente?: SupabaseClient): Promise<DetalleInspeccion | null> {
+  const supabase = cliente ?? (await createClient());
   // Todo se pide a la vez: la plantilla viene embebida en la inspección (antes era una segunda vuelta que esperaba
   // a la primera). Si la inspección no se puede ver (RLS), las demás consultas vuelven vacías y se descartan.
   const [inspRes, respuestasRes, hallazgosRes, adjuntosRes, firmasRes, seguimientoRes] = await Promise.all([

@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit d765aaf (PR #16 unido) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-06 · versión V1.1.3 · `main` = commit b33bb0a (PR #17 unido; identificadores reescritos el 2026-11-07, ver 5.1) · sitio publicado en V1.1.3 (verificado).** Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -41,6 +41,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 |---|---|
 | `docs/MAESTRO.md` | Este documento: entrada, directorio, estado y faltantes |
 | `docs/BITACORA.md` | Historial de cada mejora, «Estado actual», «Pendientes» numerados y «Decisiones» |
+| `.claude/skills/` | Skills de Vercel Labs: `react-best-practices` y `web-design-guidelines` (web), `react-native-skills` (app móvil, 2026-11-07) |
 | `CLAUDE.md` · `AGENTS.md` | Reglas de trabajo en equipo; aviso de que este Next 16 difiere de lo conocido (leer `node_modules/next/dist/docs/`) |
 | `docs/DESIGN.md` | Sistema visual «Cobre» (colores, estados BN/ML/NT/NA/NR, severidades) |
 | `docs/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
@@ -66,6 +67,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
 | `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
+| `app-movil/` | App nativa del técnico: proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); **bitácora propia `app-movil/BITACORA.md`** (estado, pendientes y decisiones de la migración; se actualiza en cada cambio) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)
@@ -109,9 +111,10 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
 - **Revisión de claves en el historial (106 commits, todas las ramas): NO hay** claves `service_role`, `sb_secret_`, tokens, URL de base con
   contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de `demo/` y `docs/muestras/` son imágenes base64.
 - **Contraseñas de las 7 cuentas de prueba:** estuvieron publicadas en `seed_usuarios_dev.sql`. Desde la V1.1.3 salieron del árbol de archivos
-  (plantilla sin claves + `corepack pnpm seed:usuarios`), pero **siguen en el historial público** y **las 7 cuentas del Supabase remoto aún las usan**
-  (comprobado por hash; incluye `ADMINISTRADOR`). Cristóbal decidió no rotarlas ni volver privado el repo por ahora (sistema de prueba).
-  **Obligatorio antes de datos reales:** rotarlas (y cerrar sesiones) y volver privado el repo o reescribir el historial.
+  (plantilla sin claves + `corepack pnpm seed:usuarios`). **El 2026-11-07 se reescribió el historial de GitHub** y se reemplazaron por `CLAVE-ELIMINADA` en los 112 commits
+  (todos cambiaron de identificador; ver `docs/BITACORA.md`). **Quedan:** las 17 referencias `refs/pull/*` de GitHub con commits viejos (hay que pedir su limpieza a GitHub Support),
+  cualquier copia previa del repo, y **las 7 cuentas del Supabase remoto siguen usando esas mismas contraseñas** (incluye `ADMINISTRADOR`): Cristóbal decidió no rotarlas (sistema de prueba).
+  **Obligatorio antes de datos reales:** rotarlas y cerrar sesiones.
   Ingresos recientes en `administrador` (3 nov), `supervisor_b` (4 nov) y `tecnico_b` (6 nov) no se pudieron atribuir (sin registro de auditoría).
 - **Repo PUBLIC** por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas). Un repo privado también admite colaboradores. El repo público
   contiene además los formatos Word/Excel de MLP/Bbosch (36 archivos) y el Maestro de TAG (1.073 equipos): información del cliente.
@@ -163,6 +166,8 @@ región `gru1`; pestaña «Formatos» con clics; firma del planificador y rechaz
 guardar el PDF final firmado en Storage como registro oficial.
 
 ### 5.7 Preparación para React Native (solo después de 5.1 a 5.4)
+> **Actualización 2026-11-07:** se decidió **duplicar** la lógica en `app-movil/src/lib/` (`app-movil/DISENO.md`), no separarla dentro de la web; la web no se toca. Una regla que cambie en la web hay que replicarla en la app.
+
 Separar la lógica (esquemas, validación, borradores, cola) de Dexie, `window` y `next/*` detrás de una interfaz de
 almacenamiento, sin cambiar comportamiento y con los tests en verde: **primero proponer el diseño**. Inventario de
 lo atado al navegador/Next: `compress.ts` (canvas), detección de red, firma, `login/actions.ts` y rutas

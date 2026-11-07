@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Inspecciones MLP",
+    "slug": "inspecciones-mlp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "cl.bbosch.inspecciones"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#14181d",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "cl.bbosch.inspecciones",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Inspecciones MLP usa la cámara para tomar las fotos de la inspección.",
+          "photosPermission": "Inspecciones MLP accede a sus fotos solo si usted elige adjuntar una a la inspección."
+        }
+      ],
+      "expo-sharing",
+      "expo-background-task"
+    ],
+    "scheme": "inspeccionesmlp",
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "2db60960-f8ee-4b6a-aa5f-10d6a4489e25"
+      }
+    },
+    "owner": "cnaveavaldes"
+  }
+}

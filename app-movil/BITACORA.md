@@ -105,6 +105,18 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 
 ## Registro
 
+### 2026-11-07 · PDF oficial verificado en Android, nombre legible, y APK: primer intento fallido por `npm ci`
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` (continuación tras el PR #18)
+- **Despliegue (hecho con autorización de Cristóbal):** PR #18 unido a `main` (merge `19358da`). El sitio publicado pasó a **V1.1.4** (comprobado con `curl`) y `GET /api/movil/informe/{id}` responde **401 sin token** (antes 404).
+- **PDF oficial en el emulador Android:** con señal, «PDF · Guardar o compartir» de una inspección enviada descarga el del servidor. Vista previa: folio INS-2026-000005, estado «ENVIADA», «Página 1 de 3», firmas de revisión «Pendiente de firma».
+  También se vio que el margen derecho «raro» del PDF **no es defecto nuestro**: el PDF oficial se ve igual en el diálogo de impresión de Android (que lo reescala a Letter); se descarta ese pendiente.
+- **Corrección:** el PDF oficial se compartía como `<id>.pdf` porque `File.downloadFileAsync` nombra el archivo con la URL. Ahora `descargarOficial` usa `fetch` y toma el nombre de `Content-Disposition` (`nombreDeContentDisposition`, con 4 pruebas):
+  «Inspeccion Switchgear 23 kV - 430-SG-431 - 2026-11-07.pdf». También deja de usar `move` (asíncrono en SDK 58).
+- **APK (EAS Build) — intento 1 fallido:** `npm ci` falló en EAS («Missing: react-native-gesture-handler@3.5.0 from lock file…»): este equipo instala con `--legacy-peer-deps` y EAS no. **Solución:** `app-movil/.npmrc` con `legacy-peer-deps=true`
+  (el `package-lock.json` no cambia; `npm ci --include=dev --dry-run` pasa). Así cualquier persona y EAS instalan igual.
+- **Verificación:** `tsc` sin errores · Vitest 292 pruebas en verde · PDF oficial probado en el emulador (ver arriba).
+- **Pendiente / riesgos:** resultado del segundo intento de APK (ver siguiente entrada). Si se cierra la app a la fuerza, Android no ejecuta la tarea de envío en segundo plano.
+
 ### 2026-11-07 · Envío en segundo plano y primer APK de Android (EAS Build)
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
 - **Autorizado por Cristóbal:** dependencias `expo-background-task` y `expo-task-manager`, y subir el proyecto a EAS con su cuenta de Expo.

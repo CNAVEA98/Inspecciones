@@ -29,7 +29,8 @@ export async function savePhoto(
 
   const id = nuevoId();
   const destino = new File(carpetaFotos(), `${id}.jpg`);
-  new File(resultado.uri).move(destino);
+  // `move` y `write` son asíncronos en SDK 58: hay que esperarlos antes de leer `size`.
+  await new File(resultado.uri).move(destino);
   await almacen.agregarFoto({
     id,
     inspectionId,
@@ -52,7 +53,7 @@ export async function saveSignature(
   const id = nuevoId();
   const destino = new File(carpetaFotos(), `${id}.png`);
   destino.create();
-  destino.write(pngBase64.replace(/^data:image\/png;base64,/, ""), { encoding: "base64" });
+  await destino.write(pngBase64.replace(/^data:image\/png;base64,/, ""), { encoding: "base64" });
   await almacen.agregarFoto({
     id,
     inspectionId,

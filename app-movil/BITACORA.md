@@ -49,8 +49,8 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 | Proyecto Expo SDK 58 (React Native 0.88, React 19.3, TypeScript estricto) | Creado en la rama `feat/app-movil`, **sin commit** |
 | Navegación `expo-router` (stack nativo, rutas protegidas), rutas en `src/app/` | Hecho: `login`, `index` (inicio), `nueva`, `inspeccion/[id]` |
 | Módulos: SQLite, archivos, cámara, compresión de fotos, red, firma, Supabase, Zod | Instalados (autorizados el 2026-11-07). En uso en el código: SQLite, archivos, red, Supabase, Zod, cámara/galería, compresión, firma, FlashList, expo-image (**todo sin probar en el teléfono salvo SQLite**) |
-| Verificación técnica | `tsc` sin errores · `expo-doctor` 20/20 · Vitest 49 pruebas en verde · empaqueta para Android e iOS (4,6 MB) |
-| Prueba en teléfono | **Fase 1 verificada en iPhone con Expo Go (2026-11-07)**: abre la base local y muestra los datos. Las pantallas nuevas no se han abierto. Android no probado |
+| Verificación técnica | `tsc` sin errores · `expo-doctor` 20/20 · Vitest 101 pruebas en verde · empaqueta para Android e iOS (4,6 MB) |
+| Prueba en teléfono | **Fase 1 verificada en iPhone con Expo Go (2026-11-07)**: abre la base local y muestra los datos. **Android (emulador API 37, Expo Go, 2026-11-07): flujo completo verificado**, incluido modo avión, cierre y reapertura, envío único con folio y PDF local (ver Registro). iPhone: pantallas y arreglos de `await` sin reprobar. Dispositivo Android físico y APK: no probados |
 | Lógica del técnico (esquemas, borradores, cola, catálogo, enviadas) | **Fase 1 hecha (2026-11-07):** copiada de la web y adaptada a SQLite (`src/lib/`); diseño en `DISENO.md`. La base abre en pantalla; **no probada en el teléfono** |
 | Pantallas del técnico | **Escritas (2026-11-07), sin probar en el teléfono:** ingreso, inicio (resumen, en curso, enviadas, corregir rechazadas), nueva inspección (4 pasos), formulario completo (secciones, repetibles, fotos, firma, selector de TAG, revisión y envío). PDF local y oficial escritos, sin probar |
 | Conexión a Supabase | Cliente listo (`src/lib/supabase.ts`); `app-movil/.env` creado el 2026-11-07 con la URL y la clave anon del proyecto `inspecciones-bbosch` (ref `etdeiyjzibgihqtvdrpt`); responde (HTTP 200). **Ingreso no probado** |
@@ -104,6 +104,50 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
 - **`--legacy-peer-deps` al instalar (2026-11-07):** `npm` fallaba (ERESOLVE) porque pedía `react-dom@19.3.1` con `react@19.3.0`. Se fijó `react-dom@19.3.0` y se instala con `--legacy-peer-deps`.
 
 ## Registro
+
+### 2026-11-07 · Prueba completa en Android (emulador): flujo del técnico, sin señal y PDF; 2 fallos corregidos
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Cómo:** emulador `Medium_Phone_API_37.0` (Android 37, 1080×2400) con Expo Go; Cristóbal ingresó con `TECNICO_B` (turno B); el resto con `adb` (capturas, `uiautomator`, `input`, `cmd connectivity airplane-mode`). Datos de prueba: «PRUEBA ANDROID CLAUDE», TAG 430-SG-431 (Switchgear 23 kV, INSP-13). **La inspección se envió al Supabase remoto: INS-2026-000005** (dato de prueba; conviene borrarla o rechazarla desde la web).
+- **Funciona en Android (verificado con capturas):** ingreso y perfil (Técnico · Turno B); lista «Enviadas» desde el servidor; Nuevo Standard (área → trabajo → familia → formato); cabecera con selector de TAG (66 equipos, sectores, búsqueda «430sg431» sin guiones), selector de hora propio con «Ahora» en hora de Chile; 17 ítems (BN/ML, severidad Media por defecto, observación obligatoria en ML, ítem numérico de lecturas);
+  foto con la cámara del sistema (permiso, captura, compresión, miniatura); firma en WebView (guarda, y avisa si está vacía); revisión «17 de 17»; **modo avión → «Inspección guardada… se enviará apenas haya conexión»; cerrar la app por completo y reabrirla sin señal: sigue la sesión y la inspección «En cola de envío» (indicador «Sin conexión, 1 guardada en el teléfono»);
+  al reconectar se envió sola, una sola vez, con folio INS-2026-000005 y «Realizada por PRUEBA ANDROID CLAUDE»** (Enviadas 3 → 4, cola vacía; las fotos y la firma subieron al Storage porque el servidor aceptó el envío); PDF de la inspección enviada (con señal; cae al PDF del teléfono porque el endpoint V1.1.4 aún no está desplegado).
+- **Fallo 1 (corregido): PDF del teléfono vacío.** En Expo SDK 58 `File.write`, `move`, `copy`, `bytes` y `text` son **asíncronos** (existen `writeSync`, `moveSync`, `copySync`…) y el código los llamaba sin `await`. Además `File.move` desde la carpeta de `expo-print` fallaba en Android con «Missing 'READ' permission».
+  Ahora `local-nativo.ts` pide `base64: true` a `printToFileAsync` y lo escribe con `await destino.write(...)`; `photos.ts` (`move` y `write` de la firma) e `informe.ts` (`move` del PDF del servidor y `copy` para compartir) esperan sus promesas. Esto probablemente también explica el error de iOS «You don't have access to the provided file» (se compartía un archivo aún incompleto): **no verificado en iPhone**.
+  Resultado en Android: el PDF generado sin señal muestra encabezado «Pendiente de envío», hallazgo (Media), lecturas, observaciones, firma del encargado y registro fotográfico; el nombre del archivo es «Inspeccion Switchgear 23 kV - 430-SG-431 - 2026-11-07 (sin enviar).pdf» y abre la hoja de compartir.
+- **Fallo 2 (corregido, antes oculto): tamaño de fotos y firma.** Por lo mismo, `destino.size` se leía antes de terminar `move`/`write`, así que `sizeBytes` de los adjuntos podía quedar en 0 en el envío. Con los `await` se registra el tamaño real (la inspección ya enviada de esta prueba se hizo con el código anterior; el servidor la aceptó igual).
+- **Archivos:** `app-movil/src/lib/informe/local-nativo.ts`, `src/lib/tecnico/{photos,informe}.ts`, esta bitácora.
+- **Verificación:** `tsc` sin errores · Vitest 13 archivos, 101 pruebas en verde · `expo-doctor` 20/20 (una pasada dio 19/20 por una comprobación que usa red; la repetición, 20/20) · `expo export --platform android` empaqueta.
+- **No verificado / pendiente:** PDF oficial del servidor (404 hasta desplegar V1.1.4); compartir hacia una app real (solo se abrió la hoja y la vista previa «Print»); Galería; sesión vencida sin señal; dos teléfonos a la vez; envío con la app cerrada; build propio (APK) fuera de Expo Go; probar los arreglos de `await` en iPhone.
+- **Observaciones de diseño (no corregidas):** (1) con el aviso «Sin conexión, 1 guardada en el teléfono» el saludo «Técnico · Turno B» se corta («Tur…»); (2) en las fotos, el botón «Galería» baja de línea al haber miniatura; (3) en el PDF local el contenido deja un margen derecho mayor que el izquierdo (la cabecera oscura no llega al borde derecho; el diálogo de impresión de Android lo muestra en tamaño Letter); (4) el engranaje flotante de Expo Go tapa «Cerrar sesión» e «Inicio» (solo en desarrollo).
+
+### 2026-11-07 · Primera prueba en Android (emulador, Expo Go): ingreso
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** se levantó el emulador de Android Studio (AVD `Medium_Phone_API_37.0`, Android 37, 1080×2400; el arranque desde la terminal se colgaba en WHPX, funcionó al abrirlo desde Android Studio), se instaló Expo Go con `expo start --android` y se abrió la app (SDK 58.0.0).
+  Si Expo Go muestra «Failed to download remote update», el emulador no alcanza Metro por `10.0.2.2`: ejecutar `adb reverse tcp:8081 tcp:8081` y abrir `exp://localhost:8081`.
+- **Verificación (capturas y `uiautomator`):** la pantalla de ingreso se ve correcta (logo, campos, pie con Privacidad, Condiciones y V1.0.0). Usuario vacío → «Ingrese su usuario». Contraseña de 5 caracteres → «La contraseña debe tener al menos 8 caracteres».
+  Usuario y contraseña inventados con señal → «Usuario o contraseña incorrectos» (respuesta real del servidor: la app llega a Supabase). Modo avión → «Para ingresar por primera vez necesita señal.»
+- **No verificado:** ingreso con una cuenta real (la contraseña la escribe Cristóbal; no está en el repositorio), catálogo, formulario, fotos con la cámara del emulador, firma, envío, modo sin señal con sesión iniciada, PDF.
+- **Pendiente / riesgos:** el botón Atrás en la pantalla de ingreso sale de la app (comportamiento normal de Android). El `.env` se leyó bien en Android.
+
+### 2026-11-07 · Revisión de ingeniería: cola, sesión, fotos, catálogo y errores
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se encontró y corrigió (revisión de código, sin probar en teléfono):**
+  1. **Fallos de red gastaban intentos de la cola.** Con mala señal (conectado pero sin internet) la inspección llegaba a «failed» en ~25 min (12 intentos). Ahora los fallos de conectividad
+     (`esErrorDeRed`) no consumen intentos: reintentan cada 15 s y la inspección sigue pendiente hasta que vuelva la señal. Los rechazos del servidor siguen sin reintentarse.
+  2. **Rutas de fotos absolutas.** En iOS el contenedor de la app puede cambiar al actualizar o reinstalar; las fotos y la firma de borradores y cola habrían quedado apuntando a la nada.
+     `AlmacenSqlite` reubica la ruta en la carpeta vigente al leer (`reubicarUri`), así lo aprovechan subida, PDF local y miniaturas.
+  3. **`SyncController.syncNow` podía quedar trabado:** `refresh()` estaba fuera del `try`; si fallaba, `syncing` quedaba en `true` y no se enviaba nada más. Corregido.
+  4. **Renovación de sesión:** el cliente de Supabase ahora llama `startAutoRefresh`/`stopAutoRefresh` según `AppState` (recomendación oficial para React Native).
+  5. **Catálogo:** se descargaba entero (60 plantillas) cada vez que la app volvía a primer plano; ahora a lo más cada 10 minutos.
+  6. **`ErrorBoundary`** en español en `_layout.tsx`: un error inesperado muestra «Algo salió mal» con «Reintentar» y avisa que lo guardado no se pierde.
+- **Archivos:** `src/lib/offline/{ruta,errores,outbox,transport,sync,almacen-sqlite}.ts`, `ruta.test.ts`, `errores.test.ts`, `outbox.test.ts`, `src/lib/{supabase.ts,tecnico-contexto.tsx}`, `src/app/_layout.tsx`.
+- **Verificación:** `tsc` sin errores · Vitest 13 archivos, 101 pruebas en verde (9 nuevas: rutas, clasificación de errores y «mala señal no consume intentos») · `expo-doctor` 20/20 ·
+  `expo export --platform android` empaqueta (4,8 MB). **No verificado en el teléfono:** `reubicarUri` sobre `expo-file-system` real, `startAutoRefresh` con `AppState` y el `ErrorBoundary`.
+- **Pendiente / riesgos:**
+  - `esErrorDeRed` se basa en textos de error de `fetch`/Supabase; si un dispositivo usa otro texto, se cuenta como intento normal (comportamiento anterior, sin pérdida de datos).
+  - `AlmacenSqlite.transaccion` usa `withTransactionAsync`, que no es exclusiva: otra consulta concurrente (p. ej. el guardado automático) puede entrar en la misma transacción. Evaluar `withExclusiveTransactionAsync`.
+  - Una foto guardada que se queda sin registro (cierre de la app entre mover el archivo y `agregarFoto`) deja un archivo huérfano; falta una limpieza.
+  - Sin prueba de envío en segundo plano ni de varias sesiones de la misma cuenta.
 
 ### 2026-11-07 · «You don't have access to the provided file» persiste (captura p4): se comparte una copia
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
@@ -354,7 +398,7 @@ npx expo start           # muestra un QR: escanéelo con la cámara del iPhone (
   - `app.json`: plugin `expo-image-picker` con los textos de permiso de cámara y fotos.
 - **Archivos:** `app-movil/src/app/{_layout,login,index,nueva}.tsx`, `src/app/inspeccion/[id].tsx`, `src/components/*`,
   `src/lib/{sesion,tecnico-contexto}.tsx`, `src/ui/*`, `assets/bbosch-logo-solo.png`, `app.json`.
-- **Verificación:** `tsc` sin errores · Vitest 49 pruebas en verde · `expo-doctor` 20/20 · `expo export` Android e iOS empaquetan
+- **Verificación:** `tsc` sin errores · Vitest 101 pruebas en verde · `expo-doctor` 20/20 · `expo export` Android e iOS empaquetan
   (4,6 MB cada uno). **No verificado en el teléfono** (ni una sola de estas pantallas); tampoco el ingreso: no existe `app-movil/.env`.
 - **Pendiente / riesgos:**
   - Crear `app-movil/.env` y probar con la cuenta de un técnico. Hasta entonces la app muestra «Falta configurar la conexión».

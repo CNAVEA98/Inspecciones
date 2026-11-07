@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { AlmacenMemoria } from "./almacen-memoria";
 import type { DraftRecord, PhotoRecord, SubmitPayload } from "./db";
 import {
+  ESPERA_SIN_RED_MS,
   MAX_ATTEMPTS,
   TransportError,
   backoffMs,
@@ -232,6 +233,23 @@ describe("cola offline", () => {
     await db.actualizarSalida(INSPECTION, { attempts: MAX_ATTEMPTS - 1 });
     const res = await processOutbox(db, server, { now: clock });
     expect(res.failed).toEqual([INSPECTION]);
+  });
+
+  it("un fallo de red no consume intentos: una mala señal prolongada no deja la inspección en failed", async () => {
+    await enqueueSubmission(db, { payload: payload(), photoIds: [PHOTO] }, t);
+    server.failSubmitWith = new TransportError("Network request failed", true, true);
+    for (let i = 0; i < MAX_ATTEMPTS + 5; i++) {
+      const res = await processOutbox(db, server, { now: clock });
+      expect(res.failed).toEqual([]);
+      t += ESPERA_SIN_RED_MS + 1;
+    }
+    const e = (await db.obtenerSalida(INSPECTION))!;
+    expect(e.status).toBe("pending");
+    expect(e.attempts).toBe(0);
+    // Al volver la señal se envía normalmente.
+    server.failSubmitWith = null;
+    const res = await processOutbox(db, server, { now: clock });
+    expect(res.sent).toEqual([INSPECTION]);
   });
 
   it("recupera una entrada que quedó en 'sending' por un cierre de la app", async () => {

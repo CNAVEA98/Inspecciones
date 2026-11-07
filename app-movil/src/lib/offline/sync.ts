@@ -45,12 +45,12 @@ export class SyncController {
   async syncNow() {
     if (this.syncing) return;
     this.syncing = true;
-    await this.refresh();
     try {
+      await this.refresh();
       await processOutbox(this.almacen, this.transport, { isOnline: () => this.red.enLinea() });
     } finally {
       this.syncing = false;
-      await this.refresh();
+      await this.refresh().catch(() => undefined);
     }
   }
 

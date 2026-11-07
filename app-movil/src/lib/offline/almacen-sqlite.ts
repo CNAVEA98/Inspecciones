@@ -1,7 +1,8 @@
-import { File } from "expo-file-system";
+import { Directory, File, Paths } from "expo-file-system";
 import * as SQLite from "expo-sqlite";
 import type { Almacen } from "./almacen";
 import type { CatalogRecord, DraftRecord, OutboxRecord, PhotoRecord } from "./db";
+import { reubicarUri } from "./ruta";
 
 const NOMBRE_BD = "mlp-inspecciones.db";
 
@@ -42,6 +43,10 @@ interface FilaJson {
 }
 
 const leer = <T>(f: FilaJson | null | undefined): T | undefined => (f ? (JSON.parse(f.json) as T) : undefined);
+
+/** Carpeta de fotos vigente (la ruta del contenedor puede cambiar al actualizar la app en iOS). */
+const carpetaFotosUri = () => new Directory(Paths.document, "fotos").uri;
+const reubicada = (f: PhotoRecord): PhotoRecord => ({ ...f, uri: reubicarUri(f.uri, carpetaFotosUri()) });
 
 /** Aplica un cambio parcial; una propiedad en `undefined` se pierde al serializar (igual que `update` de Dexie). */
 const fusionar = <T extends object>(actual: T, cambio: Partial<T>): T => ({ ...actual, ...cambio });
@@ -114,7 +119,8 @@ export class AlmacenSqlite implements Almacen {
 
   // Fotos
   async obtenerFoto(id: string) {
-    return leer<PhotoRecord>(await this.db.getFirstAsync<FilaJson>("SELECT json FROM photos WHERE id = ?", id));
+    const f = leer<PhotoRecord>(await this.db.getFirstAsync<FilaJson>("SELECT json FROM photos WHERE id = ?", id));
+    return f && reubicada(f);
   }
   async agregarFoto(p: PhotoRecord) {
     await this.db.runAsync(
@@ -131,7 +137,7 @@ export class AlmacenSqlite implements Almacen {
   }
   async fotosDeInspeccion(inspectionId: string) {
     const filas = await this.db.getAllAsync<FilaJson>("SELECT json FROM photos WHERE inspection_id = ?", inspectionId);
-    return filas.map((f) => JSON.parse(f.json) as PhotoRecord);
+    return filas.map((f) => reubicada(JSON.parse(f.json) as PhotoRecord));
   }
   async eliminarFotos(ids: string[]) {
     for (const id of ids) {

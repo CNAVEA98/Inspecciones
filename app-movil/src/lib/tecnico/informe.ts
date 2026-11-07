@@ -42,7 +42,7 @@ async function descargarOficial(supabase: SupabaseClient, id: string): Promise<F
     if (!carpeta.exists) carpeta.create({ intermediates: true });
     const destino = new File(carpeta, nombreSeguro(nombre, `Informe ${id.slice(0, 8)}.pdf`));
     if (destino.exists) destino.delete();
-    bajado.move(destino);
+    await bajado.move(destino);
     return destino;
   } catch (e) {
     throw new Error(mensajeErrorInforme(e instanceof Error ? e.message : String(e)));
@@ -110,7 +110,7 @@ async function abrirArchivo(archivo: File): Promise<string | null> {
     const carpeta = new Directory(Paths.cache, `compartir-${Date.now()}`);
     carpeta.create({ intermediates: true });
     const copia = new File(carpeta, archivo.name);
-    archivo.copy(copia);
+    await archivo.copy(copia);
     if (!copia.exists || copia.size === 0) {
       return `No se pudo preparar el PDF para compartir (original: ${estadoArchivo(archivo)}; copia: ${estadoArchivo(copia)}).`;
     }

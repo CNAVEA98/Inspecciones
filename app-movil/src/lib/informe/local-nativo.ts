@@ -72,12 +72,17 @@ export async function generarPdfLocal(e: EntradaPdfLocal): Promise<File> {
   }
 
   const html = informeAHtml(informe, { logoBase64: LOGO_BASE64, imagenes, aviso: rotulos.aviso });
-  const { uri } = await Print.printToFileAsync({ html, width: 595, height: 842 });
+  // Se pide el contenido en base64 y se escribe en la carpeta de la app: `expo-print` deja el archivo fuera de ella y
+  // en Android `File.move` falla con «Missing 'READ' permission» (visto en Expo Go, emulador API 37).
+  const { base64 } = await Print.printToFileAsync({ html, width: 595, height: 842, base64: true });
+  if (!base64) throw new Error("expo-print no devolvió el contenido del PDF");
 
   const base = nombrePdf({ titulo: informe.titulo, equipmentTag: informe.tag, fecha: draft.startedAt });
   const nombreFinal = draft.state === "sent" ? base : base.replace(/\.pdf$/, " (sin enviar).pdf");
   const destino = new File(carpetaInformes(), nombreSeguro(nombreFinal));
   if (destino.exists) destino.delete();
-  new File(uri).move(destino);
+  destino.create();
+  // En SDK 58 `write`, `move`, `copy`, `bytes` y `text` son asíncronos: sin `await` el archivo quedaba vacío.
+  await destino.write(base64, { encoding: "base64" });
   return destino;
 }

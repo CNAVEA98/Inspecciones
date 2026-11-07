@@ -10,6 +10,8 @@ export class TransportError extends Error {
   constructor(
     message: string,
     public readonly retryable: boolean,
+    /** Fallo de conectividad (sin respuesta del servidor): se reintenta pronto y no consume intentos. */
+    public readonly sinRed = false,
   ) {
     super(message);
     this.name = "TransportError";
@@ -34,6 +36,8 @@ export interface Transport {
 export const MAX_ATTEMPTS = 12;
 const BASE_MS = 2_000;
 const CAP_MS = 5 * 60_000;
+/** Espera tras un fallo de red: no cuenta como intento, así una mala señal de horas no deja la inspección en «failed». */
+export const ESPERA_SIN_RED_MS = 15_000;
 
 /** Espera antes del reintento n (1-based): 2 s, 4 s, 8 s … con tope de 5 min. */
 export function backoffMs(attempts: number): number {
@@ -124,6 +128,15 @@ async function doProcess(almacen: Almacen, transport: Transport, opts: ProcessOp
       });
       summary.sent.push(entry.id);
     } catch (err) {
+      if (err instanceof TransportError && err.sinRed) {
+        await almacen.actualizarSalida(entry.id, {
+          status: "pending",
+          lastError: err.message,
+          nextAttemptAt: now() + ESPERA_SIN_RED_MS,
+        });
+        summary.retry.push(entry.id);
+        break; // sin red lo demás fallaría igual
+      }
       const retryable = !(err instanceof TransportError) || err.retryable;
       const attempts = entry.attempts + 1;
       const message = err instanceof Error ? err.message : String(err);

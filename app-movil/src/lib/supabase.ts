@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import Storage from "expo-sqlite/kv-store";
+import { AppState } from "react-native";
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const CLAVE_ANON = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
@@ -23,13 +24,21 @@ export function getSupabase(): SupabaseClient {
   if (!SUPABASE_URL || !CLAVE_ANON) {
     throw new Error("Falta configurar EXPO_PUBLIC_SUPABASE_URL y EXPO_PUBLIC_SUPABASE_ANON_KEY en app-movil/.env");
   }
-  cliente ??= createClient(SUPABASE_URL, CLAVE_ANON, {
+  if (cliente) return cliente;
+  cliente = createClient(SUPABASE_URL, CLAVE_ANON, {
     auth: {
       storage: Storage,
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
     },
+  });
+  // Recomendación de Supabase para React Native: renovar el token solo con la app en primer plano (en segundo plano el
+  // temporizador no es fiable y genera errores de red al volver).
+  const auth = cliente.auth;
+  AppState.addEventListener("change", (estado) => {
+    if (estado === "active") void auth.startAutoRefresh();
+    else void auth.stopAutoRefresh();
   });
   return cliente;
 }

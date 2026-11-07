@@ -20,6 +20,8 @@ import { getSupabase } from "@/lib/supabase";
 import { loadCatalog, readCatalogCache, type Catalog } from "@/lib/tecnico/catalog";
 import { limpiarFotosEnviadas } from "@/lib/tecnico/eliminar";
 
+const REFRESCO_CATALOGO_MS = 10 * 60_000;
+
 export interface CatalogState {
   catalog: Catalog | null;
   status: "loading" | "ready" | "error";
@@ -67,6 +69,7 @@ export function TecnicoProvider({ perfil, children }: { perfil: Perfil; children
 
   useEffect(() => {
     let vivo = true;
+    let ultimaDescarga = 0;
     const cargar = async () => {
       // La copia local se muestra al instante: una red lenta no debe bloquear el trabajo en terreno.
       const cache = await readCatalogCache(almacen);
@@ -74,6 +77,7 @@ export function TecnicoProvider({ perfil, children }: { perfil: Perfil; children
       try {
         const r = await loadCatalog(almacen, core.supabase, redNativa.enLinea());
         if (!vivo) return;
+        if (!r.fromCache) ultimaDescarga = Date.now();
         setCatalog({ catalog: r.catalog, status: "ready", fromCache: r.fromCache });
         setCatalogoEn((await almacen.leerCatalogo("catalog"))?.updatedAt ?? null);
       } catch (e) {
@@ -89,9 +93,10 @@ export function TecnicoProvider({ perfil, children }: { perfil: Perfil; children
       }
     };
     void cargar();
-    // Al volver la red (o la app a primer plano) se refresca la copia local del catálogo.
+    // Al volver la red (o la app a primer plano) se refresca la copia local del catálogo, a lo más cada 10 minutos:
+    // son 60 plantillas y no conviene gastar datos móviles en cada vuelta a primer plano.
     const dejar = redNativa.escuchar(() => {
-      if (redNativa.enLinea()) void cargar();
+      if (redNativa.enLinea() && Date.now() - ultimaDescarga > REFRESCO_CATALOGO_MS) void cargar();
     });
     return () => {
       vivo = false;

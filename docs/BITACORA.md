@@ -212,6 +212,13 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
 
 ## Registro
 
+### 2026-11-07 · Comparativa de 13 inspecciones manuales vs formatos digitales y auditoría del menú
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil`
+- **Qué se hizo:** se leyeron 14 PDF escaneados de terreno (carpeta `Desktop\Inspeciones manuales`), se compararon con las plantillas y el Maestro de TAG, y se cargaron 13 inspecciones (19 PDF, por cubículos) en la app **local** con `scripts/simular-manuales.mjs` para generar su PDF digital. También se auditó el filtro del menú (60 formatos × 1.073 equipos). **No se cambió ningún formato, plantilla ni código de la app.**
+- **Archivos:** `docs/COMPARATIVA_MANUALES_2026-11-07.md` (hallazgos M1–M6, C1–C12, P1–P6 y auditoría), `scripts/simular-manuales.mjs`.
+- **Verificación:** 19/19 PDF generados y envíos aceptados en la base local (folios INS-2026-000014 a 000032); lado a lado en `C:\Proyectos\simulacion-formatos\manuales-2026-11-07\comparativa.html` (fuera del repo). **No verificado:** el menú con clics en pantalla o en el teléfono; la transcripción de los escaneos es manual (nombres poco legibles pueden estar mal leídos).
+- **Pendiente / riesgos:** corregir filtros (trafos por tipo piso/aéreo, áreas y designadores de formatos, SG de sala), decidir con MLP los TAG fuera del Maestro y la versión vigente de INSP-16 y trafo de piso; ver el documento. Las 19 inspecciones de prueba solo están en la base local.
+
 ### 2026-11-07 · V1.1.4 desplegada y app móvil del técnico unida a `main` (PR #18)
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil` (unida) · **Versión:** V1.1.4
 - **Qué se hizo:** PR #18 (`feat/app-movil` → `main`, merge `19358da`) con la carpeta `app-movil/` (app nativa del técnico, Expo SDK 58) y el endpoint `GET /api/movil/informe/[id]` de la web. Cristóbal autorizó el push, el PR y la unión.
@@ -235,7 +242,8 @@ Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transfor
   **siguen usando esas mismas contraseñas**, así que quien las haya visto puede ingresar: reescribir el historial no sustituye a rotarlas.
 - **Para Manuel:** su `main` local ya no coincide con GitHub. Lo más simple: clonar de nuevo. Para no perder trabajo sin unir: en su clon viejo, `git log --oneline origin/main..<su-rama>` (con el `origin/main` viejo)
   identifica sus commits; en el clon nuevo, `git switch -c <su-rama> origin/main` y `git cherry-pick <commits>`. No usar `git pull` ni `git push --force` desde el clon viejo (volvería a subir las claves).
-- **Respaldo:** copia completa del historial anterior (con las claves) en la carpeta temporal de la sesión de Claude (`…\scratchpadespaldo.git`), fuera del repo. **Borrarla cuando se confirme que todo está bien.** El repo local de Cristóbal conserva
+- **Respaldo:** copia completa del historial anterior (con las claves) en la carpeta temporal de la sesión de Claude (`…\scratchpad
+espaldo.git`), fuera del repo. **Borrarla cuando se confirme que todo está bien.** El repo local de Cristóbal conserva
   los commits viejos en el reflog y en un stash antiguo; se pueden purgar con `git reflog expire --expire=now --all` y `git gc --prune=now`.
 - **Archivos:** ninguno del código; solo el historial de git y esta bitácora / `docs/MAESTRO.md` (sección 5.1).
 - **Pendiente:** pedir a GitHub Support la limpieza de `refs/pull/*`; decidir cuándo rotar las contraseñas.

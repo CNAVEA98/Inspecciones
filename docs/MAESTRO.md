@@ -47,6 +47,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `docs/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
 | `docs/EXPORT_MAESTRO.md` · `docs/MAPEO_ZONA_AREA.md` | Cómo se genera el Maestro de TAG y el mapeo zona → área (el segundo lo escribe el script; no editar a mano) |
 | `docs/LICENCIAS.md` | Licencias de dependencias |
+| `docs/COMPARATIVA_MANUALES_2026-11-07.md` | Papel de terreno vs formatos digitales: diferencias, auditoría del menú y pendientes |
 | `docs/muestras/` · `demo/` | HTML de referencia del formato, formulario e informe; demo estática |
 | `docs/archivo/` | Documentos antiguos, **solo historia**; pueden estar desactualizados |
 

@@ -132,7 +132,13 @@ export default function Bandeja() {
   const visibles = useMemo(() => filtrarBandeja(filas ?? [], q, turno), [filas, q, turno]);
 
   const cerrarSesion = () =>
-    Alert.alert("¿Cerrar sesión?", "Para volver a revisar deberá ingresar con su usuario y señal.", [
+    !redNativa.enLinea()
+      ? Alert.alert(
+          "Sin señal no se puede cerrar sesión",
+          "Si cierra sesión ahora no podrá volver a ingresar hasta tener señal. Puede seguir revisando sin señal con la sesión abierta.",
+          [{ text: "Entendido" }],
+        )
+      : Alert.alert("¿Cerrar sesión?", "Para volver a revisar deberá ingresar con su usuario y señal.", [
       { text: "Cancelar", style: "cancel" },
       { text: "Cerrar sesión", style: "destructive", onPress: () => void salir() },
     ]);

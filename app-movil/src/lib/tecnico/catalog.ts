@@ -45,6 +45,63 @@ export async function readCatalogCache(almacen: Almacen): Promise<Catalog | null
   return cat && Array.isArray(cat.formatos) ? cat : null;
 }
 
+/** Filas del catálogo tal como vienen de la base (lo que descarga la app o lo que se exporta a la copia incluida). */
+export interface FilasCatalogo {
+  areas: CatalogEntry[];
+  equipment_types: CatalogEntry[];
+  work_modes: CatalogEntry[];
+  catalog_combinations: Combination[];
+  form_templates: { id: string; equipment_type_id: string; work_mode_id: string; version: number; schema: unknown }[];
+  formatos: FilaFormatoBD[];
+}
+
+/** Arma el catálogo desde las filas: valida cada plantilla (una inválida se trata como «sin formulario») y ordena los formatos. */
+export function armarCatalogo(f: FilasCatalogo): Catalog {
+  const validas: TemplateRow[] = [];
+  for (const t of f.form_templates) {
+    const res = validateTemplate(t.schema);
+    if (res.ok) validas.push({ ...t, schema: res.template });
+  }
+  const ids = new Set(validas.map((t) => t.id));
+  return {
+    areas: f.areas,
+    equipmentTypes: f.equipment_types,
+    workModes: f.work_modes,
+    combinations: f.catalog_combinations.map((c) => ({
+      ...c,
+      template_id: c.template_id && ids.has(c.template_id) ? c.template_id : null,
+    })),
+    templates: validas,
+    formatos: ordenarFilas(f.formatos).map(filaAFormato),
+  };
+}
+
+/**
+ * Copia del catálogo que viaja dentro de la app (`src/data/catalogo-incluido.json`, ver `scripts/exportar-catalogo.mjs`),
+ * para que un teléfono pueda inspeccionar sin haber descargado nunca el catálogo (primer uso sin señal).
+ */
+export interface CatalogoIncluido {
+  /** Project ref de Supabase del que se exportó. */
+  origen: string;
+  generadoEn: string;
+  filas: FilasCatalogo;
+}
+
+/**
+ * La copia incluida solo sirve si es de la misma base a la que apunta la app: los identificadores (áreas, equipos, plantillas)
+ * son distintos en cada base y una inspección con ids de otra base sería rechazada.
+ */
+export function catalogoIncluido(incluido: CatalogoIncluido | null | undefined, urlSupabase: string | undefined): Catalog | null {
+  if (!incluido?.origen || !urlSupabase) return null;
+  let host: string;
+  try {
+    host = new URL(urlSupabase).hostname;
+  } catch {
+    return null;
+  }
+  return host.startsWith(`${incluido.origen}.`) ? armarCatalogo(incluido.filas) : null;
+}
+
 async function fetchCatalog(supabase: SupabaseClient): Promise<Catalog> {
   const entries = (table: string) =>
     supabase.from(table).select("id, code, name, sort").eq("active", true).order("sort");
@@ -62,36 +119,26 @@ async function fetchCatalog(supabase: SupabaseClient): Promise<Catalog> {
   ]);
   for (const r of [areas, equipment, modes, combos, templates, formatos]) if (r.error) throw r.error;
 
-  // Una plantilla con JSON inválido no se ofrece: se trata como "sin formulario".
-  const validas: TemplateRow[] = [];
-  for (const t of templates.data ?? []) {
-    const res = validateTemplate(t.schema);
-    if (res.ok) validas.push({ ...t, schema: res.template });
-  }
-  const ids = new Set(validas.map((t) => t.id));
-
-  return {
+  return armarCatalogo({
     areas: (areas.data ?? []) as CatalogEntry[],
-    equipmentTypes: (equipment.data ?? []) as CatalogEntry[],
-    workModes: (modes.data ?? []) as CatalogEntry[],
-    combinations: ((combos.data ?? []) as Combination[]).map((c) => ({
-      ...c,
-      template_id: c.template_id && ids.has(c.template_id) ? c.template_id : null,
-    })),
-    templates: validas,
-    formatos: ordenarFilas((formatos.data ?? []) as FilaFormatoBD[]).map(filaAFormato),
-  };
+    equipment_types: (equipment.data ?? []) as CatalogEntry[],
+    work_modes: (modes.data ?? []) as CatalogEntry[],
+    catalog_combinations: (combos.data ?? []) as Combination[],
+    form_templates: templates.data ?? [],
+    formatos: (formatos.data ?? []) as FilaFormatoBD[],
+  });
 }
 
 /**
  * Catálogo para el flujo Área → Equipo → Modo. Con red se actualiza la copia local;
- * sin red (o si falla) se usa la última copia guardada.
+ * sin red (o si falla) se usa la última copia guardada; si el teléfono nunca la descargó, la copia incluida en la app.
  */
 export async function loadCatalog(
   almacen: Almacen,
   supabase: SupabaseClient,
   online: boolean,
-): Promise<{ catalog: Catalog; fromCache: boolean }> {
+  incluido: () => Catalog | null = () => null,
+): Promise<{ catalog: Catalog; fromCache: boolean; incluido?: boolean }> {
   let falloServidor: unknown = null;
   if (online) {
     try {
@@ -105,8 +152,11 @@ export async function loadCatalog(
     }
   }
   const cached = await readCatalogCache(almacen);
-  if (!cached) throw new Error(mensajeSinCatalogo(online, falloServidor));
-  return { catalog: cached, fromCache: true };
+  if (cached) return { catalog: cached, fromCache: true };
+  // Primer uso sin señal: la copia que viaja dentro de la app (no se guarda; se reemplaza en la primera descarga).
+  const deLaApp = incluido();
+  if (deLaApp) return { catalog: deLaApp, fromCache: true, incluido: true };
+  throw new Error(mensajeSinCatalogo(online, falloServidor));
 }
 
 /** Texto de un error de Supabase/PostgREST o de JavaScript, sin depender de su forma exacta. */

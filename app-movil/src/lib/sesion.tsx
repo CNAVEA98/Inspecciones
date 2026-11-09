@@ -2,6 +2,7 @@ import type { Session } from "@supabase/supabase-js";
 import Storage from "expo-sqlite/kv-store";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAlmacen } from "@/lib/almacen-contexto";
+import { MENSAJE_INGRESO_SIN_SENAL, mensajeErrorIngreso } from "@/lib/auth/mensaje-ingreso";
 import { usuarioAEmail } from "@/lib/auth/usuario";
 import { redNativa } from "@/lib/offline/red";
 import { borrarCopias } from "@/lib/revision/cache";
@@ -173,12 +174,12 @@ export function SesionProvider({ children }: { children: ReactNode }) {
     if (clave.length < 8) return "La contraseña debe tener al menos 8 caracteres";
     const email = usuarioAEmail(usuario);
     if (!email) return "Usuario o contraseña incorrectos";
-    if (!redNativa.enLinea()) return "Para ingresar por primera vez necesita señal.";
+    if (!redNativa.enLinea()) return MENSAJE_INGRESO_SIN_SENAL;
     try {
       const { error } = await getSupabase().auth.signInWithPassword({ email, password: clave });
-      return error ? "Usuario o contraseña incorrectos" : null;
-    } catch {
-      return "No se pudo conectar. Revise su señal e intente de nuevo.";
+      return error ? mensajeErrorIngreso(error) : null;
+    } catch (e) {
+      return mensajeErrorIngreso(e);
     }
   }, []);
 

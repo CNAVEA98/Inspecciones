@@ -288,6 +288,15 @@ function InicioTecnico() {
   const abrir = useCallback((id: string) => router.push({ pathname: "/inspeccion/[id]", params: { id } }), []);
 
   const cerrarSesion = useCallback(() => {
+    // Sin señal no se podría volver a ingresar (el ingreso lo valida el servidor) y el técnico quedaría sin poder inspeccionar.
+    if (!redNativa.enLinea()) {
+      Alert.alert(
+        "Sin señal no se puede cerrar sesión",
+        "Si cierra sesión ahora no podrá volver a ingresar hasta tener señal, y no podrá inspeccionar. Puede seguir trabajando sin señal con la sesión abierta. Para cambiar de usuario, hágalo con señal.",
+        [{ text: "Entendido" }],
+      );
+      return;
+    }
     const porEnviar = sync.getSnapshot().pending + sync.getSnapshot().failed;
     Alert.alert(
       "¿Cerrar sesión?",
@@ -413,7 +422,7 @@ function InicioTecnico() {
       const entrada = (contenido: ReactElement) => <Aparecer retraso={Math.min(index, 8) * 60}>{contenido}</Aparecer>;
       switch (item.tipo) {
         case "aviso":
-          return <ErrorCatalogo />;
+          return <AvisosInicio />;
         case "cargando":
           return (
             <View style={{ gap: 12 }}>
@@ -585,13 +594,56 @@ function InicioTecnico() {
 const Separador = () => <View style={{ height: 12 }} />;
 
 /** Solo se avisa si el catálogo no se pudo descargar y no hay copia en el teléfono (sin catálogo no se puede empezar). */
-function ErrorCatalogo() {
-  const { catalog } = useTecnico();
-  if (catalog.status !== "error") return null;
-  return <Aviso texto={catalog.error ?? "No se pudo descargar el catálogo. Conéctese a internet una vez."} />;
+/**
+ * Avisos sobre el trabajo sin señal: error del catálogo; formatos incluidos en la app (el teléfono aún no descargó el catálogo);
+ * y, una sola vez por usuario tras la primera descarga, «Listo para trabajar sin señal».
+ */
+function AvisosInicio() {
+  const { catalog, almacen, userId } = useTecnico();
+  const clave = `listo-terreno:${userId}`;
+  const [visto, setVisto] = useState<boolean | null>(null);
+  useEffect(() => {
+    let vivo = true;
+    void almacen.leerCatalogo(clave).then((r) => vivo && setVisto(!!r));
+    return () => {
+      vivo = false;
+    };
+  }, [almacen, clave]);
+
+  if (catalog.status === "error") {
+    return <Aviso texto={catalog.error ?? "No se pudo descargar el catálogo. Conéctese a internet una vez."} />;
+  }
+  if (catalog.incluido) {
+    return (
+      <Aviso
+        tono="cobre"
+        texto="Sin señal: se usan los formatos incluidos en la app. Puede inspeccionar normalmente; se actualizarán solos cuando haya señal."
+      />
+    );
+  }
+  // Recién descargado del servidor (primer ingreso): el teléfono quedó listo para terreno.
+  if (catalog.status !== "ready" || catalog.fromCache || visto !== false) return null;
+  const entendido = () => {
+    setVisto(true);
+    void almacen.guardarCatalogo({ key: clave, value: true, updatedAt: Date.now() });
+  };
+  return (
+    <Tarjeta style={estilos.listo}>
+      <Text style={estilos.listoTitulo}>Listo para trabajar sin señal</Text>
+      <Text style={estilos.listoTexto}>
+        Este teléfono ya tiene su sesión y los formatos. En terreno puede inspeccionar sin cobertura: las inspecciones quedan
+        guardadas y se envían solas cuando vuelve la señal.
+      </Text>
+      <Text style={estilos.listoTexto}>No cierre sesión en terreno: para volver a ingresar se necesita señal.</Text>
+      <Boton texto="Entendido" variante="secundario" onPress={entendido} />
+    </Tarjeta>
+  );
 }
 
 const estilos = StyleSheet.create({
+  listo: { gap: 8, padding: 16, borderColor: color.ok, borderWidth: 2, marginBottom: 8 },
+  listoTitulo: { fontSize: 18, fontWeight: "700", color: color.okTexto },
+  listoTexto: { fontSize: 15, color: color.graf },
   pantalla: { flex: 1, backgroundColor: color.papel },
   cabecera: {
     backgroundColor: color.graf,

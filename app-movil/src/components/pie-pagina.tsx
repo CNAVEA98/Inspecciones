@@ -7,7 +7,7 @@ import { color } from "@/ui/tema";
 const abrir = (ruta: string) => void Linking.openURL(`${WEB_URL}${ruta}`).catch(() => undefined);
 
 /**
- * Pie de página común (igual al de la web): titular, uso autorizado, enlaces a Privacidad y Condiciones de uso, y la
+ * Pie de página común (igual al de la web): autoría, uso autorizado, enlaces a Privacidad y Condiciones de uso, y la
  * versión de la app (referencia para reportar problemas).
  */
 export function PiePagina({ oscuro = false }: { oscuro?: boolean }) {
@@ -15,7 +15,7 @@ export function PiePagina({ oscuro = false }: { oscuro?: boolean }) {
   const enlace = oscuro ? "#c9d0d6" : color.graf;
   return (
     <View style={estilos.pie}>
-      <Text style={[estilos.texto, { color: texto }]}>© 2026 Bbosch · Uso exclusivo del personal autorizado de Bbosch y MLP</Text>
+      <Text style={[estilos.texto, { color: texto }]}>© 2026 Cristóbal Navea y Manuel Aguilar · Desarrollada para Bbosch · Uso exclusivo del personal autorizado de Bbosch y MLP</Text>
       <View style={estilos.fila}>
         {WEB_URL ? (
           <>

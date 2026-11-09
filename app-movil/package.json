@@ -1,6 +1,8 @@
 {
   "name": "app-movil",
   "version": "1.0.0",
+  "author": "Cristóbal Navea y Manuel Aguilar",
+  "license": "UNLICENSED",
   "main": "expo-router/entry",
   "dependencies": {
     "@react-native-community/netinfo": "12.0.1",

@@ -1,6 +1,8 @@
 {
   "name": "mlp-inspecciones",
-  "version": "1.1.4",
+  "version": "1.1.5",
+  "author": "Cristóbal Navea y Manuel Aguilar",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "seed:usuarios": "node scripts/generar-seed-usuarios.mjs",

@@ -1,6 +1,6 @@
 # Estado del proyecto · pendientes y decisiones
 
-> **Actualizado el 2026-11-09 · versión V1.1.4 · `main` = `e5e0993` (PR #19) · sitio publicado en V1.1.4.**
+> **Actualizado el 2026-11-09 · `main` = `e5e0993` (PR #19) con V1.1.4 publicada; la rama `docs/reorganizar-documentacion` (PR #20) sube a V1.1.5.**
 > **Regla:** este archivo se **reescribe** (no se le agrega al final) cada vez que una mejora cambia el estado, un pendiente o una decisión, y la
 > línea de arriba se actualiza con la **fecha de ese día**, la versión y el commit. El historial inmutable está en [`REGISTRO.md`](REGISTRO.md);
 > las reglas, en [`LEEME.md`](LEEME.md); el directorio del proyecto, en [`../MAESTRO.md`](../MAESTRO.md).
@@ -21,6 +21,10 @@
 | Privacidad y versión | Pie con versión, `/privacidad`, `/condiciones`, aviso al primer ingreso, fotos sin metadatos | Local; teléfono no probado |
 | Rendimiento | Región `gru1` confirmada; carga local de 12 a 36 técnicos sin errores (PDF es lo más lento: 5 s con 12 a la vez) | No es prueba del sitio publicado |
 | Seguridad del repositorio | Sin claves en el árbol ni en el historial reescrito (2026-11-07); repo **PUBLIC** | Contraseñas de las 7 cuentas remotas siguen siendo las antiguas |
+
+### Uso de Supabase remoto (medido el 2026-11-09, solo lectura)
+
+Base 13 MB · Storage 2,8 MB (`inspection-photos` 11 archivos, `signatures` 1, `reports` vacío) · 5 inspecciones (4 enviadas, 1 con firma del supervisor) · 141 respuestas · 7 cuentas · 60 formatos activos con 70 plantillas · migraciones 0001–0020. Proyecto casi vacío; proyección y plan de medición en el pendiente 25.
 
 Última verificación completa: 2026-11-09 · `lint` 0 errores · `tsc` sin errores · `test` 255/255 · `build` correcto.
 
@@ -46,12 +50,22 @@ Prioridad: **A** = antes de usar datos reales · **B** = próximo · **C** = cua
 
 ### A · Antes de datos reales
 
-1. **Rotar las contraseñas de las 7 cuentas remotas** (incluye `ADMINISTRADOR`) y cerrar sesiones; definir dónde las guarda el equipo. Siguen siendo las que estuvieron publicadas. Pedir a GitHub Support la limpieza de las 17 referencias `refs/pull/*` con commits viejos. *(Cristóbal; antes #20)*
-2. **Repositorio:** hoy PUBLIC por decisión de Cristóbal (trabaja con Manuel desde cuentas distintas); contiene los Word de MLP/Bbosch y el Maestro de TAG (información del cliente). Evaluar pasarlo a privado con colaboradores antes de producción. *(Cristóbal)*
-3. **Planes y respaldo:** Supabase Free (1 GB, se pausa, sin respaldos diarios) vs ~60 técnicos con fotos → pasar a Pro o exportar antes de usar con datos reales; revisar los términos de Vercel Hobby. *(Cristóbal; antes #17 y #37)*
-4. **Guardar el PDF final firmado en Storage privado** al aprobar, como registro oficial inmutable. Hoy se genera al pedirlo. *(antes #7)*
+1. **Rotar las contraseñas de las 7 cuentas remotas** (incluye `ADMINISTRADOR`) y cerrar sesiones. *(Hoy son contraseñas temporales, de prueba, mientras se desarrolla la app; el cambio es obligatorio antes de usar datos reales.)* Definir dónde las guarda el equipo. Siguen siendo las que estuvieron publicadas. Pedir a GitHub Support la limpieza de las 17 referencias `refs/pull/*` con commits viejos. *(Cristóbal; antes #20)*
+2. **Repositorio público por una limitación de Vercel Hobby** (decisión de Cristóbal): en un repositorio privado, el plan gratuito no despliega commits de otra persona (Manuel), así que se dejó público. Contiene los Word de Bbosch/MLP (los formatos originales; la app no los lee, las plantillas viven en Supabase) y el Maestro de TAG (1.073 equipos): información de los clientes. *Verificar en la documentación de Vercel las reglas vigentes.* Caminos: (a) **privado + Vercel Pro** (recomendado para producción; además Hobby es solo uso no comercial); (b) privado, y Cristóbal une los PR con «Create a merge commit» (probar si «Squash» también despliega); (c) privado con despliegue por GitHub Actions y token de Vercel; (d) dejar público y sacar Word y Maestro (queda en el historial). Aceptable mientras sean datos de prueba. *(Cristóbal)*
+3. **Planes y respaldo:** Supabase Free (1 GB de Storage, se pausa, sin respaldos diarios) vs ~60 técnicos con fotos. **Se pasará a Pro (y Vercel Pro) cuando la empresa acepte la aplicación y la pague**; hasta entonces, medir el ritmo de llenado en la marcha en blanco (pendiente 25) y exportar respaldos manuales si hay datos que importen. *(Cristóbal; antes #17 y #37)*
+4. **Guardar el PDF final firmado en Storage privado** al aprobar, como registro oficial inmutable. Se usaría el bucket `reports` (ya existe, vacío; ruta `{inspection_id}/{folio}.pdf`, lectura ya permitida a supervisor y técnico dueño, escritura por el servidor con la clave de servicio). Decidir: sin políticas de update/delete, qué PDF vale si se rechaza o corrige, y qué hacer con las ya aprobadas. Suma peso a Storage (ver 25). *(antes #7)*
+24. **Autoría y titularidad (hecho en parte, V1.1.5):** la app es una propuesta propia de Cristóbal Navea y Manuel Aguilar, **desarrollada para Bbosch, no a nombre de Bbosch**. Se corrigieron el pie (web y app), Privacidad, Condiciones y el aviso de privacidad (se vuelve a mostrar a cada usuario), y se agregaron `LICENSE` («todos los derechos reservados»), `author` y `license: UNLICENSED`. **Falta:** acuerdo escrito con Bbosch (licencia o cesión, quién responde por los datos personales) y revisión legal de Privacidad y Condiciones antes de la marcha en blanco con técnicos reales. *(Cristóbal y Manuel)*
 
 ### B · Pruebas que faltan
+
+25. **Marcha en blanco con técnicos de terreno** para medir el ritmo de llenado de Supabase y decidir el plan. Antes: cerrar el pendiente 24. Medir cada semana con las consultas de solo lectura de abajo y registrar en `REGISTRO.md`: tamaño de la base, archivos y MB por bucket, inspecciones, fotos por inspección y MB por inspección; con eso calcular **MB por inspección × inspecciones por día y técnico × técnicos = MB por semana**, y los días que tardaría en llenarse el 1 GB de Free. Línea base 2026-11-09: 13 MB de base, 2,8 MB de Storage (11 fotos de ~255 kB ≈ 4.000 fotos por GB), 5 inspecciones de prueba.
+   ```bash
+   corepack pnpm supabase db query --remote=etdeiyjzibgihqtvdrpt --read-only "select pg_size_pretty(pg_database_size(current_database()))"
+   corepack pnpm supabase db query --remote=etdeiyjzibgihqtvdrpt --read-only "select bucket_id, count(*), pg_size_pretty(sum((metadata->>'size')::bigint)) from storage.objects group by 1"
+   corepack pnpm supabase db query --remote=etdeiyjzibgihqtvdrpt --read-only "select status, count(*) from inspections group by 1"
+   ```
+   Los límites del plan (Storage, base, ancho de banda) se confirman en el panel de Supabase; el CLI no los entrega. *(Cristóbal y Manuel)*
+26. **Supervisor y programador en la app móvil** (pedido 2026-11-09, para revisar desde el teléfono): hoy la app es solo del técnico. Es viable: usa el mismo Supabase, las mismas políticas RLS y el RPC de revisión, y el PDF oficial ya se descarga con `/api/movil/informe/[id]`. Alcance mínimo: enrutar por rol al ingresar, bandeja con filtros, detalle, aprobar/rechazar con firma y descargar/compartir el PDF; **solo con señal** (sin cola local). Mientras tanto pueden usar la web desde el navegador del teléfono. Requiere decidir alcance (¿solo lectura y PDF primero?) y una rama aparte. *(Cristóbal)*
 
 5. **Prueba de aceptación sin señal en la app nativa** (decisión del 2026-11-06): instalar el APK (revisar el resultado del build `140db843…`), inspección con cámara real, modo avión, cerrar y reabrir, enviar al reconectar (una vez, con folio), y **verificar el envío en segundo plano con la app cerrada ~15 min**. Después iPhone con TestFlight (cuenta Apple Developer de USD 99/año). *(antes #9, #21 y pendientes 5, 6, 13 de la app)*
 6. **Casos sin señal por diseñar/probar en la app:** sesión vencida sin señal, aviso de borradores sin enviar, cerrar sesión con envíos pendientes, formato desactivado o con versión nueva sin señal. *(Maestro 5.4)*
@@ -109,6 +123,8 @@ Los pendientes anteriores ya resueltos (Docker, migraciones remotas, registro li
 - **Migraciones remotas antes de unir (2026-11-03):** un PR con migraciones nuevas se une a `main` solo después de aplicarlas y verificarlas en el remoto (Vercel despliega `main` de inmediato). **Nunca `supabase config push`.**
 - **Contraseñas de prueba (2026-11-06/07):** fuera del árbol desde V1.1.3 y reemplazadas en el historial reescrito; las del remoto siguen vigentes por decisión de Cristóbal y deben rotarse antes de datos reales (pendiente 1).
 - **Repositorio público (2026-11-06):** por decisión de Cristóbal, para trabajar con Manuel desde cuentas distintas (pendiente 2).
+- **Autoría y titularidad (2026-11-09, Cristóbal):** la aplicación es una propuesta propia de Cristóbal Navea y Manuel Aguilar, **para** Bbosch y no a nombre de Bbosch. Derechos reservados a sus autores (`LICENSE`); los formatos y datos de Bbosch/MLP no son parte de la obra. Hasta que Bbosch la acepte, es un piloto.
+- **Plan de pago (2026-11-09, Cristóbal):** Supabase Pro y Vercel Pro se contratan cuando la empresa acepte la aplicación y la pague; antes se mide el ritmo en una marcha en blanco.
 - **Un solo registro de cambios (2026-11-09):** bitácora única en `docs/bitacora/` con etiquetas `[WEB]`/`[APP]`; `demo/` y `docs/archivo/` eliminados por obsoletos.
 - **No instalar «Free Claude Code» (2026-10-31):** proxy de terceros que reenvía código y prompts; el repositorio es infraestructura de MLP. No se reintenta sin revisión de TI.
 - **Skills del proyecto (`.claude/skills/`):** `react-best-practices`, `web-design-guidelines` y `react-native-skills`; no reemplazan a `DESIGN.md` ni a `AGENTS.md`.

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert, StyleSheet, Text, View } from "react-native";
 import { FirmaRevisionCampo } from "@/components/firma-revision";
 import type { EtapaFirma } from "@/lib/revision/estado";
-import { firmarRevision, type Decision } from "@/lib/revision/firma";
+import { FirmaDesactualizada, firmarRevision, type Decision } from "@/lib/revision/firma";
 import { archivarOficial } from "@/lib/tecnico/informe";
 import { useRevision } from "@/lib/revision-contexto";
 import { Aviso, Boton, Campo, Tarjeta } from "@/ui/componentes";
@@ -29,11 +29,14 @@ export function PanelRevision({
   folio,
   etapa,
   onFirmada,
+  onDesactualizada,
 }: {
   inspeccionId: string;
   folio: string;
   etapa: EtapaFirma;
   onFirmada: () => void;
+  /** Otra persona firmó antes: la pantalla debe recargarse y mostrar el mensaje (el panel desaparece al recargar). */
+  onDesactualizada: (mensaje: string) => void;
 }) {
   const { supabase } = useRevision();
   const [decision, setDecision] = useState<Decision | null>(null);
@@ -59,6 +62,11 @@ export function PanelRevision({
       if (etapa === "planner" && decision === "approved") await archivarOficial(supabase, inspeccionId);
       onFirmada();
     } catch (e) {
+      if (e instanceof FirmaDesactualizada) {
+        setEnviando(false);
+        onDesactualizada(e.message);
+        return;
+      }
       setError(e instanceof Error ? e.message : "No se pudo registrar la firma.");
       setEnviando(false);
     }

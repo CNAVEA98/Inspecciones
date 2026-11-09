@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { etapaPendiente, estadosDelFiltro } from "./estado";
 import { filtrarBandeja } from "./filtrar";
-import { base64ABytes, firmarRevision, mensajeFirma } from "./firma";
+import { FirmaDesactualizada, base64ABytes, firmarRevision, mensajeFirma } from "./firma";
 import type { FilaBandeja } from "./queries";
 
 const fila = (o: Partial<FilaBandeja>): FilaBandeja => ({
@@ -100,6 +100,18 @@ describe("firma de revisión", () => {
     await expect(firmarRevision(a.supabase, base)).rejects.toThrow(/No se pudo subir la firma/);
     expect(a.rpc).not.toHaveBeenCalled();
     const b = supabaseFalso({ message: "La inspección ya fue firmada" });
-    await expect(firmarRevision(b.supabase, base)).rejects.toThrow(/ya fue firmada/);
+    await expect(firmarRevision(b.supabase, base)).rejects.toThrow(FirmaDesactualizada);
+  });
+});
+
+describe("dos teléfonos con la misma cuenta", () => {
+  it("si otra persona firmó antes, avisa con un mensaje claro en vez del texto interno de la base", async () => {
+    const upload = vi.fn().mockResolvedValue({ error: null });
+    const rpc = vi.fn().mockResolvedValue({ error: { message: "El supervisor firma una inspección enviada" } });
+    const supabase = { storage: { from: vi.fn().mockReturnValue({ upload }) }, rpc } as never;
+    const intento = firmarRevision(supabase, { inspeccionId: "i1", etapa: "supervisor", decision: "approved", comentario: "", pngBase64: "AAAA" });
+    await expect(intento).rejects.toBeInstanceOf(FirmaDesactualizada);
+    await expect(intento).rejects.toThrow(/Otra persona ya revisó/);
+    expect(mensajeFirma("El planificador firma una inspección ya firmada por el supervisor")).toMatch(/Otra persona ya revisó/);
   });
 });

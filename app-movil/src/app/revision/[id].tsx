@@ -30,6 +30,7 @@ export default function RevisionDetalle() {
   const [error, setError] = useState<string | null>(null);
   const [actualizando, setActualizando] = useState(false);
   const [firmada, setFirmada] = useState(false);
+  const [desactualizada, setDesactualizada] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
     setError(null);
@@ -78,6 +79,7 @@ export default function RevisionDetalle() {
         {d ? (
           <>
             {firmada ? <Aviso tono="ok" texto="Firma registrada. La inspección se actualizó." /> : null}
+            {desactualizada ? <Aviso tono="cobre" texto={desactualizada} /> : null}
             <AccionesPdf oficial obtener={(destino) => entregarPdfOficial(supabase, id, destino)} />
             <DetalleRevision d={d} />
             {etapa && sinSenal ? (
@@ -92,6 +94,10 @@ export default function RevisionDetalle() {
                 etapa={etapa}
                 onFirmada={() => {
                   setFirmada(true);
+                  void cargar();
+                }}
+                onDesactualizada={(mensaje) => {
+                  setDesactualizada(mensaje);
                   void cargar();
                 }}
               />

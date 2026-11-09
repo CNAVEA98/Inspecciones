@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Text, View } from "react-native";
 import { FirmaRevisionCampo } from "@/components/firma-revision";
 import type { EtapaFirma } from "@/lib/revision/estado";
 import { firmarRevision, type Decision } from "@/lib/revision/firma";
+import { archivarOficial } from "@/lib/tecnico/informe";
 import { useRevision } from "@/lib/revision-contexto";
 import { Aviso, Boton, Campo, Tarjeta } from "@/ui/componentes";
 import { color } from "@/ui/tema";
@@ -54,6 +55,8 @@ export function PanelRevision({
     setError(null);
     try {
       await firmarRevision(supabase, { inspeccionId, etapa, decision, comentario, pngBase64: firma });
+      // Firma final aprobada: el servidor guarda el PDF oficial en Storage (si falla, lo hace en la próxima descarga).
+      if (etapa === "planner" && decision === "approved") await archivarOficial(supabase, inspeccionId);
       onFirmada();
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo registrar la firma.");

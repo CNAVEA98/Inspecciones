@@ -1,6 +1,6 @@
 # Estado del proyecto · pendientes y decisiones
 
-> **Actualizado el 2026-11-09 · `main` = `e5e0993` (PR #19) con V1.1.4 publicada; la rama `docs/reorganizar-documentacion` (PR #20) sube a V1.1.5.**
+> **Actualizado el 2026-11-09 · `main` = `e5e0993` (PR #19) con V1.1.4 publicada; la rama `docs/reorganizar-documentacion` (PR #20) sube a V1.1.5 y `feat/pdf-archivado-storage` (sobre `feat/app-movil-revision`) a V1.1.6.**
 > **Regla:** este archivo se **reescribe** (no se le agrega al final) cada vez que una mejora cambia el estado, un pendiente o una decisión, y la
 > línea de arriba se actualiza con la **fecha de ese día**, la versión y el commit. El historial inmutable está en [`REGISTRO.md`](REGISTRO.md);
 > las reglas, en [`LEEME.md`](LEEME.md); el directorio del proyecto, en [`../MAESTRO.md`](../MAESTRO.md).
@@ -17,7 +17,7 @@
 | Flujo del técnico | Área → Trabajo → Familia → Formato → formulario con selector de TAG (1.073 equipos), fotos sin GPS, firma, cola de envío, visor de PDF | Local; **iPhone y sitio publicado no probados** |
 | 60 formatos | Catálogo en la tabla `formatos`; editor (crear, copiar, desactivar, publicar versiones nuevas) para supervisor y administrador | HTTP y tests; **editor sin clics en navegador** |
 | Bandejas | Supervisor y programador con carpetas por turno y área, filtro de tipo, buscador, «Equipos con fallas» y seguimiento SAP (no bloquea firmas) | Local; sitio publicado sin probar |
-| PDF del informe | Generado al pedirlo (diseño Cobre); 5 fallas altas corregidas en V1.1.1; **no se guarda en Storage** | 120/120 PDF locales el 2026-11-06 |
+| PDF del informe | Generado al pedirlo (diseño Cobre); 5 fallas altas corregidas en V1.1.1. **Desde V1.1.6 el de una aprobada se archiva en `reports` y se entrega desde ahí** (escribe solo el servidor con la clave de servicio) | 120/120 PDF locales el 2026-11-06; archivado probado por HTTP contra el Supabase local el 2026-11-09; **en Vercel falta `SUPABASE_SERVICE_ROLE_KEY`** |
 | Privacidad y versión | Pie con versión, `/privacidad`, `/condiciones`, aviso al primer ingreso, fotos sin metadatos | Local; teléfono no probado |
 | Rendimiento | Región `gru1` confirmada; carga local de 12 a 36 técnicos sin errores (PDF es lo más lento: 5 s con 12 a la vez) | No es prueba del sitio publicado |
 | Seguridad del repositorio | Sin claves en el árbol ni en el historial reescrito (2026-11-07); repo **PUBLIC** | Contraseñas de las 7 cuentas remotas siguen siendo las antiguas |
@@ -26,7 +26,7 @@
 
 Base 13 MB · Storage 2,8 MB (`inspection-photos` 11 archivos, `signatures` 1, `reports` vacío) · 5 inspecciones (4 enviadas, 1 con firma del supervisor) · 141 respuestas · 7 cuentas · 60 formatos activos con 70 plantillas · migraciones 0001–0020. Proyecto casi vacío; proyección y plan de medición en el pendiente 25.
 
-Última verificación completa: 2026-11-09 · `lint` 0 errores · `tsc` sin errores · `test` 255/255 · `build` correcto.
+Última verificación completa: 2026-11-09 (V1.1.6) · `lint` 0 errores · `tsc` sin errores · `test` 262/262 · `build` correcto.
 
 ### App móvil (`app-movil/`, Expo SDK 58)
 
@@ -54,7 +54,7 @@ Prioridad: **A** = antes de usar datos reales · **B** = próximo · **C** = cua
 1. **Rotar las contraseñas de las 7 cuentas remotas** (incluye `ADMINISTRADOR`) y cerrar sesiones. *(Hoy son contraseñas temporales, de prueba, mientras se desarrolla la app; el cambio es obligatorio antes de usar datos reales.)* Definir dónde las guarda el equipo. Siguen siendo las que estuvieron publicadas. Pedir a GitHub Support la limpieza de las 17 referencias `refs/pull/*` con commits viejos. *(Cristóbal; antes #20)*
 2. **Repositorio público por una limitación de Vercel Hobby** (decisión de Cristóbal): en un repositorio privado, el plan gratuito no despliega commits de otra persona (Manuel), así que se dejó público. Contiene los Word de Bbosch/MLP (los formatos originales; la app no los lee, las plantillas viven en Supabase) y el Maestro de TAG (1.073 equipos): información de los clientes. *Verificar en la documentación de Vercel las reglas vigentes.* Caminos: (a) **privado + Vercel Pro** (recomendado para producción; además Hobby es solo uso no comercial); (b) privado, y Cristóbal une los PR con «Create a merge commit» (probar si «Squash» también despliega); (c) privado con despliegue por GitHub Actions y token de Vercel; (d) dejar público y sacar Word y Maestro (queda en el historial). Aceptable mientras sean datos de prueba. *(Cristóbal)*
 3. **Planes y respaldo:** Supabase Free (1 GB de Storage, se pausa, sin respaldos diarios) vs ~60 técnicos con fotos. **Se pasará a Pro (y Vercel Pro) cuando la empresa acepte la aplicación y la pague**; hasta entonces, medir el ritmo de llenado en la marcha en blanco (pendiente 25) y exportar respaldos manuales si hay datos que importen. *(Cristóbal; antes #17 y #37)*
-4. **Guardar el PDF final firmado en Storage privado** al aprobar, como registro oficial inmutable. Se usaría el bucket `reports` (ya existe, vacío; ruta `{inspection_id}/{folio}.pdf`, lectura ya permitida a supervisor y técnico dueño, escritura por el servidor con la clave de servicio). Decidir: sin políticas de update/delete, qué PDF vale si se rechaza o corrige, y qué hacer con las ya aprobadas. Suma peso a Storage (ver 25). *(antes #7)*
+4. **PDF final firmado en Storage (hecho en código, V1.1.6, rama `feat/pdf-archivado-storage`):** al aprobar se archiva en `reports/{inspection_id}/{folio}.pdf` y cada descarga de una aprobada entrega esa copia; las aprobadas antiguas se archivan en su primera descarga; rechazadas y en revisión no se archivan. **Falta:** cargar `SUPABASE_SERVICE_ROLE_KEY` en Vercel (solo Production, sin `NEXT_PUBLIC_`) antes de unir, probar con clics en el sitio publicado, y decidir si el borrado del administrador debe borrar también la copia (hoy queda). Suma ~170–200 KB por aprobada a Storage (ver 25). *(antes #7)*
 24. **Autoría y titularidad (hecho en parte, V1.1.5):** la app es una propuesta propia de Cristóbal Navea y Manuel Aguilar, **desarrollada para Bbosch, no a nombre de Bbosch**. Se corrigieron el pie (web y app), Privacidad, Condiciones y el aviso de privacidad (se vuelve a mostrar a cada usuario), y se agregaron `LICENSE` («todos los derechos reservados»), `author` y `license: UNLICENSED`. **Falta:** acuerdo escrito con Bbosch (licencia o cesión, quién responde por los datos personales) y revisión legal de Privacidad y Condiciones antes de la marcha en blanco con técnicos reales. *(Cristóbal y Manuel)*
 
 ### B · Pruebas que faltan
@@ -104,6 +104,7 @@ Los pendientes anteriores ya resueltos (Docker, migraciones remotas, registro li
 - **`app-movil/` en el mismo repositorio (2026-11-07)**, con npm y lockfile propios (`.npmrc` con `legacy-peer-deps` para que EAS instale igual), excluida del `tsc` y el lint de la web. Identificador `cl.bbosch.inspecciones`, solo teléfono.
 - **Cuenta compartida por turno (2026-11-07):** varios técnicos usan la misma cuenta en sus teléfonos (hasta ~5 sesiones) y escriben su nombre en cada inspección (`performed_by`); borradores, fotos y cola son locales; «Enviadas» muestra las de todo el turno con «Realizada por».
 - **Instalación en iPhone (2026-11-07):** Expo Go mientras se desarrolla; cuenta Apple Developer y TestFlight cuando la app esté estable. La prueba sin señal se adelanta en Android con un APK gratuito de EAS.
+- **PDF oficial archivado (2026-11-09, Cristóbal):** la copia oficial de una inspección aprobada vive en el bucket privado `reports` y la escribe **solo el servidor** con la clave de servicio (ningún usuario tiene política de escritura, update ni delete). Toda descarga de una aprobada entrega esa copia; si falta, se genera y se guarda en ese momento.
 - **PDF oficial después del envío:** lleva el folio del servidor y las firmas de revisión; la inspección (fotos y firma del encargado) se completa 100 % sin señal. Envío automático al abrir la app, al volver la señal y, solo en un APK/TestFlight, en segundo plano.
 - **Cuentas genéricas por usuario, sin correo (2026-10-30):** `ADMINISTRADOR`, `SUPERVISOR_A/B`, `PROGRAMADOR_A/B`, `TECNICO_A/B`, con correo interno `usuario@mlp.local`. Las crea el equipo; no hay autoregistro ni pantalla de alta. El rol «planificador» se muestra como «Programador». Trazabilidad por persona = «quién realizó la inspección».
 - **Roles y firma doble (2026-10-30):** admin (sin turno), supervisor, planificador y técnico con turno A/B (solo etiqueta). Firma en dos etapas: supervisor y luego planificador. Solo el admin cambia rol y turno.

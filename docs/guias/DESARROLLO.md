@@ -13,6 +13,7 @@ corepack pnpm dev            # necesita .env.local (copiar de .env.example)
 
 Con Docker funcionando: `corepack pnpm supabase start` y `corepack pnpm supabase db reset` (`db reset` **borra** los datos locales y recarga `seed_catalogo.sql` y `seed_usuarios_dev.sql`).
 Pruebas de la base: `corepack pnpm supabase test db`. Para el `.env.local` local, los valores salen de `corepack pnpm supabase status`.
+PDF archivado (V1.1.6): para que el servidor local guarde el PDF de las aprobadas en el bucket `reports` hace falta `SUPABASE_SERVICE_ROLE_KEY` (valor `SERVICE_ROLE_KEY` de `supabase status`); sin ella el PDF se genera al vuelo, como antes. Se puede pasar por entorno al arrancar, sin escribirla en un archivo.
 Para regenerar la lista de TAG: `python scripts/export-maestro.py` (ver `docs/guias/EXPORT_MAESTRO.md`). Para probar en línea: `docs/guias/DEPLOY_VERCEL.md`.
 Referencia visual interactiva (sin servidor): `docs/muestras/formulario-transformador-piso.html`.
 

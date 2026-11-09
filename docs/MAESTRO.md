@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-09 · versión V1.1.4 · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20 y V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -104,6 +104,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - **App móvil (`app-movil/`, PR #18 unido el 2026-11-07):** flujo del técnico probado en un **emulador Android** (API 37, Expo Go): ingreso, inspección con foto y firma, modo avión, cierre y reapertura sin señal,
   envío único con folio, PDF del teléfono y PDF oficial del servidor (V1.1.4 ya está desplegado). 292 pruebas de la app en verde (incluye el recorrido de las 59 plantillas reales). Envío en segundo plano escrito (solo funciona en un APK/TestFlight).
   El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `docs/bitacora/ESTADO.md` para el estado del segundo intento.
+- **V1.1.6 (rama `feat/pdf-archivado-storage`, sin unir):** el PDF de cada inspección aprobada se archiva en el bucket privado `reports` y se entrega desde ahí; lo escribe solo el servidor con `SUPABASE_SERVICE_ROLE_KEY`, que **falta cargar en Vercel** (solo Production). Probado por HTTP contra el Supabase local.
 - **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico, el APK, el envío en segundo plano real y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native
@@ -165,8 +166,8 @@ foto en los 16 formatos «conforme» con ítem de foto; mantenciones con «Resul
 
 ### 5.6 Pruebas en el sitio publicado (todas sin hacer)
 Recorrido con supervisor, técnico y programador (aprobar, enviar, ver PDF, segunda firma); revisar plantillas;
-región `gru1`; pestaña «Formatos» con clics; firma del planificador y rechazo en navegador; decidir si hace falta
-guardar el PDF final firmado en Storage como registro oficial.
+región `gru1`; pestaña «Formatos» con clics; firma del planificador y rechazo en navegador;
+comprobar que el PDF de una aprobada quede en `reports` (V1.1.6, tras cargar la clave de servicio en Vercel).
 
 ### 5.7 Preparación para React Native (solo después de 5.1 a 5.4)
 > **Actualización 2026-11-07:** se decidió **duplicar** la lógica en `app-movil/src/lib/` (`app-movil/DISENO.md`), no separarla dentro de la web; la web no se toca. Una regla que cambie en la web hay que replicarla en la app.

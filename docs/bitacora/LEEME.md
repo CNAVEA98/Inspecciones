@@ -41,6 +41,8 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.6 | 2026-11-09 | PDF oficial de las inspecciones aprobadas archivado en el bucket privado `reports` (lo escribe solo el servidor con la clave de servicio) y entregado desde ahí en cada descarga |
+| V1.1.5 | 2026-11-09 | Autoría de la aplicación (para Bbosch, no a su nombre), `LICENSE`, pie, Privacidad y Condiciones |
 | V1.1.4 | 2026-11-07 | Endpoint `/api/movil/informe/[id]` para que la app móvil descargue el PDF con su token (sin tocar el PDF ni las rutas de la web) |
 | V1.1.3 | 2026-11-06 | Contraseñas de las cuentas de prueba fuera del repositorio: plantilla del seed sin claves y `corepack pnpm seed:usuarios` |
 | V1.1.2 | 2026-11-06 | Supabase CLI actualizado de 2.122.0 a 3.0.0 y `config.toml` sin avisos de claves obsoletas |

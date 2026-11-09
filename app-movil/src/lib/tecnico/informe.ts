@@ -42,6 +42,25 @@ async function descargarOficial(supabase: SupabaseClient, id: string): Promise<F
   }
 }
 
+/**
+ * Pide al servidor que archive el PDF oficial de una inspección recién aprobada (firma del programador) en Storage.
+ * Es de mejor esfuerzo: si falla (sin señal, servidor sin configurar), el servidor lo archiva en la próxima descarga.
+ */
+export async function archivarOficial(supabase: SupabaseClient, id: string): Promise<boolean> {
+  try {
+    const { data } = await supabase.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return false;
+    const r = await fetch(`${WEB_URL}/api/movil/informe/${id}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}
+
 export interface ContextoPdf {
   almacen: Almacen;
   supabase: SupabaseClient;

@@ -66,8 +66,11 @@ Estado de esta guía: 2026-10-30. Las migraciones `0001` a `0011` y los seeds se
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL de Supabase |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clave `anon public` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | clave `service_role` (**solo Production**; desde la V1.1.6) |
 
-   **No** cargue la clave `service_role`: la app no la usa y nunca debe ir en variables `NEXT_PUBLIC_`.
+   Desde la V1.1.6 el servidor usa la clave `service_role` **solo** para guardar y leer el PDF oficial de las inspecciones
+   aprobadas en el bucket privado `reports` (`src/lib/informe/archivo.ts`). Va **sin** `NEXT_PUBLIC_` (nunca llega al
+   navegador) y no se carga en Preview. Si falta, la app sigue funcionando y el PDF se genera al vuelo, pero no se archiva.
 4. Deploy. Abra la URL y entre a `/login` con un usuario (p. ej. `TECNICO_A`).
 
 ### 3. Qué probar

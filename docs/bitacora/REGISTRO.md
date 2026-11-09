@@ -7,6 +7,13 @@ Reglas y formato de las entradas en [`LEEME.md`](LEEME.md); estado, pendientes y
 > `docs/DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `LICENCIAS.md` → `docs/guias/`; `docs/MAPEO_ZONA_AREA.md`, `COMPARATIVA_MANUALES_*` y `AUDITORIA_REACT_UI_TECNICO.md` → `docs/referencia/`;
 > `supabase/parche_plantillas_2026-11-06.sql` → `supabase/parches/`; `demo/` y `docs/archivo/` se eliminaron (siguen en el historial de git).
 
+### 2026-11-09 · [WEB] [APP] V1.1.7 publicada: PR #21 unido a `main`
+- **Autor:** Cristóbal (con Claude) · **Rama:** `docs/v1-1-7-publicada` (solo documentación) · **Versión:** sitio V1.1.4 → V1.1.7; app 1.1.7
+- **Qué se hizo:** por decisión de Cristóbal se abrió y unió el **PR #21** (`feat/app-movil-revisores` → `main`, commit de unión `4b7a729`), que reúne 12 commits: V1.1.5 (documentación, PR #20, que quedó unido con él), V1.1.6 (PDF archivado en `reports`), V1.1.7 (corrección única, migración 0021 ya aplicada en el remoto) y la app móvil 1.1.0 a 1.1.7. Se actualizaron la cabecera y la sección 4 del Maestro y la cabecera de ESTADO.
+- **Verificación:** antes de unir, en el PC de Cristóbal: web lint 0 errores (1 advertencia en `scripts/simular-manuales.mjs`), `tsc` sin errores, tests 264/264, build correcto; app 330/330 y `tsc`. Checks de GitHub 2/2 en verde, sin conflictos. Después de unir, `curl https://inspecciones-bbosch.vercel.app/login` mostró **V1.1.7** unos 30 s después (HTTP 200, `X-Vercel-Id: gru1`).
+- **No verificado:** el sitio publicado con clics (pendiente 5.6 del Maestro); el PDF archivado en producción (falta la clave de servicio en Vercel).
+- **Pendientes:** cargar `SUPABASE_SERVICE_ROLE_KEY` en Vercel (solo Production); rechazar o borrar `INS-2026-000006` y `-000007` antes de datos reales.
+
 ### 2026-11-09 · [APP] App 1.1.7: refuerzos para el primer uso en terreno sin señal
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil-revisores` · **Versión:** app 1.1.6 → 1.1.7
 - **Motivo:** Cristóbal mostró que, en modo avión, el ingreso pedía internet. Ingresar sin señal no es posible de forma segura (la contraseña la valida el servidor; aceptar cualquier usuario sin señal permitiría responder con una cuenta ajena). Decisión: cada técnico tiene su teléfono y **ingresa una vez con señal**; la sesión queda guardada y desde ahí trabaja sin cobertura. Estos refuerzos cubren lo que podía fallar en ese esquema.

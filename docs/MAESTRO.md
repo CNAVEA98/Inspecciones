@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20, V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`, y en `feat/app-movil-revisores` la app 1.1.7 y la web V1.1.7: revisores sin señal, equipos con fallas, envío en segundo plano corregido, corrección única (migración 0021, **ya aplicada en el remoto**) y el logo de Bbosch como ícono) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-09 · versión V1.1.7 publicada y app móvil 1.1.7 · `main` = commit 4b7a729 (PR #21 unido el 2026-11-09; incluye el PR #20, V1.1.5 documentación, V1.1.6 PDF archivado en Storage, V1.1.7 corrección única con la migración 0021 —aplicada en el remoto— y la app 1.1.0 a 1.1.7: revisores, trabajo sin señal, envío con la app cerrada y logo de Bbosch; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.7 (verificado el 2026-11-09, región `gru1`).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -87,9 +87,10 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - Supabase: proyecto `inspecciones-bbosch` (São Paulo, plan Free). Las contraseñas de las cuentas remotas las tiene
   Cristóbal; **no están ni deben estar en el repositorio**. No se tocan archivos `.env*`.
 
-## 4. Estado actual (V1.1.4)
+## 4. Estado actual (V1.1.7, publicada el 2026-11-09)
 
-- `main` incluye hasta el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
+- **PR #21 unido el 2026-11-09 (`main` = 4b7a729):** el sitio publicado pasó de V1.1.4 a **V1.1.7** (comprobado con `curl`, región `gru1`). El PDF archivado (V1.1.6) queda inactivo hasta cargar `SUPABASE_SERVICE_ROLE_KEY` en Vercel: mientras tanto el PDF se genera al vuelo, como antes.
+- `main` incluye además, desde el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
 - Verificación del 2026-11-06 (V1.1.3, CLI de Supabase 3.0.0): lint, tsc y build en verde; tests 253/253; `supabase db reset` y

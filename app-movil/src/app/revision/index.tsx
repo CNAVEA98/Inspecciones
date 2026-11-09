@@ -6,6 +6,10 @@ import { Alert, Pressable, RefreshControl, StyleSheet, Text, View } from "react-
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PiePagina } from "@/components/pie-pagina";
 import { formatFechaHora } from "@/lib/fecha";
+import { redNativa } from "@/lib/offline/red";
+import { useEnLinea } from "@/lib/offline/use-en-linea";
+import { claveBandeja, conCopia } from "@/lib/revision/cache";
+import { precargarDetalles } from "@/lib/revision/precarga";
 import { FILTROS, STATUS_SHORT, estadosDelFiltro, type Filtro, type InspectionStatus } from "@/lib/revision/estado";
 import { filtrarBandeja, type TurnoFiltro } from "@/lib/revision/filtrar";
 import type { FilaBandeja } from "@/lib/revision/queries";
@@ -13,7 +17,7 @@ import { listarBandeja } from "@/lib/revision/servidor";
 import { useRevision } from "@/lib/revision-contexto";
 import { rolConTurno, useSesion } from "@/lib/sesion";
 import { Presionable } from "@/ui/animacion";
-import { Aviso, Campo, Insignia, Tarjeta } from "@/ui/componentes";
+import { Aviso, Boton, Campo, Insignia, Tarjeta } from "@/ui/componentes";
 import { color, type Tono } from "@/ui/tema";
 
 const TONO: Record<InspectionStatus, Tono> = {
@@ -69,9 +73,15 @@ const TarjetaFila = memo(function TarjetaFila({ f }: { f: FilaBandeja }) {
   );
 });
 
-/** Bandeja de revisión para supervisor, programador y administrador: lo que les toca firmar y el resto, con búsqueda. Solo con señal. */
+/**
+ * Bandeja de revisión para supervisor, programador y administrador: lo que les toca firmar y el resto, con búsqueda.
+ * Con señal deja guardada una copia (y el detalle de las primeras) para revisar sin señal.
+ */
 export default function Bandeja() {
-  const { supabase, rol, perfil } = useRevision();
+  const { supabase, rol, perfil, kv } = useRevision();
+  const enLinea = useEnLinea();
+  const [copiaDe, setCopiaDe] = useState<number | null>(null);
+  const [guardadas, setGuardadas] = useState<number | null>(null);
   const { salir } = useSesion();
   const insets = useSafeAreaInsets();
   const [filtro, setFiltro] = useState<Filtro>("pendientes");
@@ -84,12 +94,18 @@ export default function Bandeja() {
   const cargar = useCallback(async () => {
     setError(null);
     try {
-      setFilas(await listarBandeja(supabase, estadosDelFiltro(filtro, rol)));
+      const r = await conCopia(kv, claveBandeja(perfil.userId, filtro), redNativa.enLinea(), () =>
+        listarBandeja(supabase, estadosDelFiltro(filtro, rol)),
+      );
+      setFilas(r.datos);
+      setCopiaDe(r.copiaDe);
+      // Con señal, deja listos para revisar sin señal los detalles de las primeras de la lista.
+      if (r.copiaDe === null) void precargarDetalles(supabase, kv, perfil.userId, r.datos).then((n) => n > 0 && setGuardadas(n));
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo cargar la bandeja.");
       setFilas((previas) => previas ?? []);
     }
-  }, [supabase, filtro, rol]);
+  }, [supabase, kv, perfil.userId, filtro, rol]);
 
   useEffect(() => {
     setFilas(null);
@@ -101,6 +117,11 @@ export default function Bandeja() {
       void cargar();
     }, [cargar]),
   );
+
+  // Al volver la señal se actualiza sola.
+  useEffect(() => {
+    if (enLinea && copiaDe !== null) void cargar();
+  }, [enLinea, copiaDe, cargar]);
 
   const refrescar = async () => {
     setActualizando(true);
@@ -129,7 +150,14 @@ export default function Bandeja() {
           <Chip key={x.valor || "todos"} texto={x.etiqueta} activo={turno === x.valor} onPress={() => setTurno(x.valor)} />
         ))}
       </View>
+      <Boton texto="Equipos con fallas" variante="secundario" onPress={() => router.push("/revision/fallas")} />
+      {copiaDe !== null ? (
+        <Aviso tono="neutro" texto={`Sin señal: lista guardada el ${formatFechaHora(copiaDe)}. Puede revisar; para firmar necesita señal.`} />
+      ) : null}
       {error ? <Aviso texto={error} /> : null}
+      {guardadas && copiaDe === null ? (
+        <Text style={estilos.sub}>{`${guardadas} ${guardadas === 1 ? "inspección quedó guardada" : "inspecciones quedaron guardadas"} para revisar sin señal.`}</Text>
+      ) : null}
       <Text style={estilos.sub}>
         {filas === null ? "Cargando…" : `${visibles.length} ${visibles.length === 1 ? "inspección" : "inspecciones"}${q || turno ? " con este filtro" : ""}`}
       </Text>

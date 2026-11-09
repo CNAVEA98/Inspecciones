@@ -1,6 +1,6 @@
 {
   "name": "app-movil",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Cristóbal Navea y Manuel Aguilar",
   "license": "UNLICENSED",
   "main": "expo-router/entry",

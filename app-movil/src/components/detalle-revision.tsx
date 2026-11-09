@@ -194,7 +194,7 @@ export function DetalleRevision({ d }: { d: DetalleInspeccion }) {
                     : `Requiere apoyo de terceros: canalizado con MLP${h.seguimiento.channelNote ? ` · ${h.seguimiento.channelNote}` : ""}`}
                 </Text>
               ) : (
-                <Text style={estilos.pequeno}>Seguimiento pendiente (se registra desde el sitio web).</Text>
+                <Text style={estilos.pequeno}>Seguimiento pendiente (se registra en «Equipos con fallas»).</Text>
               )}
             </View>
           );

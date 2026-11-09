@@ -2,7 +2,7 @@
   "expo": {
     "name": "Inspecciones MLP",
     "slug": "inspecciones-mlp",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -37,7 +37,8 @@
         }
       ],
       "expo-sharing",
-      "expo-background-task"
+      "expo-background-task",
+      "./plugins/con-regla-room-r8"
     ],
     "scheme": "inspeccionesmlp",
     "extra": {

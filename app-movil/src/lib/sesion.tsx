@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { useAlmacen } from "@/lib/almacen-contexto";
 import { usuarioAEmail } from "@/lib/auth/usuario";
 import { redNativa } from "@/lib/offline/red";
+import { borrarCopias } from "@/lib/revision/cache";
 import { getSupabase, supabaseConfigurado } from "@/lib/supabase";
 
 export type Rol = "admin" | "supervisor" | "planner" | "technician";
@@ -166,6 +167,8 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   const salir = useCallback(async () => {
     // `local`: cierra la sesión del teléfono sin necesitar señal. Los borradores y la cola se conservan.
     await getSupabase().auth.signOut({ scope: "local" });
+    // Las copias de revisión (bandeja, detalles, fallas) no deben quedar a la vista de la próxima cuenta.
+    await borrarCopias(Storage);
     setPerfil(null);
     setEstado("sin_sesion");
   }, []);

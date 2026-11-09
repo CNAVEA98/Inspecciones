@@ -1,9 +1,10 @@
 // Port de las consultas de revisión de src/lib/revision/queries.ts de la web (2026-11-09): la misma lectura (con RLS) pero con el
-// cliente de Supabase de la app. No incluye «Equipos con fallas» ni el seguimiento SAP (siguen en la web). Ver app-movil/DISENO.md.
+// cliente de Supabase de la app. Desde el 2026-11-09 incluye «Equipos con fallas» y el seguimiento SAP. Ver app-movil/DISENO.md.
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { templateSchema } from "@/lib/templates/schema";
+import { CLAVE_REPETICIONES, expandirPlantilla } from "@/lib/templates/repetir";
+import { templateSchema, type FormTemplateSchema } from "@/lib/templates/schema";
 import type { InspectionStatus } from "./estado";
-import type { Alcance, Seguimiento } from "./fallas";
+import { validarSeguimiento, type Alcance, type HallazgoFalla, type Seguimiento, type Severidad } from "./fallas";
 import type { Adjunto, DetalleInspeccion, FilaBandeja, FirmaRevision, Hallazgo } from "./queries";
 
 /** PostgREST devuelve la relación como objeto o como lista de un elemento según la inferencia. */
@@ -147,4 +148,113 @@ export async function obtenerDetalle(supabase: SupabaseClient, id: string): Prom
       }),
     ),
   };
+}
+
+const ESTADOS_CON_HALLAZGOS = ["submitted", "supervisor_signed", "approved"];
+const LOTE = 100;
+
+/**
+ * Todos los hallazgos («Malo») de inspecciones vigentes (enviadas, en firma o aprobadas) con su seguimiento.
+ * Misma consulta que `listarFallas` de la web.
+ */
+export async function listarFallas(supabase: SupabaseClient): Promise<HallazgoFalla[]> {
+  const { data, error } = await supabase
+    .from("findings")
+    .select(
+      `id, item_key, severity, inspection_id,
+       inspections!inner(id, folio, status, equipment_tag, submitted_at, template_id, performed_by, technician_shift,
+         area:areas(name), equipo:equipment_types(name), modo:work_modes(name)),
+       finding_followups(scope, sap_notice, channel_note)`,
+    )
+    .in("inspections.status", ESTADOS_CON_HALLAZGOS)
+    .limit(2000);
+  if (error) throw new Error(`No se pudieron cargar los equipos con fallas: ${error.message}`);
+  const filas = data ?? [];
+  if (filas.length === 0) return [];
+
+  const inspIds = [...new Set(filas.map((f) => f.inspection_id as string))];
+  const respuestas = new Map<string, Record<string, unknown>>();
+  for (let i = 0; i < inspIds.length; i += LOTE) {
+    const lote = inspIds.slice(i, i + LOTE);
+    const { data: ans, error: e } = await supabase
+      .from("answers")
+      .select("inspection_id, item_key, value")
+      .in("inspection_id", lote)
+      .in("item_key", ["_header", CLAVE_REPETICIONES, ...new Set(filas.map((f) => f.item_key as string))]);
+    if (e) throw new Error(`No se pudieron cargar las respuestas: ${e.message}`);
+    for (const a of ans ?? []) {
+      const m = respuestas.get(a.inspection_id as string) ?? {};
+      m[a.item_key as string] = a.value;
+      respuestas.set(a.inspection_id as string, m);
+    }
+  }
+  const unaRel = <T,>(rel: unknown): T | null => ((Array.isArray(rel) ? rel[0] : rel) as T | null | undefined) ?? null;
+  type Insp = {
+    id: string; folio: string | null; status: InspectionStatus; equipment_tag: string; submitted_at: string | null;
+    template_id: string; performed_by: string | null; technician_shift: string | null; area: unknown; equipo: unknown; modo: unknown;
+  };
+  const templateIds = [...new Set(filas.map((f) => unaRel<Insp>(f.inspections)?.template_id).filter((x): x is string => !!x))];
+  const { data: plantillas } = await supabase.from("form_templates").select("id, schema").in("id", templateIds);
+  const plantillaDe = new Map<string, FormTemplateSchema | null>(
+    (plantillas ?? []).map((p) => {
+      const r = templateSchema.safeParse(p.schema);
+      return [p.id as string, r.success ? r.data : null];
+    }),
+  );
+
+  return filas.flatMap((f): HallazgoFalla[] => {
+    const insp = unaRel<Insp>(f.inspections);
+    if (!insp) return [];
+    const resp = respuestas.get(insp.id) ?? {};
+    const base = plantillaDe.get(insp.template_id) ?? null;
+    const plantilla = base ? expandirPlantilla(base, resp[CLAVE_REPETICIONES]) : null;
+    let itemTexto = f.item_key as string;
+    for (const s of plantilla?.sections ?? []) {
+      const it = s.items.find((x) => x.id === f.item_key);
+      if (it) itemTexto = s.repetible ? `${s.title} · ${it.label}` : it.label;
+    }
+    const valor = resp[f.item_key as string] as { obs?: string } | undefined;
+    const header = (resp._header ?? {}) as Record<string, string>;
+    const seg = unaRel<{ scope: unknown; sap_notice: unknown; channel_note: unknown }>(f.finding_followups);
+    return [
+      {
+        id: f.id as string,
+        inspeccionId: insp.id,
+        folio: insp.folio,
+        status: insp.status,
+        itemKey: f.item_key as string,
+        itemTexto,
+        severidad: f.severity as Severidad,
+        observacion: valor?.obs?.trim() ?? "",
+        enviadaEn: insp.submitted_at,
+        tag: insp.equipment_tag || "",
+        area: nombre(insp.area),
+        equipo: nombre(insp.equipo),
+        ot: header.ot ?? "",
+        realizadoPor: insp.performed_by || "",
+        turno: insp.technician_shift === "A" || insp.technician_shift === "B" ? insp.technician_shift : null,
+        modo: nombre(insp.modo),
+        seguimiento: seg ? aSeguimiento(seg) : null,
+      },
+    ];
+  });
+}
+
+/**
+ * Registra el seguimiento de un hallazgo (N.º de aviso subsecuente o canalización con MLP). Solo supervisor y administrador:
+ * lo exige el RPC `set_finding_followup`. Necesita señal. Lanza un Error con el motivo.
+ */
+export async function guardarSeguimiento(
+  supabase: SupabaseClient,
+  datos: { findingId: string; scope: Alcance; sapNotice: string; channelNote: string },
+): Promise<void> {
+  const invalido = validarSeguimiento(datos);
+  if (invalido) throw new Error(invalido);
+  const { error } = await supabase.rpc("set_finding_followup", {
+    p_finding: datos.findingId,
+    p_scope: datos.scope,
+    p_sap_notice: datos.sapNotice.trim(),
+    p_channel_note: datos.channelNote.trim(),
+  });
+  if (error) throw new Error(`No se pudo guardar: ${error.message}`);
 }

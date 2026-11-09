@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { Directory, File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import Storage from "expo-sqlite/kv-store";
 import type { Almacen } from "@/lib/offline/almacen";
 import { redNativa } from "@/lib/offline/red";
 import { nombreDeContentDisposition, nombreSeguro } from "@/lib/informe/archivo";
@@ -15,6 +16,30 @@ export function mensajeErrorInforme(detalle: string): string {
   if (/\b404\b/.test(detalle)) return "El servidor aún no tiene el informe de esta inspección.";
   if (/\b409\b/.test(detalle)) return "La inspección aún es un borrador.";
   return "No se pudo descargar el informe del servidor.";
+}
+
+/** Dónde quedó el último PDF oficial de cada inspección (para abrirlo sin señal) y la última carpeta elegida al guardar. */
+const clavePdf = (id: string) => `pdf:${id}`;
+const CLAVE_CARPETA = "pdf:carpeta";
+
+async function recordarOficial(id: string, nombre: string): Promise<void> {
+  try {
+    await Storage.setItemAsync(clavePdf(id), nombre);
+  } catch {
+    // sin copia recordada: sin señal se generará en el teléfono
+  }
+}
+
+/** Último PDF oficial descargado en este teléfono, si sigue guardado. */
+async function copiaOficial(id: string): Promise<File | null> {
+  try {
+    const nombre = await Storage.getItemAsync(clavePdf(id));
+    if (!nombre) return null;
+    const f = new File(new Directory(Paths.document, "informes"), nombre);
+    return f.exists && f.size > 0 ? f : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Descarga el PDF oficial del servidor (con folio y firmas de revisión). Necesita señal. Lanza un Error con el motivo. */
@@ -36,6 +61,7 @@ async function descargarOficial(supabase: SupabaseClient, id: string): Promise<F
     if (destino.exists) destino.delete();
     destino.create();
     await destino.write(bytes);
+    await recordarOficial(id, destino.name);
     return destino;
   } catch (e) {
     throw new Error(mensajeErrorInforme(e instanceof Error ? e.message : String(e)));
@@ -68,6 +94,48 @@ export interface ContextoPdf {
   /** Cuenta con la que se trabaja («Técnico · Turno B») y su turno. */
   tecnico: string;
   turno: "A" | "B" | null;
+}
+
+/** «compartir»: hoja de compartir del teléfono. «guardar»: el usuario elige una carpeta (Descargas, Documentos…) y queda ahí. */
+export type DestinoPdf = "compartir" | "guardar";
+
+/** Nombre legible de la carpeta elegida (la URI de Android viene codificada: «primary:Download»). */
+function nombreCarpeta(uri: string): string {
+  const u = decodeURIComponent(uri);
+  return u.split(/[:/]/).filter(Boolean).pop() ?? "elegida";
+}
+
+/**
+ * Guarda una copia del PDF en una carpeta que elige el usuario (Android: selector del sistema; recuerda la última carpeta).
+ * Devuelve el aviso para mostrar.
+ */
+export async function guardarEnTelefono(archivo: File): Promise<ResultadoPdf> {
+  if (!archivo.exists || archivo.size === 0) {
+    return { error: `El PDF no quedó guardado correctamente (${estadoArchivo(archivo)}). Intente de nuevo.` };
+  }
+  let carpeta: Directory;
+  try {
+    const previa = await Storage.getItemAsync(CLAVE_CARPETA).catch(() => null);
+    carpeta = await Directory.pickDirectoryAsync(previa ?? undefined);
+  } catch {
+    return {
+      info: "No se eligió una carpeta; el PDF no se guardó. Android no permite usar la raíz de «Descargas»: cree o elija una carpeta dentro de ella (p. ej. «Inspecciones_MLP») o use «Documentos».",
+    };
+  }
+  try {
+    await Storage.setItemAsync(CLAVE_CARPETA, carpeta.uri).catch(() => undefined);
+    const copia = carpeta.createFile(archivo.name, "application/pdf");
+    await copia.write(await archivo.bytes());
+    return { info: `PDF guardado en la carpeta «${nombreCarpeta(carpeta.uri)}» como ${copia.name}.` };
+  } catch (e) {
+    return { error: `No se pudo guardar el PDF en la carpeta elegida (${detalleDe(e)}).` };
+  }
+}
+
+async function entregarArchivo(archivo: File, destino: DestinoPdf): Promise<ResultadoPdf> {
+  if (destino === "guardar") return guardarEnTelefono(archivo);
+  const abierto = await abrirArchivo(archivo);
+  return abierto ? { error: abierto } : {};
 }
 
 export interface ResultadoPdf {
@@ -134,7 +202,7 @@ export async function abrirArchivo(archivo: File): Promise<string | null> {
  *   de informes de la app, sin depender de internet.
  * - Inspección de otro teléfono del turno y sin señal: no hay datos locales, solo se puede pedir al servidor.
  */
-export async function entregarPdf(ctx: ContextoPdf, id: string): Promise<ResultadoPdf> {
+export async function entregarPdf(ctx: ContextoPdf, id: string, destino: DestinoPdf = "compartir"): Promise<ResultadoPdf> {
   const draft = await ctx.almacen.obtenerBorrador(id);
   const hayLocal = !!draft && !!ctx.catalog;
   const intentarServidor = !draft || draft.state === "sent";
@@ -149,6 +217,11 @@ export async function entregarPdf(ctx: ContextoPdf, id: string): Promise<Resulta
     } catch (e) {
       falloServidor = e instanceof Error ? e.message : "No se pudo descargar el informe.";
     }
+  }
+
+  if (!archivo && intentarServidor) {
+    archivo = await copiaOficial(id);
+    if (archivo) info = "Sin señal: es el PDF oficial descargado antes en este teléfono (puede no tener las últimas firmas).";
   }
 
   if (!archivo) {
@@ -166,22 +239,31 @@ export async function entregarPdf(ctx: ContextoPdf, id: string): Promise<Resulta
     }
   }
 
-  const abierto = await abrirArchivo(archivo);
-  if (abierto) return { error: abierto };
-  return info ? { info } : {};
+  const r = await entregarArchivo(archivo, destino);
+  if (r.error) return r;
+  return { info: [info, r.info].filter(Boolean).join(" ") || undefined };
 }
 
 /**
  * PDF oficial del servidor para quien revisa (supervisor, programador, administrador): no usa datos locales ni catálogo.
- * Necesita señal. Descarga y abre la hoja de compartir del teléfono.
+ * Con señal lo descarga; sin señal entrega el último descargado en este teléfono. Lo comparte o lo guarda en una carpeta.
  */
-export async function entregarPdfOficial(supabase: SupabaseClient, id: string): Promise<ResultadoPdf> {
-  let archivo: File;
+export async function entregarPdfOficial(
+  supabase: SupabaseClient,
+  id: string,
+  destino: DestinoPdf = "compartir",
+): Promise<ResultadoPdf> {
+  let archivo: File | null;
+  let info: string | undefined;
   try {
     archivo = await descargarOficial(supabase, id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "No se pudo descargar el informe." };
+    // Sin señal (o servidor caído): el último PDF oficial descargado en este teléfono, si existe.
+    archivo = await copiaOficial(id);
+    if (!archivo) return { error: e instanceof Error ? e.message : "No se pudo descargar el informe." };
+    info = "Sin señal: es el PDF descargado antes en este teléfono (puede no tener las últimas firmas).";
   }
-  const abierto = await abrirArchivo(archivo);
-  return abierto ? { error: abierto } : {};
+  const r = await entregarArchivo(archivo, destino);
+  if (r.error) return r;
+  return { info: [info, r.info].filter(Boolean).join(" ") || undefined };
 }

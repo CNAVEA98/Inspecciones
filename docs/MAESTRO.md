@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20 y V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20, V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`, y la app 1.1.2, revisores sin señal y equipos con fallas, en `feat/app-movil-revisores`) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -68,7 +68,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
 | `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
-| `app-movil/` | App nativa (técnico; y revisión para supervisor, programador y administrador desde la V1.1.0 de la app, 2026-11-09): proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); bitácora en `docs/bitacora/` (entradas `[APP]`) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
+| `app-movil/` | App nativa (técnico; y revisión para supervisor, programador y administrador desde la V1.1.0 de la app, 2026-11-09; consulta sin señal y equipos con fallas desde la 1.1.2; `plugins/` = plugins de configuración locales): proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); bitácora en `docs/bitacora/` (entradas `[APP]`) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)
@@ -105,7 +105,8 @@ Equipo: 2 personas (Cristóbal y Manuel).
   envío único con folio, PDF del teléfono y PDF oficial del servidor (V1.1.4 ya está desplegado). 292 pruebas de la app en verde (incluye el recorrido de las 59 plantillas reales). Envío en segundo plano escrito (solo funciona en un APK/TestFlight).
   El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `docs/bitacora/ESTADO.md` para el estado del segundo intento.
 - **V1.1.6 (rama `feat/pdf-archivado-storage`, sin unir):** el PDF de cada inspección aprobada se archiva en el bucket privado `reports` y se entrega desde ahí; lo escribe solo el servidor con `SUPABASE_SERVICE_ROLE_KEY`, que **falta cargar en Vercel** (solo Production). Probado por HTTP contra el Supabase local.
-- **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico, el APK, el envío en segundo plano real y el sitio web con clics.
+- **App 1.1.2 (rama `feat/app-movil-revisores`, sin unir):** supervisor, programador y administrador consultan sin señal (copia en el teléfono), «Equipos con fallas» y seguimiento SAP en la app, PDF «Guardar en el teléfono», y el plugin que corrige el cierre al abrir de toda compilación release (R8). Probado con una APK release local en el emulador contra el Supabase local.
+- **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico, el APK de EAS, el envío en segundo plano real y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native
 

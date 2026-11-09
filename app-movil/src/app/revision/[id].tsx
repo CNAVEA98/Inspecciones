@@ -2,41 +2,56 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AccionesPdf } from "@/components/acciones-pdf";
 import { DetalleRevision } from "@/components/detalle-revision";
 import { PanelRevision } from "@/components/panel-revision";
 import { PiePagina } from "@/components/pie-pagina";
+import { formatFechaHora } from "@/lib/fecha";
+import { useEnLinea } from "@/lib/offline/use-en-linea";
+import { redNativa } from "@/lib/offline/red";
+import { claveDetalle, conCopia } from "@/lib/revision/cache";
 import { etapaPendiente } from "@/lib/revision/estado";
+import { precargarImagenes } from "@/lib/revision/precarga";
 import type { DetalleInspeccion } from "@/lib/revision/queries";
 import { obtenerDetalle } from "@/lib/revision/servidor";
 import { useRevision } from "@/lib/revision-contexto";
 import { entregarPdfOficial } from "@/lib/tecnico/informe";
-import { Aviso, Boton } from "@/ui/componentes";
+import { Aviso } from "@/ui/componentes";
 import { color } from "@/ui/tema";
 
-/** Detalle de una inspección para quien revisa: informe completo, PDF oficial y, si le toca, la firma. */
+/** Detalle de una inspección para quien revisa: informe completo, PDF oficial y, si le toca, la firma. Sin señal, la última copia. */
 export default function RevisionDetalle() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { supabase, rol } = useRevision();
+  const { supabase, rol, kv, perfil } = useRevision();
+  const enLinea = useEnLinea();
   const insets = useSafeAreaInsets();
   const [d, setD] = useState<DetalleInspeccion | null | undefined>(undefined);
+  const [copiaDe, setCopiaDe] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actualizando, setActualizando] = useState(false);
   const [firmada, setFirmada] = useState(false);
-  const [pdf, setPdf] = useState<{ trabajando: boolean; error?: string }>({ trabajando: false });
 
   const cargar = useCallback(async () => {
     setError(null);
     try {
-      setD(await obtenerDetalle(supabase, id));
+      const r = await conCopia(kv, claveDetalle(perfil.userId, id), redNativa.enLinea(), () => obtenerDetalle(supabase, id));
+      setD(r.datos);
+      setCopiaDe(r.copiaDe);
+      if (r.datos && r.copiaDe === null) void precargarImagenes(r.datos);
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo cargar la inspección.");
       setD((previo) => previo ?? null);
     }
-  }, [supabase, id]);
+  }, [supabase, kv, perfil.userId, id]);
 
   useEffect(() => {
     void cargar();
   }, [cargar]);
+
+  // Al volver la señal se actualiza solo (la copia puede estar atrasada).
+  useEffect(() => {
+    if (enLinea && copiaDe !== null) void cargar();
+  }, [enLinea, copiaDe, cargar]);
 
   const refrescar = async () => {
     setActualizando(true);
@@ -44,14 +59,8 @@ export default function RevisionDetalle() {
     setActualizando(false);
   };
 
-  const descargarPdf = async () => {
-    if (pdf.trabajando) return;
-    setPdf({ trabajando: true });
-    const r = await entregarPdfOficial(supabase, id);
-    setPdf({ trabajando: false, error: r.error });
-  };
-
   const etapa = d ? etapaPendiente(d.status, rol) : null;
+  const sinSenal = !enLinea || copiaDe !== null;
 
   return (
     <>
@@ -62,19 +71,21 @@ export default function RevisionDetalle() {
       >
         {d === undefined ? <ActivityIndicator style={{ marginTop: 48 }} /> : null}
         {error ? <Aviso texto={error} /> : null}
+        {copiaDe !== null ? (
+          <Aviso tono="neutro" texto={`Sin señal: copia guardada el ${formatFechaHora(copiaDe)}. Puede no tener los últimos cambios.`} />
+        ) : null}
         {d === null && !error ? <Aviso texto="No se encontró la inspección o su cuenta no puede verla." /> : null}
         {d ? (
           <>
             {firmada ? <Aviso tono="ok" texto="Firma registrada. La inspección se actualizó." /> : null}
-            <Boton
-              texto={pdf.trabajando ? "Preparando PDF…" : "PDF oficial · Guardar o compartir"}
-              variante="secundario"
-              onPress={() => void descargarPdf()}
-              deshabilitado={pdf.trabajando}
-            />
-            {pdf.error ? <Aviso texto={pdf.error} /> : null}
+            <AccionesPdf oficial obtener={(destino) => entregarPdfOficial(supabase, id, destino)} />
             <DetalleRevision d={d} />
-            {etapa ? (
+            {etapa && sinSenal ? (
+              <Aviso
+                tono="cobre"
+                texto="Le corresponde firmar esta inspección, pero la firma necesita señal. Revise el informe ahora y firme cuando vuelva la conexión (tire hacia abajo para actualizar)."
+              />
+            ) : etapa ? (
               <PanelRevision
                 inspeccionId={d.id}
                 folio={d.folio ?? "sin folio"}

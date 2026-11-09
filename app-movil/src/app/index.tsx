@@ -9,12 +9,13 @@ import { ControlesEnviadas, PieEnviadas } from "@/components/enviadas-controles"
 import { PiePagina } from "@/components/pie-pagina";
 import { SyncIndicador } from "@/components/sync-indicador";
 import { formatFechaHora } from "@/lib/fecha";
-import type { DraftRecord } from "@/lib/offline/db";
+import type { DraftRecord, OutboxRecord } from "@/lib/offline/db";
+import { mensajeEnvioFallido } from "@/lib/offline/errores";
 import { redNativa } from "@/lib/offline/red";
 import { rolConTurno, useSesion } from "@/lib/sesion";
 import type { Catalog } from "@/lib/tecnico/catalog";
 import { useConsulta, useTecnico } from "@/lib/tecnico-contexto";
-import { eliminarBorrador } from "@/lib/tecnico/eliminar";
+import { descartarEnvioFallido, eliminarBorrador } from "@/lib/tecnico/eliminar";
 import {
   POR_PAGINA_ENVIADAS,
   contarPorEstado,
@@ -24,7 +25,9 @@ import {
 import {
   ESTADO_ENVIADA,
   borradorDeCorreccion,
+  buscarCorreccion,
   buscarEnviadasServidor,
+  correccionesEnServidor,
   cargarEnviadas,
   cargarRespuestas,
   fechaEnviadas,
@@ -59,13 +62,18 @@ const claveFila = (f: Fila) =>
 const TarjetaBorrador = memo(function TarjetaBorrador({
   d,
   catalogo,
+  falla,
   onAbrir,
   onEliminar,
+  onDescartar,
 }: {
   d: DraftRecord;
   catalogo: Catalog | null;
+  /** Motivo por el que el servidor rechazó el envío para siempre (la cola la marcó «failed»). */
+  falla?: string;
   onAbrir: (id: string) => void;
   onEliminar: (id: string) => void;
+  onDescartar: (id: string) => void;
 }) {
   const estado = ESTADO_BORRADOR[d.state];
   const equipo = nombreDe(catalogo?.equipmentTypes, d.equipmentTypeId);
@@ -90,6 +98,14 @@ const TarjetaBorrador = memo(function TarjetaBorrador({
           {formatFechaHora(d.updatedAt)}
         </Text>
       </Pressable>
+      {falla ? (
+        <View style={estilos.rechazo}>
+          <Text style={estilos.rechazoError}>{mensajeEnvioFallido(falla)}</Text>
+          <Pressable accessibilityRole="button" onPress={() => onDescartar(d.id)} style={estilos.eliminar}>
+            <Text style={estilos.eliminarTexto}>Eliminar esta copia</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {enCurso ? (
         <Pressable accessibilityRole="button" onPress={() => onEliminar(d.id)} style={estilos.eliminar}>
           <Text style={estilos.eliminarTexto}>Eliminar</Text>
@@ -106,6 +122,7 @@ const TarjetaBorrador = memo(function TarjetaBorrador({
 const TarjetaEnviada = memo(function TarjetaEnviada({
   e,
   correccion,
+  corregidaEn,
   catalogo,
   corrigiendo,
   error,
@@ -113,6 +130,8 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
 }: {
   e: Enviada;
   correccion?: DraftRecord;
+  /** Corrección ya registrada en el servidor (de este u otro teléfono con la misma cuenta). */
+  corregidaEn?: Enviada;
   catalogo: Catalog | null;
   corrigiendo: boolean;
   error?: string;
@@ -122,7 +141,8 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
   const equipo = nombreDe(catalogo?.equipmentTypes, e.equipment_type_id);
   const area = nombreDe(catalogo?.areas, e.area_id);
   const enCurso = correccion?.state === "draft";
-  const yaEnviada = correccion !== undefined && !enCurso;
+  const yaEnviada = corregidaEn !== undefined || (correccion !== undefined && !enCurso);
+  const folioCorreccion = corregidaEn?.folio ?? correccion?.folio;
   return (
     <Tarjeta style={estilos.item}>
       <View style={estilos.filaEntre}>
@@ -144,7 +164,7 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
           <Text style={estilos.rechazoTexto}>{e.review_comment || "Sin comentario."}</Text>
           {yaEnviada ? (
             <Text style={estilos.rechazoOk}>
-              Ya envió su corrección{correccion.folio ? ` (${correccion.folio})` : ""}.
+              Ya se envió su corrección{folioCorreccion ? ` (${folioCorreccion})` : ""}.
             </Text>
           ) : (
             <Boton
@@ -168,6 +188,12 @@ function InicioTecnico() {
   const [version, setVersion] = useState(0);
 
   const [borradores, cargados] = useConsulta(() => almacen.listarBorradores(userId), [] as DraftRecord[], `${userId}:${version}`);
+  // Envíos que el servidor rechazó para siempre (p. ej. una corrección que ya hizo otro teléfono de la cuenta).
+  const [salidas] = useConsulta(() => almacen.listarSalidas(), [] as OutboxRecord[], `salidas:${version}`);
+  const fallas = useMemo(
+    () => new Map(salidas.filter((s) => s.status === "failed").map((s) => [s.id, s.lastError ?? ""])),
+    [salidas],
+  );
   const [enviadas, setEnviadas] = useState<Enviada[]>([]);
   // Búsqueda y filtro de «Enviadas». Se muestran las últimas 5; «Ver más» agrega otras 5.
   const [consulta, setConsulta] = useState("");
@@ -201,6 +227,7 @@ function InicioTecnico() {
   }, [almacen, supabase, userId, huella]);
 
   const idsEnviadas = useMemo(() => new Set(enviadas.map((e) => e.id)), [enviadas]);
+  const corregidas = useMemo(() => correccionesEnServidor(enviadas), [enviadas]);
   // Una enviada ya confirmada por el servidor se muestra en «Enviadas», no en la lista local.
   const locales = useMemo(() => borradores.filter((d) => !idsEnviadas.has(d.id)), [borradores, idsEnviadas]);
 
@@ -288,6 +315,28 @@ function InicioTecnico() {
     [almacen],
   );
 
+  const descartar = useCallback(
+    (id: string) => {
+      Alert.alert(
+        "¿Eliminar esta copia?",
+        "El servidor no la aceptó. Se borran sus datos y fotos de este teléfono. No se puede deshacer.",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Sí, eliminar",
+            style: "destructive",
+            onPress: () =>
+              void descartarEnvioFallido(almacen, id).then(() => {
+                setVersion((v) => v + 1);
+                void sync.notifyQueued(); // recalcula el indicador («requiere atención»)
+              }),
+          },
+        ],
+      );
+    },
+    [almacen, sync],
+  );
+
   const corregir = useCallback(
     async (e: Enviada) => {
       setErrorCorreccion(null);
@@ -302,6 +351,14 @@ function InicioTecnico() {
       if (!template) return falla("El formulario de esta inspección ya no está disponible.");
       setCorrigiendo(e.id);
       try {
+        // La cuenta del turno la comparten varios teléfonos: si otro ya la corrigió, no se ofrece una segunda corrección.
+        const yaCorregida = await buscarCorreccion(supabase, e.id);
+        if (yaCorregida) {
+          void actualizar();
+          return falla(
+            `Esta inspección ya fue corregida${yaCorregida.folio ? ` con el folio ${yaCorregida.folio}` : ""} (puede haber sido desde otro teléfono con la misma cuenta).`,
+          );
+        }
         const respuestas = await cargarRespuestas(supabase, e.id);
         const draft = borradorDeCorreccion({ userId, rechazada: e, respuestas, template });
         await almacen.guardarBorrador(draft);
@@ -312,7 +369,7 @@ function InicioTecnico() {
         setCorrigiendo(null);
       }
     },
-    [abrir, almacen, borradores, catalog.catalog, supabase, userId],
+    [abrir, actualizar, almacen, borradores, catalog.catalog, supabase, userId],
   );
 
   // Lo que se ve en «Enviadas»: la búsqueda se hace sobre las guardadas en el teléfono (o sobre los resultados del servidor).
@@ -376,7 +433,16 @@ function InicioTecnico() {
             </View>,
           );
         case "borrador":
-          return entrada(<TarjetaBorrador d={item.d} catalogo={catalog.catalog} onAbrir={abrir} onEliminar={eliminar} />);
+          return entrada(
+            <TarjetaBorrador
+              d={item.d}
+              catalogo={catalog.catalog}
+              falla={fallas.get(item.d.id)}
+              onAbrir={abrir}
+              onEliminar={eliminar}
+              onDescartar={descartar}
+            />,
+          );
         case "enviadasCab":
           return (
             <ControlesEnviadas
@@ -410,6 +476,7 @@ function InicioTecnico() {
             <TarjetaEnviada
               e={item.e}
               correccion={item.correccion}
+              corregidaEn={corregidas.get(item.e.id)}
               catalogo={catalog.catalog}
               corrigiendo={corrigiendo === item.e.id}
               error={errorCorreccion?.id === item.e.id ? errorCorreccion.mensaje : undefined}
@@ -431,10 +498,13 @@ function InicioTecnico() {
       catalog.catalog,
       conteos,
       consulta,
+      corregidas,
       corregir,
       corrigiendo,
+      descartar,
       eliminar,
       errorCorreccion,
+      fallas,
       filtradas.length,
       filtroEstado,
       remotas,

@@ -213,6 +213,7 @@ export function buildSubmission(
         equipment_tag: (draft.header.tag ?? "").trim(),
         started_at: draft.startedAt,
         performed_by: getEjecutor(draft.answers).trim(),
+        corrects_id: draft.correccion?.de ?? null,
       },
       answers,
       findings,

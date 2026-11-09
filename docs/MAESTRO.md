@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20, V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`, y la app 1.1.3, revisores sin señal, equipos con fallas y envío en segundo plano corregido, en `feat/app-movil-revisores`) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-09 · versión V1.1.4 publicada (ramas sin unir: V1.1.5 en el PR #20, V1.1.6, PDF archivado, en `feat/pdf-archivado-storage`, y en `feat/app-movil-revisores` la app 1.1.5 y la web V1.1.7: revisores sin señal, equipos con fallas, envío en segundo plano corregido y corrección única con la **migración 0021, pendiente de aplicar en el remoto**) · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -55,7 +55,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 
 | Ruta | Contenido |
 |---|---|
-| `supabase/migrations/` | Esquema, RLS y RPC (0001–0020). Nunca editar una aplicada: crear una nueva |
+| `supabase/migrations/` | Esquema, RLS y RPC (0001–0021; la 0021, corrección única, solo en local hasta que se apruebe aplicarla en el remoto). Nunca editar una aplicada: crear una nueva |
 | `supabase/seed_catalogo.sql`, `seed_plantillas_*.sql` | Catálogo y plantillas de los 60 formatos (seguros para remoto) |
 | `supabase/seed_usuarios_dev.plantilla.sql` + `scripts/generar-seed-usuarios.mjs` | Cuentas de prueba **solo locales**. `corepack pnpm seed:usuarios` genera `seed_usuarios_dev.sql` y `supabase/.claves-dev.json` con claves aleatorias; ambos archivos están en `.gitignore` (repo público) |
 | `supabase/tests/` | Pruebas pgTAP (`supabase test db`; requiere Docker) |
@@ -107,6 +107,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - **V1.1.6 (rama `feat/pdf-archivado-storage`, sin unir):** el PDF de cada inspección aprobada se archiva en el bucket privado `reports` y se entrega desde ahí; lo escribe solo el servidor con `SUPABASE_SERVICE_ROLE_KEY`, que **falta cargar en Vercel** (solo Production). Probado por HTTP contra el Supabase local.
 - **App 1.1.2 (rama `feat/app-movil-revisores`, sin unir):** supervisor, programador y administrador consultan sin señal (copia en el teléfono), «Equipos con fallas» y seguimiento SAP en la app, PDF «Guardar en el teléfono», y el plugin que corrige el cierre al abrir de toda compilación release (R8). Probado con una APK release local en el emulador contra el Supabase local.
 - **App 1.1.3 (misma rama):** prueba sin señal del técnico con la APK release en el emulador: inspección completa en modo avión, cerrar y reabrir, y **envío con la app cerrada al volver la señal** (corregido: la tarea no existía con la app cerrada); el arranque sin señal con la sesión vencida bajó de ~2 min a 4–6 s.
+- **V1.1.7 / app 1.1.5 (misma rama):** prueba con dos teléfonos y la misma cuenta: envíos y firmas simultáneas bien; las correcciones duplicadas se corrigieron con la migración 0021 (una rechazada, una corrección). **Aplicar 0021 en el remoto antes de publicar.**
 - **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico (ahorro de batería), el APK de EAS y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native

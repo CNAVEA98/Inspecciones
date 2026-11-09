@@ -19,6 +19,28 @@ export interface Enviada {
   submitted_at: string | null;
   review_comment: string | null;
   reviewed_at: string | null;
+  /** Rechazada que esta inspección corrige (migración 0021). */
+  corrects_id?: string | null;
+}
+
+/**
+ * Para cada rechazada, la corrección que ya está en el servidor. La cuenta del turno la comparten varias personas: la
+ * corrección puede haberse hecho en otro teléfono o navegador, y entonces no se ofrece corregir de nuevo.
+ */
+export function correccionesEnServidor(enviadas: Enviada[]): Map<string, Enviada> {
+  const m = new Map<string, Enviada>();
+  for (const e of enviadas) if (e.corrects_id) m.set(e.corrects_id, e);
+  return m;
+}
+
+/** Corrección ya enviada de una rechazada, consultada al servidor justo antes de empezar otra. null si no hay. */
+export async function buscarCorreccion(
+  supabase: SupabaseClient,
+  rechazadaId: string,
+): Promise<{ id: string; folio: string | null } | null> {
+  const { data, error } = await supabase.from("inspections").select("id, folio").eq("corrects_id", rechazadaId).limit(1);
+  if (error) throw error;
+  return (data?.[0] as { id: string; folio: string | null } | undefined) ?? null;
 }
 
 /** Texto y colores del estado desde el punto de vista del técnico. */
@@ -32,7 +54,7 @@ export const ESTADO_ENVIADA: Record<InspectionStatus, { texto: string; clase: st
 
 const KEY = (userId: string) => `enviadas:${userId}`;
 const COLUMNAS =
-  "id, folio, status, equipment_tag, area_id, equipment_type_id, work_mode_id, template_id, submitted_at, review_comment, reviewed_at";
+  "id, folio, status, equipment_tag, area_id, equipment_type_id, work_mode_id, template_id, submitted_at, review_comment, reviewed_at, corrects_id";
 
 export async function readEnviadasCache(db: MlpDB, userId: string): Promise<Enviada[] | null> {
   const row = await db.catalog.get(KEY(userId));

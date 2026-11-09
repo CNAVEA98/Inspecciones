@@ -13,8 +13,10 @@ import { formatFechaHora } from "@/lib/fecha";
 import {
   ESTADO_ENVIADA,
   borradorDeCorreccion,
+  buscarCorreccion,
   cargarEnviadas,
   cargarRespuestas,
+  correccionesEnServidor,
   type Enviada,
 } from "@/lib/tecnico/enviadas";
 
@@ -57,6 +59,7 @@ export function InicioTecnico() {
     lista?.find((x) => x.id === id)?.name ?? "";
 
   const idsEnviadas = new Set(enviadas.map((e) => e.id));
+  const corregidas = correccionesEnServidor(enviadas);
   // Una enviada ya confirmada por el servidor se muestra en «Enviadas», no en la lista local.
   const locales = borradores.filter((d) => !idsEnviadas.has(d.id));
 
@@ -73,6 +76,14 @@ export function InicioTecnico() {
     if (!template) return falla("El formulario de esta inspección ya no está disponible.");
     setCorrigiendo(e.id);
     try {
+      // La cuenta del turno la comparten varias personas: si otra ya la corrigió, no se ofrece una segunda corrección.
+      const yaCorregida = await buscarCorreccion(supabase, e.id);
+      if (yaCorregida) {
+        setCorrigiendo(null);
+        return falla(
+          `Esta inspección ya fue corregida${yaCorregida.folio ? ` con el folio ${yaCorregida.folio}` : ""} (puede haber sido desde otro teléfono con la misma cuenta). Actualice la página.`,
+        );
+      }
       const respuestas = await cargarRespuestas(supabase, e.id);
       const draft = borradorDeCorreccion({ userId, rechazada: e, respuestas, template });
       await db.drafts.add(draft);
@@ -190,7 +201,9 @@ export function InicioTecnico() {
               const area = nombre(catalog.catalog?.areas, e.area_id);
               const correccion = borradores.find((d) => d.correccion?.de === e.id);
               const enCurso = correccion?.state === "draft";
-              const yaEnviada = correccion !== undefined && !enCurso;
+              const corregidaEn = corregidas.get(e.id);
+              const yaEnviada = corregidaEn !== undefined || (correccion !== undefined && !enCurso);
+              const folioCorreccion = corregidaEn?.folio ?? correccion?.folio;
               return (
                 <li key={e.id} className={clase}>
                   <div className="flex items-start justify-between gap-3">
@@ -213,7 +226,7 @@ export function InicioTecnico() {
                       <p className="mt-1 text-base">{e.review_comment || "Sin comentario."}</p>
                       {yaEnviada ? (
                         <p className="mt-3 text-sm font-semibold text-[#0b4a28]">
-                          Ya envió su corrección{correccion.folio ? ` (${correccion.folio})` : ""}.
+                          Ya se envió su corrección{folioCorreccion ? ` (${folioCorreccion})` : ""}.
                         </p>
                       ) : (
                         <button

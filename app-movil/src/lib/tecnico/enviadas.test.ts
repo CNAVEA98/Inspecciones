@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { AlmacenMemoria } from "@/lib/offline/almacen-memoria";
 import { validateTemplate } from "@/lib/templates/validate";
 import { META, allItems, validateDraft } from "./draft";
-import { borradorDeCorreccion, cargarEnviadas, readEnviadasCache, type Enviada } from "./enviadas";
+import { borradorDeCorreccion, cargarEnviadas, correccionesEnServidor, readEnviadasCache, type Enviada } from "./enviadas";
 
 const sql = readFileSync(path.resolve(__dirname, "../../../../supabase/seed_catalogo.sql"), "utf8");
 const parsed = validateTemplate(JSON.parse(sql.match(/\$tpl\$([\s\S]*?)\$tpl\$/)![1]));
@@ -95,5 +95,17 @@ describe("cargarEnviadas", () => {
     const db = new AlmacenMemoria();
     const supabase = consultaCon(() => Promise.reject(new Error("sin red")));
     expect(await cargarEnviadas(db, supabase, UID, true)).toEqual({ lista: [], fromCache: true });
+  });
+});
+
+describe("correccionesEnServidor", () => {
+  it("indica qué rechazadas ya tienen corrección, aunque se haya hecho en otro teléfono de la cuenta", () => {
+    const m = correccionesEnServidor([
+      { ...rechazada, id: "r1", status: "rejected" },
+      { ...rechazada, id: "c1", folio: "INS-2026-000036", status: "submitted", corrects_id: "r1" },
+      { ...rechazada, id: "x", status: "approved", corrects_id: null },
+    ]);
+    expect(m.get("r1")?.folio).toBe("INS-2026-000036");
+    expect(m.size).toBe(1);
   });
 });

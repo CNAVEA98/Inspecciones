@@ -32,3 +32,19 @@ export function aTransportError(e: unknown): TransportError {
     code === "P0001"; // RAISE EXCEPTION de las reglas del servidor
   return new TransportError(mensaje, !permanente);
 }
+
+/**
+ * Texto para el técnico cuando el servidor rechazó un envío (la entrada queda «failed»). Los códigos vienen de
+ * `submit_inspection` (migración 0021): otra copia de la misma corrección ya llegó, p. ej. desde otro teléfono de la cuenta.
+ */
+export function mensajeEnvioFallido(detalle: string | undefined): string {
+  const t = detalle ?? "";
+  const dup = /CORRECCION_DUPLICADA:\s*(.+)/.exec(t);
+  if (dup) return `No se envió: ${dup[1].trim()} (puede haber sido desde otro teléfono con la misma cuenta). Puede eliminar esta copia.`;
+  if (/inspections_corrects_id_key/.test(t)) {
+    return "No se envió: esa inspección rechazada ya fue corregida (puede haber sido desde otro teléfono con la misma cuenta). Puede eliminar esta copia.";
+  }
+  const inv = /CORRECCION_INVALIDA:\s*(.+)/.exec(t);
+  if (inv) return `No se envió: ${inv[1].trim()}. Puede eliminar esta copia.`;
+  return t ? `No se pudo enviar: ${t}` : "No se pudo enviar.";
+}

@@ -1,6 +1,6 @@
 // Envío de la cola con la app cerrada (Android: WorkManager; iOS: BGTaskScheduler). Solo funciona en un build propio (APK / TestFlight):
 // Expo Go no lo permite, y ahí el registro falla en silencio (la app sigue enviando al abrirse y al volver la señal).
-// Este archivo debe importarse al inicio de la app (`_layout.tsx`): `defineTask` tiene que ejecutarse en el ámbito global.
+// `defineTask` tiene que ejecutarse en el ámbito global al cargar la app: por eso este archivo se importa en `index.js` (la entrada), no solo en `_layout.tsx`.
 import * as BackgroundTask from "expo-background-task";
 import * as TaskManager from "expo-task-manager";
 import { getSupabase, supabaseConfigurado } from "@/lib/supabase";

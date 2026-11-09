@@ -50,6 +50,27 @@ export function useSesion(): Ctx {
 const claveCachePerfil = (userId: string) => `perfil:${userId}`;
 
 /**
+ * Espera una promesa como máximo `ms`; si no responde, devuelve null. Sin señal, `getSession()` con el token vencido intenta
+ * renovarlo y reintenta ~40 s antes de rendirse (medido en el emulador el 2026-11-09): la app quedaba cargando todo ese rato.
+ */
+export const LIMITE_ARRANQUE_MS = 4000;
+function conLimite<T>(promesa: Promise<T>, ms = LIMITE_ARRANQUE_MS): Promise<T | null> {
+  return new Promise((resolver) => {
+    const reloj = setTimeout(() => resolver(null), ms);
+    promesa.then(
+      (v) => {
+        clearTimeout(reloj);
+        resolver(v);
+      },
+      () => {
+        clearTimeout(reloj);
+        resolver(null);
+      },
+    );
+  });
+}
+
+/**
  * Sin señal `getSession()` puede no devolver nada si el token de acceso venció (no puede renovarlo). La sesión sigue
  * guardada en el teléfono: se lee de ahí para que el técnico pueda trabajar; los envíos reintentan hasta renovarla.
  */
@@ -77,16 +98,15 @@ export function SesionProvider({ children }: { children: ReactNode }) {
 
   /** Perfil del usuario: con señal se actualiza la copia local; sin señal se usa la última. */
   const cargarPerfil = useCallback(
-    async (userId: string): Promise<Perfil | null> => {
+    async (userId: string, intentarRed = true): Promise<Perfil | null> => {
       const cache = (await almacen.leerCatalogo(claveCachePerfil(userId)))?.value as Perfil | undefined;
-      if (redNativa.enLinea()) {
+      if (intentarRed && redNativa.enLinea()) {
         try {
-          const { data, error } = await getSupabase()
-            .from("profiles")
-            .select("full_name, role, shift")
-            .eq("id", userId)
-            .single();
-          if (!error && data) {
+          const r = await conLimite(
+            Promise.resolve(getSupabase().from("profiles").select("full_name, role, shift").eq("id", userId).single()),
+          );
+          const data = r?.data;
+          if (r && !r.error && data) {
             const p: Perfil = {
               userId,
               nombre: (data.full_name as string | null) ?? "",
@@ -106,7 +126,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
   );
 
   const aplicar = useCallback(
-    async (userId: string | null) => {
+    async (userId: string | null, intentarRed = true) => {
       if (!userId) {
         setPerfil(null);
         setEstado("sin_sesion");
@@ -114,7 +134,7 @@ export function SesionProvider({ children }: { children: ReactNode }) {
       }
       // Sin copia ni red se asume técnico (el servidor valida cada envío y cada lectura con RLS). Técnico, supervisor, programador
       // y administrador entran a la app: el técnico a su inspección y los demás a la revisión (ver `app/revision`).
-      const p = (await cargarPerfil(userId)) ?? { userId, nombre: "", rol: "technician" as Rol, turno: null };
+      const p = (await cargarPerfil(userId, intentarRed)) ?? { userId, nombre: "", rol: "technician" as Rol, turno: null };
       setAviso(null);
       setPerfil(p);
       setEstado("lista");
@@ -130,14 +150,12 @@ export function SesionProvider({ children }: { children: ReactNode }) {
     let vivo = true;
     const supabase = getSupabase();
     void (async () => {
-      let sesion: Session | null = null;
-      try {
-        sesion = (await supabase.auth.getSession()).data.session;
-      } catch {
-        sesion = null;
-      }
+      // Con límite de tiempo: sin señal y con el token vencido, se sigue con la sesión guardada en el teléfono.
+      const r = await conLimite(supabase.auth.getSession());
+      const sesion: Session | null = r?.data.session ?? null;
       const userId = sesion?.user.id ?? (await sesionGuardada());
-      if (vivo) await aplicar(userId);
+      // Si la sesión no respondió a tiempo no hay red útil: el perfil sale de la copia local, sin otra espera.
+      if (vivo) await aplicar(userId, r !== null);
     })();
     const { data } = supabase.auth.onAuthStateChange((evento, s) => {
       if (evento === "SIGNED_OUT") void aplicar(null);

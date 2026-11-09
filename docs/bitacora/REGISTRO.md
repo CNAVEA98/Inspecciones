@@ -7,6 +7,14 @@ Reglas y formato de las entradas en [`LEEME.md`](LEEME.md); estado, pendientes y
 > `docs/DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `LICENCIAS.md` → `docs/guias/`; `docs/MAPEO_ZONA_AREA.md`, `COMPARATIVA_MANUALES_*` y `AUDITORIA_REACT_UI_TECNICO.md` → `docs/referencia/`;
 > `supabase/parche_plantillas_2026-11-06.sql` → `supabase/parches/`; `demo/` y `docs/archivo/` se eliminaron (siguen en el historial de git).
 
+### 2026-11-09 · [APP] Programador en la app contra el Supabase real: ciclo completo de una inspección
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil-revisores` · **Versión:** app 1.1.6 (APK rotulada 1.1.5)
+- **Qué se hizo:** Cristóbal ingresó en el emulador con **`PROGRAMADOR_B`**; la bandeja del remoto mostró 2 por firmar. El programador **aprobó `INS-2026-000007`** con firma dibujada. Solo prueba; sin cambios de código.
+- **Verificación (2026-11-09, remoto, solo lectura después de la firma):** `INS-2026-000007` queda **`approved`** con dos firmas: `supervisor`/`approved` de «Supervisor B» y `planner`/`approved` de «Programador B». PDF oficial del sitio publicado guardado en el teléfono (203 KB): sello «APROBADA», folio y las tres firmas (encargado, Supervisor B 16:03, Programador B 16:41).
+  **Con esto el ciclo completo funciona contra la base real desde la app:** inspección hecha en modo avión → envío con la app cerrada al volver la señal → firma del supervisor → firma del programador → PDF final en el teléfono.
+- **No se archivó el PDF en `reports`** (0 archivos): es lo esperado mientras el sitio publicado siga en V1.1.4 (sin `POST /api/movil/informe/[id]`) y Vercel no tenga `SUPABASE_SERVICE_ROLE_KEY` (pendiente 4).
+- **Datos en el remoto:** `INS-2026-000007` aprobada y `INS-2026-000006` rechazada, ambas de prueba («PRUEBA REMOTO…», `TECNICO_B`): borrarlas con el administrador antes de datos reales.
+
 ### 2026-11-09 · [APP] Supervisor en la app contra el Supabase real: firma, rechazo y consulta sin señal
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil-revisores` · **Versión:** app 1.1.6 (APK probada: la misma, rotulada 1.1.5)
 - **Qué se hizo:** segunda parte de la prueba contra el remoto. Cristóbal ingresó en el emulador con **`SUPERVISOR_B`** (Claude no escribe las contraseñas reales). Solo prueba; sin cambios de código.

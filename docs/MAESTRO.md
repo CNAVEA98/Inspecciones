@@ -2,18 +2,17 @@
 
 Este es el **documento de entrada**. Cualquier persona o sesión de Claude, desde cualquier cuenta o PC, debe leerlo
 completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada cosa, cómo está hoy y qué falta.
-Si algo de aquí contradice a `docs/BITACORA.md` o al código, manda el código, luego la bitácora; y este documento
+Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-07 · versión V1.1.4 · `main` = commit 19358da (PR #18 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado).** Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-09 · versión V1.1.4 · `main` = commit e5e0993 (PR #19 unido; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.4 (verificado el 2026-11-07).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
 
 1. `git fetch origin` · `git status` · `git switch main` · `git pull --ff-only origin main`. Si hay cambios locales
    sin commit, no los pise: pregunte.
-2. Leer este archivo y luego `docs/BITACORA.md` (tablas «Estado actual», «Pendientes», «Decisiones» y las 3 últimas
-   entradas del «Registro»).
+2. Leer este archivo, luego `docs/bitacora/ESTADO.md` (estado, pendientes, decisiones) y las 3 últimas entradas de `docs/bitacora/REGISTRO.md`.
 3. Trabajar en rama nueva (`tipo/descripcion`), nunca directo en `main`. Reglas completas en `CLAUDE.md`.
 4. Si cambian dependencias o migraciones: `corepack pnpm install` y `corepack pnpm supabase db reset`.
    **En un equipo nuevo, antes del primer `db reset`: `corepack pnpm seed:usuarios`** (crea las cuentas locales y sus claves; las claves quedan en `supabase/.claves-dev.json`, que no se versiona).
@@ -40,16 +39,17 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | Archivo | Para qué |
 |---|---|
 | `docs/MAESTRO.md` | Este documento: entrada, directorio, estado y faltantes |
-| `docs/BITACORA.md` | Historial de cada mejora, «Estado actual», «Pendientes» numerados y «Decisiones» |
+| `docs/bitacora/` | **Bitácora oficial única (web y app):** `REGISTRO.md` (historial), `ESTADO.md` (estado, pendientes, decisiones), `LEEME.md` (reglas y versiones) |
 | `.claude/skills/` | Skills de Vercel Labs: `react-best-practices` y `web-design-guidelines` (web), `react-native-skills` (app móvil, 2026-11-07) |
 | `CLAUDE.md` · `AGENTS.md` | Reglas de trabajo en equipo; aviso de que este Next 16 difiere de lo conocido (leer `node_modules/next/dist/docs/`) |
-| `docs/DESIGN.md` | Sistema visual «Cobre» (colores, estados BN/ML/NT/NA/NR, severidades) |
-| `docs/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
-| `docs/EXPORT_MAESTRO.md` · `docs/MAPEO_ZONA_AREA.md` | Cómo se genera el Maestro de TAG y el mapeo zona → área (el segundo lo escribe el script; no editar a mano) |
-| `docs/LICENCIAS.md` | Licencias de dependencias |
-| `docs/COMPARATIVA_MANUALES_2026-11-07.md` | Papel de terreno vs formatos digitales: diferencias, auditoría del menú y pendientes |
-| `docs/muestras/` · `demo/` | HTML de referencia del formato, formulario e informe; demo estática |
-| `docs/archivo/` | Documentos antiguos, **solo historia**; pueden estar desactualizados |
+| `docs/guias/DESIGN.md` | Sistema visual «Cobre» (colores, estados BN/ML/NT/NA/NR, severidades) |
+| `docs/guias/DEPLOY_VERCEL.md` | Despliegue en Vercel y comprobación de la región `gru1` |
+| `docs/guias/EXPORT_MAESTRO.md` · `docs/referencia/MAPEO_ZONA_AREA.md` | Cómo se genera el Maestro de TAG y el mapeo zona → área (el segundo lo escribe el script; no editar a mano) |
+| `docs/guias/LICENCIAS.md` | Licencias de dependencias |
+| `docs/referencia/COMPARATIVA_MANUALES_2026-11-07.md` | Papel de terreno vs formatos digitales: diferencias, auditoría del menú y pendientes |
+| `docs/guias/DESARROLLO.md` | Cómo correr la web y la app |
+| `docs/referencia/` | Análisis y datos de apoyo (auditoría de UI, comparativa, mapeo zona → área) |
+| `docs/muestras/` | HTML de referencia del formato, formulario e informe |
 
 ### Código
 
@@ -68,7 +68,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
 | `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
-| `app-movil/` | App nativa del técnico: proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); **bitácora propia `app-movil/BITACORA.md`** (estado, pendientes y decisiones de la migración; se actualiza en cada cambio) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
+| `app-movil/` | App nativa del técnico: proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); bitácora en `docs/bitacora/` (entradas `[APP]`) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)
@@ -103,20 +103,20 @@ Equipo: 2 personas (Cristóbal y Manuel).
   No es prueba del sitio publicado ni de la PWA en navegador.
 - **App móvil (`app-movil/`, PR #18 unido el 2026-11-07):** flujo del técnico probado en un **emulador Android** (API 37, Expo Go): ingreso, inspección con foto y firma, modo avión, cierre y reapertura sin señal,
   envío único con folio, PDF del teléfono y PDF oficial del servidor (V1.1.4 ya está desplegado). 292 pruebas de la app en verde (incluye el recorrido de las 59 plantillas reales). Envío en segundo plano escrito (solo funciona en un APK/TestFlight).
-  El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `app-movil/BITACORA.md` para el estado del segundo intento.
+  El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `docs/bitacora/ESTADO.md` para el estado del segundo intento.
 - **Sin probar:** iPhone con los arreglos de la última semana, dispositivo Android físico, el APK, el envío en segundo plano real y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native
 
-Estados: **Abierto** · **Necesita a Cristóbal** · **Sin probar**. Detalle numerado de cada pendiente en `docs/BITACORA.md`.
+Estados: **Abierto** · **Necesita a Cristóbal** · **Sin probar**. Detalle numerado de cada pendiente en `docs/bitacora/ESTADO.md`.
 Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueba sin señal → 5 decisión de cuentas → 6 separar lógica.
 
 ### 5.1 Repositorio y seguridad (revisado el 2026-11-06)
 - **Revisión de claves en el historial (106 commits, todas las ramas): NO hay** claves `service_role`, `sb_secret_`, tokens, URL de base con
-  contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de `demo/` y `docs/muestras/` son imágenes base64.
+  contraseña, claves de GitHub/AWS ni claves privadas; `.env.example` está vacío; los `eyJ…` de `docs/muestras/` son imágenes base64.
 - **Contraseñas de las 7 cuentas de prueba:** estuvieron publicadas en `seed_usuarios_dev.sql`. Desde la V1.1.3 salieron del árbol de archivos
   (plantilla sin claves + `corepack pnpm seed:usuarios`). **El 2026-11-07 se reescribió el historial de GitHub** y se reemplazaron por `CLAVE-ELIMINADA` en los 112 commits
-  (todos cambiaron de identificador; ver `docs/BITACORA.md`). **Quedan:** las 17 referencias `refs/pull/*` de GitHub con commits viejos (hay que pedir su limpieza a GitHub Support),
+  (todos cambiaron de identificador; ver `docs/bitacora/REGISTRO.md`). **Quedan:** las 17 referencias `refs/pull/*` de GitHub con commits viejos (hay que pedir su limpieza a GitHub Support),
   cualquier copia previa del repo, y **las 7 cuentas del Supabase remoto siguen usando esas mismas contraseñas** (incluye `ADMINISTRADOR`): Cristóbal decidió no rotarlas (sistema de prueba).
   **Obligatorio antes de datos reales:** rotarlas y cerrar sesiones.
   Ingresos recientes en `administrador` (3 nov), `supervisor_b` (4 nov) y `tecnico_b` (6 nov) no se pudieron atribuir (sin registro de auditoría).
@@ -132,7 +132,7 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
 - **NUNCA `supabase config push`** con el `config.toml` local: sobrescribiría la configuración del remoto (reabre el registro, cambia `site_url`, MFA…).
 - Despliegue: Vercel despliega desde `main` y tarda menos de 1 minuto; comprobar con `curl -s https://inspecciones-bbosch.vercel.app/login | grep -o "V1\.[0-9]*\.[0-9]*"`.
 - Pendiente: plan Supabase Free (1 GB, se pausa, sin respaldos diarios) vs ~60 técnicos con fotos; términos de Vercel Hobby.
-- Pendiente: `inspecciones-mlp-prueba` (Supabase) está pausado y `inspecciones-mlp-demo-formatos` (Vercel) sin revisar: decidir si se borran.
+- Pendiente: `inspecciones-mlp-prueba` (Supabase) está pausado y `inspecciones-mlp-demo-formatos` (Vercel, demo estática cuya carpeta `demo/` se eliminó del repositorio el 2026-11-09) sin revisar: decidir si se borran.
 - Pendiente: definir dónde se guardan las contraseñas remotas y cambiarlas antes de producción.
 
 ### 5.3 Fallas de PDF (las 5 altas: corregidas y comprobadas en la V1.1.1, rama `fix/pdf-fallas-altas`)
@@ -141,8 +141,7 @@ foto en los 16 formatos «conforme» con ítem de foto; mantenciones con «Resul
 - **S01** era un error del script de simulación (no adjuntaba la foto), no del PDF. **S02** severidad en fila, bloque
   «Hallazgos» y pie de foto. **S05** TAG en una línea (sin guionado). **P01** TAG 740HF003 en MANT-13. **P04** «ausencia de óxido».
 - También corregidas: S03, S09, S11 (NA fuera del denominador) y la redacción de P02, P06, P11, P27, P28 y otras erratas.
-- **Falta ejecutar `supabase/parche_plantillas_2026-11-06.sql` en el remoto** (SQL Editor, «postgres (Superuser)»);
-  mientras tanto el sitio publicado sigue con las plantillas viejas. Las bases nuevas ya vienen corregidas por los seeds.
+- El parche `supabase/parches/parche_plantillas_2026-11-06.sql` **ya se aplicó en el remoto** (ver 5.2); se conserva solo como registro. Las bases nuevas ya vienen corregidas por los seeds.
 - Siguen abiertas (medias y bajas): P03, P05, P07, P08, P14, P16, P19, P37, P38, P41, S04, S06, S07 (fuentes Geist),
   S13, S19–S22 y X01; el detalle está en el Excel de revisión (fuera del repo).
 - Corregir datos de plantilla exige un parche/versión nueva (no editar una plantilla ya publicada).
@@ -203,6 +202,6 @@ separada con tests en verde; todo con evidencia en la bitácora.
 
 - Se lee al inicio de **cada** sesión y se actualiza al cerrar cada mejora: secciones 4, 5 y 6 se reescriben; la
   instantánea de la cabecera lleva fecha, versión y commit.
-- Cada archivo `.md` nuevo debe quedar listado en la sección 3. Un documento que deja de ser cierto se mueve a
-  `docs/archivo/` (no se deja desactualizado en `docs/`).
+- Cada archivo `.md` nuevo debe quedar listado en la sección 3. Un documento que deja de ser cierto se **elimina** (queda en el historial de git); no se deja desactualizado en `docs/`.
+  Estructura de `docs/`: `bitacora/` (historial único), `guias/` (procedimientos estables), `referencia/` (análisis y datos de apoyo), `muestras/` y `formatos/`.
 - No poner aquí contraseñas, claves ni valores de `.env`.

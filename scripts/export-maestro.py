@@ -9,7 +9,7 @@ no es una dependencia de la app.
 
 Genera:
     src/data/maestro-tags.json   datos que lee el selector de TAG
-    docs/MAPEO_ZONA_AREA.md      tabla Zona/Instalación -> área y sector, para revisión
+    docs/referencia/MAPEO_ZONA_AREA.md      tabla Zona/Instalación -> área y sector, para revisión
 """
 import collections
 import json
@@ -22,7 +22,7 @@ import openpyxl
 RAIZ = Path(__file__).resolve().parent.parent
 XLSX_POR_DEFECTO = Path(r"C:\Proyectos\Bases de datos generales\Maestro_TAGs_MLP.xlsx")
 SALIDA_JSON = RAIZ / "src" / "data" / "maestro-tags.json"
-SALIDA_MAPEO = RAIZ / "docs" / "MAPEO_ZONA_AREA.md"
+SALIDA_MAPEO = RAIZ / "docs" / "referencia" / "MAPEO_ZONA_AREA.md"
 
 # Zona del Maestro -> código de área de la app. "Generadores y trafos elevadores" se resuelve por instalación.
 AREA_POR_ZONA = {

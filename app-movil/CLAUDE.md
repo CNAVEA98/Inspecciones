@@ -5,14 +5,14 @@ App nativa del técnico de Inspecciones MLP. Valen también las reglas del `CLAU
 
 ## Al iniciar cada sesión
 
-1. Leer `BITACORA.md` de esta carpeta: «Estado actual», «Pendientes», «Decisiones» y las 3 últimas entradas del «Registro».
+1. Leer `../docs/bitacora/ESTADO.md` (sección «App móvil») y las 3 últimas entradas `[APP]` de `../docs/bitacora/REGISTRO.md`.
 2. Revisar la skill `../.claude/skills/react-native-skills/` antes de crear o cambiar pantallas.
 
 ## Regla de la bitácora (obligatoria)
 
-**Cada cambio en `app-movil/` se registra en `app-movil/BITACORA.md` en el mismo commit, antes de darlo por cerrado**:
-entrada nueva arriba del «Registro» con verificación real (o «no verificado» y por qué) y, si cambian, «Estado actual»,
-«Pendientes» y «Decisiones». Si el cambio toca también la web, agregar una línea en `docs/BITACORA.md`.
+**Cada cambio en `app-movil/` se registra en `docs/bitacora/REGISTRO.md` (etiqueta `[APP]`) en el mismo commit, antes de darlo por cerrado**:
+entrada nueva arriba con verificación real (o «no verificado» y por qué) y, si cambian, `docs/bitacora/ESTADO.md`.
+Si el cambio toca también la web, la misma entrada lleva ambas etiquetas.
 
 ## Verificar antes de cerrar un cambio
 

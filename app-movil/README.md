@@ -2,7 +2,7 @@
 
 App nativa para **iPhone y Android** del técnico de terreno. Su razón de ser: **el técnico hace la inspección sin
 señal y, cuando vuelve a tener señal, se envía sola**. La PWA no lo resolvía (se abre desde un enlace; decisión de
-Cristóbal del 2026-11-06, ver «Decisiones» en `docs/BITACORA.md`).
+Cristóbal del 2026-11-06, ver «Decisiones» en `docs/bitacora/ESTADO.md`).
 
 - **Quién la usa:** solo el técnico. Supervisor, programador y administrador siguen en la web Next (`src/`).
 - **Backend:** el mismo Supabase (Auth, Postgres con RLS, Storage, RPC `submit_inspection`). No se crea otro.
@@ -14,7 +14,7 @@ Cristóbal del 2026-11-06, ver «Decisiones» en `docs/BITACORA.md`).
 Esta carpeta usa **npm** (no pnpm como la web): Expo y Metro funcionan mejor así y no se mezcla con el `pnpm-lock.yaml`
 de la raíz.
 
-Detalle (PowerShell, Firewall, verificación) en **`BITACORA.md`**, la bitácora propia de la migración: todo cambio en
+Detalle de ejecución en `docs/guias/DESARROLLO.md` y la bitácora oficial (`docs/bitacora/`, etiqueta `[APP]`): todo cambio en
 esta carpeta se registra ahí.
 
 ```powershell
@@ -63,4 +63,4 @@ listas virtualizadas (selector de TAG, borradores), `expo-image` para fotos, `Pr
 
 
 Las mismas del repositorio (`CLAUDE.md`): rama nueva, bitácora en el mismo commit, UI en español (Chile), fechas en
-`America/Santiago`, diseño «Cobre» (`docs/DESIGN.md`), sin credenciales en el código.
+`America/Santiago`, diseño «Cobre» (`docs/guias/DESIGN.md`), sin credenciales en el código.

@@ -14,7 +14,7 @@ python scripts/export-maestro.py                       # lee C:\Proyectos\Bases 
 python scripts/export-maestro.py ruta\a\otra-copia.xlsx
 ```
 
-Genera `src/data/maestro-tags.json` y `docs/MAPEO_ZONA_AREA.md` (tabla Zona/Instalación → área y sector, para revisar).
+Genera `src/data/maestro-tags.json` y `docs/referencia/MAPEO_ZONA_AREA.md` (tabla Zona/Instalación → área y sector, para revisar).
 Al terminar imprime los conteos por estado y las discrepancias entre la hoja y el color; deben ser 0.
 
 ## Qué contiene cada equipo
@@ -26,7 +26,7 @@ Al terminar imprime los conteos por estado y las discrepancias entre la hoja y e
 | `nombre`, `instalacion` | Hoja «Maestro» **sin** los paréntesis que no son parte del nombre (ver abajo) |
 | `datos`, `nota` | Lo que se sacó de esos paréntesis: datos de placa (`5,0 / 6,5 MVA`, `N° DE SERIE: …`) y aclaraciones de alcance (`SOLO MUESTRAS DE ACEITE`) |
 | `designador` | Segundo bloque del TAG (`740-XF-001`, `740XF001`, `320ML001XF4`, `740SG001 / CUB-52-10` → `XF`, `XF`, `XF`, `SG`). `null` si no se reconoce (77 TAG, p. ej. `380VCP-W32 52-10`, `52-E1`) |
-| `area`, `sector` | Reglas del script (`AREA_POR_ZONA`, `sector_de`); ver `docs/MAPEO_ZONA_AREA.md`. «Generadores y trafos elevadores» se resuelve por instalación; los GG van al sector «GG» de su área |
+| `area`, `sector` | Reglas del script (`AREA_POR_ZONA`, `sector_de`); ver `docs/referencia/MAPEO_ZONA_AREA.md`. «Generadores y trafos elevadores» se resuelve por instalación; los GG van al sector «GG» de su área |
 | `estado` | Hoja «Cambios y propuestas», columna «Tipo de cambio»: Propuesto → `propuesto`, Duplicado resuelto → `reasignado`, Por nombre (validar) → `por_validar`; sin fila → `oficial`. Respaldo: color de la celda TAG (FFD966, F4B183, 9DC3E6) |
 | `tagOriginal` | Solo `reasignado`: columna «TAG original en fuente» de «Cambios y propuestas» |
 | `tipoTrafo` | Solo XF: `piso` o `aereo` cuando el texto lo dice; `null` si no alcanza (no se infiere) |
@@ -36,7 +36,7 @@ insignia «TAG provisional» y el registro guardado conserva el estado para que 
 
 ## Cuándo regenerar
 
-Cada vez que cambie el Maestro. Revise el diff del JSON y de `docs/MAPEO_ZONA_AREA.md`, y registre el cambio en la bitácora.
+Cada vez que cambie el Maestro. Revise el diff del JSON y de `docs/referencia/MAPEO_ZONA_AREA.md`, y registre el cambio en la bitácora.
 Una zona o instalación nueva en el Maestro hace fallar el script (`KeyError`): agréguela a `AREA_POR_ZONA`.
 
 ## Reglas de normalización (en `scripts/export-maestro.py`)

@@ -19,7 +19,7 @@ export interface RecursosPdf {
 // Sin guionado automático: un TAG como «740-XF-001» debe quedar en una sola línea, nunca «740--» / «XF-001».
 Font.registerHyphenationCallback((palabra) => [palabra]);
 
-// Tokens del diseño «Cobre» (docs/DESIGN.md, muestra docs/muestras/informe-transformador-piso.html).
+// Tokens del diseño «Cobre» (docs/guias/DESIGN.md, muestra docs/muestras/informe-transformador-piso.html).
 const C = {
   graf: "#14181d",
   cu: "#c4602d",
@@ -55,7 +55,7 @@ const SEGMENTO: Record<EstadoVer, string> = {
   NO: "#9aa1a8",
 };
 
-/** Colores de severidad de hallazgo (docs/DESIGN.md). */
+/** Colores de severidad de hallazgo (docs/guias/DESIGN.md). */
 const SEV: Record<SeveridadInforme, { bg: string; fg: string; texto: string }> = {
   baja: { bg: "#e1f2e8", fg: "#0b6b3a", texto: "Baja" },
   media: { bg: "#f4ecce", fg: "#6e5700", texto: "Media" },

@@ -7,6 +7,19 @@ Reglas y formato de las entradas en [`LEEME.md`](LEEME.md); estado, pendientes y
 > `docs/DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `LICENCIAS.md` → `docs/guias/`; `docs/MAPEO_ZONA_AREA.md`, `COMPARATIVA_MANUALES_*` y `AUDITORIA_REACT_UI_TECNICO.md` → `docs/referencia/`;
 > `supabase/parche_plantillas_2026-11-06.sql` → `supabase/parches/`; `demo/` y `docs/archivo/` se eliminaron (siguen en el historial de git).
 
+### 2026-11-09 · [APP] Supervisor en la app contra el Supabase real: firma, rechazo y consulta sin señal
+- **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil-revisores` · **Versión:** app 1.1.6 (APK probada: la misma, rotulada 1.1.5)
+- **Qué se hizo:** segunda parte de la prueba contra el remoto. Cristóbal ingresó en el emulador con **`SUPERVISOR_B`** (Claude no escribe las contraseñas reales). Solo prueba; sin cambios de código.
+- **Verificación (2026-11-09, emulador Android API 37, APK release contra el remoto):**
+  - Bandeja del remoto: 6 por firmar, «6 inspecciones quedaron guardadas para revisar sin señal».
+  - **Aprobó `INS-2026-000007`** con firma dibujada: en la base real queda `supervisor_signed`, firma `supervisor`/`approved` de «Supervisor B» y la imagen en el bucket `signatures`; la app muestra «Firma registrada».
+  - **Rechazó `INS-2026-000006`** con el comentario «Prueba de la app contra la base real: dato de prueba, no corregir»: queda `rejected` con ese comentario (sirve también para sacar de circulación ese dato de prueba).
+  - PDF oficial de `INS-2026-000007` guardado en el teléfono con señal.
+  - **Modo avión (sin red real):** la bandeja muestra «Sin señal: lista guardada el …»; el detalle de `INS-2026-000007` sale de la copia; «PDF oficial · Compartir» entrega el PDF guardado antes; en una pendiente (`INS-2026-000005`) el panel de firma queda reemplazado por «la firma necesita señal».
+  - «Equipos con fallas» del remoto: 3 equipos y 3 hallazgos pendientes, que coincide con la base (5 vigentes, 2 con seguimiento).
+- **No verificado:** firma del programador contra el remoto (falta ingresar con `PROGRAMADOR_A`/`_B`), seguimiento SAP escrito en el remoto (no se registró para no tocar datos), teléfono físico.
+- **Datos en el remoto:** `INS-2026-000007` queda por firmar del programador; `INS-2026-000006` rechazada (dato de prueba).
+
 ### 2026-11-09 · [APP] App 1.1.6: logo de Bbosch como ícono; migración 0021 aplicada en el remoto y primera prueba del APK contra el Supabase real
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-movil-revisores` · **Versión:** app 1.1.6 (la web sigue en V1.1.7 en la rama; el sitio publicado, en V1.1.4)
 - **Qué se hizo:**

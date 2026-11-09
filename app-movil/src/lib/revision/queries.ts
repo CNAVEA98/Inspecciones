@@ -4,6 +4,23 @@ import type { FormTemplateSchema } from "@/lib/templates/schema";
 import type { InspectionStatus } from "./estado";
 import type { Seguimiento } from "./fallas";
 
+/** Fila de la bandeja del supervisor, programador y administrador. */
+export interface FilaBandeja {
+  id: string;
+  folio: string | null;
+  status: InspectionStatus;
+  equipmentTag: string;
+  area: string;
+  equipo: string;
+  modo: string;
+  /** Cuenta de técnico con la que se envió. */
+  tecnico: string;
+  /** Persona que realizó la inspección, según el formulario. */
+  realizadoPor: string;
+  turno: "A" | "B" | null;
+  submittedAt: string | null;
+}
+
 export interface Hallazgo {
   id: string;
   itemKey: string;

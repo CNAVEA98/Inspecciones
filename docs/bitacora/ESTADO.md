@@ -33,7 +33,8 @@ Base 13 MB · Storage 2,8 MB (`inspection-photos` 11 archivos, `signatures` 1, `
 | Área | Estado | Verificación |
 |---|---|---|
 | Lógica del técnico | Copiada de la web sobre SQLite (`app-movil/DISENO.md`); se duplica, no se comparte | 292 pruebas en verde, incluido el recorrido de las 59 plantillas reales |
-| Pantallas | Ingreso, inicio, nueva inspección (4 pasos), formulario completo, «Enviadas» con buscador y filtros | Emulador Android (API 37, Expo Go): flujo completo, modo avión, cierre y reapertura, envío único con folio |
+| Pantallas del técnico | Ingreso, inicio, nueva inspección (4 pasos), formulario completo, «Enviadas» con buscador y filtros | Emulador Android (API 37, Expo Go): flujo completo, modo avión, cierre y reapertura, envío único con folio |
+| Revisión (supervisor, programador, administrador; app V1.1.0, 2026-11-09) | Ingreso por rol, bandeja con filtros y búsqueda, detalle completo con fotos, PDF oficial y firma en dos etapas (el administrador solo consulta). Solo con señal | Emulador Android contra Supabase **local**: el supervisor firmó, el programador firmó (inspección aprobada), rechazo sin comentario bloqueado, administrador sin panel, técnico sin cambios; 303 pruebas. **No probado:** teléfono físico, iPhone, sin señal, Supabase remoto |
 | PDF | Del teléfono (sin señal) y oficial del servidor (`/api/movil/informe/[id]`, V1.1.4 desplegada) | Probados en el emulador |
 | Envío en segundo plano | Escrito (`expo-background-task`, cada ~15 min) | **No verificado**: solo corre en un APK/TestFlight |
 | APK (EAS Build) | Intento 1 falló por `npm ci` (corregido con `app-movil/.npmrc`); intento 2 (`140db843-1593-403f-bc78-d5daaf06ee3a`) quedó «en progreso» | **Resultado no verificado** |
@@ -65,7 +66,7 @@ Prioridad: **A** = antes de usar datos reales · **B** = próximo · **C** = cua
    corepack pnpm supabase db query --remote=etdeiyjzibgihqtvdrpt --read-only "select status, count(*) from inspections group by 1"
    ```
    Los límites del plan (Storage, base, ancho de banda) se confirman en el panel de Supabase; el CLI no los entrega. *(Cristóbal y Manuel)*
-26. **Supervisor y programador en la app móvil** (pedido 2026-11-09, para revisar desde el teléfono): hoy la app es solo del técnico. Es viable: usa el mismo Supabase, las mismas políticas RLS y el RPC de revisión, y el PDF oficial ya se descarga con `/api/movil/informe/[id]`. Alcance mínimo: enrutar por rol al ingresar, bandeja con filtros, detalle, aprobar/rechazar con firma y descargar/compartir el PDF; **solo con señal** (sin cola local). Mientras tanto pueden usar la web desde el navegador del teléfono. Requiere decidir alcance (¿solo lectura y PDF primero?) y una rama aparte. *(Cristóbal)*
+26. **Revisión en la app móvil (hecho en parte, app V1.1.0, rama `feat/app-movil-revision`):** ya están bandeja, detalle, PDF oficial y firma de supervisor y programador (ver estado). **Falta:** probar en un teléfono físico y en iPhone, el comportamiento sin señal (hoy muestra el error y reintenta al tirar hacia abajo), el seguimiento de hallazgos SAP y «Equipos con fallas» (siguen solo en la web), y distribuir un APK/TestFlight con esta versión. *(Cristóbal)*
 
 5. **Prueba de aceptación sin señal en la app nativa** (decisión del 2026-11-06): instalar el APK (revisar el resultado del build `140db843…`), inspección con cámara real, modo avión, cerrar y reabrir, enviar al reconectar (una vez, con folio), y **verificar el envío en segundo plano con la app cerrada ~15 min**. Después iPhone con TestFlight (cuenta Apple Developer de USD 99/año). *(antes #9, #21 y pendientes 5, 6, 13 de la app)*
 6. **Casos sin señal por diseñar/probar en la app:** sesión vencida sin señal, aviso de borradores sin enviar, cerrar sesión con envíos pendientes, formato desactivado o con versión nueva sin señal. *(Maestro 5.4)*
@@ -98,7 +99,7 @@ Los pendientes anteriores ya resueltos (Docker, migraciones remotas, registro li
 ## 3. Decisiones vigentes
 
 ### Arquitectura y producto
-- **Técnico en React Native/Expo (2026-11-06):** la PWA no sirve para trabajar sin señal; supervisor, programador y administrador siguen en la web Next. Mismo Supabase (Auth, RLS, Storage, RPC `submit_inspection`).
+- **React Native/Expo (2026-11-06; ampliada el 2026-11-09):** la PWA no sirve para trabajar sin señal, así que el técnico trabaja en la app nativa. Desde el 2026-11-09 supervisor, programador y administrador también entran a la app, **solo para revisar con señal** (bandeja, detalle, PDF, firma); lo demás de esos roles sigue en la web Next. Mismo Supabase (Auth, RLS, Storage, RPC `submit_inspection` y `review_inspection`).
 - **Duplicar la lógica en la app, no compartirla (2026-11-07):** copia en `app-movil/src/lib/` con la ruta de origen en la cabecera, y solo se adapta el almacenamiento (`Almacen`: SQLite en el teléfono, memoria en pruebas). La web no se toca. Costo: una regla que cambie en la web hay que replicarla en la app.
 - **`app-movil/` en el mismo repositorio (2026-11-07)**, con npm y lockfile propios (`.npmrc` con `legacy-peer-deps` para que EAS instale igual), excluida del `tsc` y el lint de la web. Identificador `cl.bbosch.inspecciones`, solo teléfono.
 - **Cuenta compartida por turno (2026-11-07):** varios técnicos usan la misma cuenta en sus teléfonos (hasta ~5 sesiones) y escriben su nombre en cada inspección (`performed_by`); borradores, fotos y cola son locales; «Enviadas» muestra las de todo el turno con «Realizada por».

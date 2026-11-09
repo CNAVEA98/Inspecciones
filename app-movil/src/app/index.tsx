@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -161,7 +161,7 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
 });
 
 /** Inicio del técnico: nuevo Standard, resumen, inspecciones en curso y enviadas (igual que la web). */
-export default function Inicio() {
+function InicioTecnico() {
   const insets = useSafeAreaInsets();
   const { salir } = useSesion();
   const { perfil, almacen, userId, supabase, catalog, sync } = useTecnico();
@@ -599,3 +599,10 @@ const estilos = StyleSheet.create({
   rechazoOk: { color: color.okTexto, fontSize: 14, fontWeight: "600" },
   rechazoError: { color: color.malo, fontSize: 14, fontWeight: "500" },
 });
+
+/** Punto de entrada: el técnico ve su inicio; supervisor, programador y administrador pasan a la bandeja de revisión. */
+export default function Inicio() {
+  const { perfil } = useSesion();
+  if (perfil && perfil.rol !== "technician") return <Redirect href="/revision" />;
+  return <InicioTecnico />;
+}

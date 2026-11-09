@@ -4,7 +4,7 @@ App nativa para **iPhone y Android** del técnico de terreno. Su razón de ser: 
 señal y, cuando vuelve a tener señal, se envía sola**. La PWA no lo resolvía (se abre desde un enlace; decisión de
 Cristóbal del 2026-11-06, ver «Decisiones» en `docs/bitacora/ESTADO.md`).
 
-- **Quién la usa:** solo el técnico. Supervisor, programador y administrador siguen en la web Next (`src/`).
+- **Quién la usa:** el técnico (inspecciones, también sin señal) y, desde la V1.1.0 de la app, **supervisor, programador y administrador** para revisar desde el teléfono: bandeja, detalle, PDF oficial y, supervisor y programador, firma de revisión. **La revisión necesita señal** (sin cola local). Lo demás de esos roles (usuarios, formatos, «Equipos con fallas», seguimiento SAP) sigue solo en la web Next (`src/`).
 - **Backend:** el mismo Supabase (Auth, Postgres con RLS, Storage, RPC `submit_inspection`). No se crea otro.
 - **Estado (2026-11-07, rama `feat/app-movil`):** proyecto Expo **SDK 58** (React Native 0.88, React 19.3, TypeScript
   estricto) creado, con navegación `expo-router` (rutas en `src/app/`) y una pantalla provisoria. Aún no hay lógica ni pantallas reales.

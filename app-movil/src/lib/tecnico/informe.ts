@@ -85,7 +85,7 @@ function limpiarCopiasAnteriores(): void {
  * un archivo que no puede leer en ese momento, y así el PDF guardado queda intacto aunque la hoja de compartir lo mueva o lo bloquee.
  * Devuelve un mensaje de error con el motivo real, o null si se abrió.
  */
-async function abrirArchivo(archivo: File): Promise<string | null> {
+export async function abrirArchivo(archivo: File): Promise<string | null> {
   try {
     if (!archivo.exists || archivo.size === 0) {
       return `El PDF no quedó guardado correctamente (${estadoArchivo(archivo)}). Intente de nuevo.`;
@@ -150,4 +150,19 @@ export async function entregarPdf(ctx: ContextoPdf, id: string): Promise<Resulta
   const abierto = await abrirArchivo(archivo);
   if (abierto) return { error: abierto };
   return info ? { info } : {};
+}
+
+/**
+ * PDF oficial del servidor para quien revisa (supervisor, programador, administrador): no usa datos locales ni catálogo.
+ * Necesita señal. Descarga y abre la hoja de compartir del teléfono.
+ */
+export async function entregarPdfOficial(supabase: SupabaseClient, id: string): Promise<ResultadoPdf> {
+  let archivo: File;
+  try {
+    archivo = await descargarOficial(supabase, id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "No se pudo descargar el informe." };
+  }
+  const abierto = await abrirArchivo(archivo);
+  return abierto ? { error: abierto } : {};
 }

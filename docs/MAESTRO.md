@@ -68,7 +68,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 | `src/data/maestro-tags.json` | Maestro de TAG (1.073 equipos); se genera con `scripts/export-maestro.py` |
 | `scripts/simular-formatos.mjs` | Genera 2 PDF por formato contra la app local |
 | `scripts/prueba-carga.mjs` | Prueba de carga local: N técnicos + supervisor + programador enviando y firmando; informe de tiempos y de operaciones pegadas |
-| `app-movil/` | App nativa del técnico: proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); bitácora en `docs/bitacora/` (entradas `[APP]`) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
+| `app-movil/` | App nativa (técnico; y revisión para supervisor, programador y administrador desde la V1.1.0 de la app, 2026-11-09): proyecto Expo SDK 58 (npm, lockfile propio) creado el 2026-11-07; fase 1 hecha (lógica del técnico copiada de la web sobre SQLite, `app-movil/DISENO.md`; pantallas pendientes); bitácora en `docs/bitacora/` (entradas `[APP]`) e instrucciones en `app-movil/CLAUDE.md`. Excluida del `tsc` y el lint de la web |
 | `src/lib/version.ts` + `package.json` | Versión visible al pie; deben coincidir (hay un test) |
 
 ### Fuera del repositorio (solo en el PC de Cristóbal; no están en git)

@@ -111,15 +111,9 @@ export function SesionProvider({ children }: { children: ReactNode }) {
         setEstado("sin_sesion");
         return;
       }
-      // Sin copia ni red se asume técnico: la app es solo para ese rol y el servidor valida cada envío con RLS.
+      // Sin copia ni red se asume técnico (el servidor valida cada envío y cada lectura con RLS). Técnico, supervisor, programador
+      // y administrador entran a la app: el técnico a su inspección y los demás a la revisión (ver `app/revision`).
       const p = (await cargarPerfil(userId)) ?? { userId, nombre: "", rol: "technician" as Rol, turno: null };
-      if (p.rol !== "technician") {
-        setAviso("Esta app es solo para técnicos. Use el sitio web con su cuenta.");
-        await getSupabase().auth.signOut({ scope: "local" });
-        setPerfil(null);
-        setEstado("sin_sesion");
-        return;
-      }
       setAviso(null);
       setPerfil(p);
       setEstado("lista");

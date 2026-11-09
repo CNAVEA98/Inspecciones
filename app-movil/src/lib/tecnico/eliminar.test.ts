@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { AlmacenMemoria } from "@/lib/offline/almacen-memoria";
 import type { DraftRecord } from "@/lib/offline/db";
-import { eliminarBorrador } from "./eliminar";
+import { descartarEnvioFallido, eliminarBorrador } from "./eliminar";
 
 const draft = (id: string, state: DraftRecord["state"]): DraftRecord => ({
   id,
@@ -53,5 +53,37 @@ describe("eliminarBorrador", () => {
   it("devuelve false si no existe", async () => {
     const db = new AlmacenMemoria();
     expect(await eliminarBorrador(db, "nada")).toBe(false);
+  });
+});
+
+describe("descartarEnvioFallido", () => {
+  const salida = (id: string, status: "pending" | "failed") => ({
+    id,
+    payload: {} as never,
+    photoIds: [],
+    status,
+    attempts: 1,
+    nextAttemptAt: 0,
+    lastError: "CORRECCION_DUPLICADA: x",
+    createdAt: 0,
+  });
+
+  it("borra la cola, el borrador y las fotos de un envío que el servidor rechazó", async () => {
+    const db = new AlmacenMemoria();
+    await db.guardarBorrador(draft("a", "queued"));
+    await db.agregarFoto(foto("f1", "a"));
+    await db.agregarSalida(salida("a", "failed"));
+    expect(await descartarEnvioFallido(db, "a")).toBe(true);
+    expect(await db.obtenerBorrador("a")).toBeUndefined();
+    expect(await db.obtenerSalida("a")).toBeUndefined();
+    expect(await db.fotosDeInspeccion("a")).toEqual([]);
+  });
+
+  it("no toca un envío que todavía se puede reintentar", async () => {
+    const db = new AlmacenMemoria();
+    await db.guardarBorrador(draft("b", "queued"));
+    await db.agregarSalida(salida("b", "pending"));
+    expect(await descartarEnvioFallido(db, "b")).toBe(false);
+    expect(await db.obtenerBorrador("b")).toBeDefined();
   });
 });

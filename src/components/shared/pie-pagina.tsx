@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { VERSION_ETIQUETA } from "@/lib/version";
 
 /**
- * Pie de página común: titular, uso autorizado, enlaces a Privacidad y Condiciones de uso, y la versión de la app
+ * Pie de página común: autoría, uso autorizado, enlaces a Privacidad y Condiciones de uso, y la versión de la app
  * (referencia para reportar problemas). En el formulario del técnico deja espacio para la barra fija inferior.
  */
 export function PiePagina({ oscuro = false }: { oscuro?: boolean }) {
@@ -17,7 +17,7 @@ export function PiePagina({ oscuro = false }: { oscuro?: boolean }) {
   return (
     <footer className={`px-5 pt-4 text-xs ${color} ${conBarraFija ? "pb-28" : "pb-5"}`}>
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
-        <span>© 2026 Bbosch · Uso exclusivo del personal autorizado de Bbosch y MLP</span>
+        <span>© 2026 Cristóbal Navea y Manuel Aguilar · Desarrollada para Bbosch · Uso exclusivo del personal autorizado de Bbosch y MLP</span>
         <span aria-hidden>·</span>
         <Link href="/privacidad" className={enlace}>
           Privacidad

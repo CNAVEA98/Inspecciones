@@ -48,3 +48,6 @@ __pycache__/
 # Cuentas de desarrollo locales: sus contraseñas no se versionan (repositorio público)
 supabase/seed_usuarios_dev.sql
 supabase/.claves-dev.json
+
+# Registros de herramientas locales
+logs/

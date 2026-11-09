@@ -540,7 +540,7 @@ function EnvioListo({ id }: { id: string }) {
       />
       </Aparecer>
       <Aparecer retraso={380} style={{ gap: 20 }}>
-        <BotonPdf id={id} variante="primario" />
+        <BotonPdf id={id} />
         <Boton texto="Volver al inicio" variante="secundario" onPress={() => router.replace("/")} />
       </Aparecer>
     </View>

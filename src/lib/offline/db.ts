@@ -24,6 +24,8 @@ export interface SubmitPayload {
     started_at: string;
     /** Nombre de quien realizó la inspección (la cuenta de técnico puede ser compartida). */
     performed_by: string;
+    /** Rechazada que esta inspección corrige («Corregir y reenviar»); el servidor admite una sola corrección (migración 0021). */
+    corrects_id?: string | null;
   };
   answers: { item_key: string; value: unknown }[];
   findings: {

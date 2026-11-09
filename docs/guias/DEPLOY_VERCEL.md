@@ -1,18 +1,8 @@
 # Probar en Vercel + Supabase
 
-Hay dos maneras de probar. La **A** no necesita nada más; la **B** es la app completa y necesita un proyecto de Supabase.
+Guía para publicar la app (Next.js) en Vercel con un proyecto de Supabase. La demo estática antigua (`demo/`) se eliminó el 2026-11-09.
 
-## A. Demo de los formatos (sin Supabase, 2 minutos)
-
-Carpeta `demo/` del repositorio: HTML estáticos con los formularios interactivos y el informe en el diseño Cobre.
-
-1. En Vercel: **Add New → Project → Import** del repositorio de GitHub `CNAVEA98/Inspecciones_BBOSCH`.
-2. Framework Preset: **Other**. Sin comando de build. **Root Directory: `demo`**.
-3. Abra la URL: `/` (portada), `/inspecciones.html` (menú de formularios), `/informe.html`.
-
-Todo corre en el navegador; el borrador se guarda en `localStorage` y el envío es simulado.
-
-## B. La app completa (Next.js + Supabase)
+## La app completa (Next.js + Supabase)
 
 Estado de esta guía: 2026-10-30. Las migraciones `0001` a `0011` y los seeds se aplicaron sin errores en Supabase **local**;
 **no se han ejecutado en un proyecto Supabase remoto**. Si algún paso falla, copie el mensaje de error y repórtelo.
@@ -76,8 +66,11 @@ Estado de esta guía: 2026-10-30. Las migraciones `0001` a `0011` y los seeds se
    |---|---|
    | `NEXT_PUBLIC_SUPABASE_URL` | Project URL de Supabase |
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clave `anon public` |
+   | `SUPABASE_SERVICE_ROLE_KEY` | clave `service_role` (**solo Production**; desde la V1.1.6) |
 
-   **No** cargue la clave `service_role`: la app no la usa y nunca debe ir en variables `NEXT_PUBLIC_`.
+   Desde la V1.1.6 el servidor usa la clave `service_role` **solo** para guardar y leer el PDF oficial de las inspecciones
+   aprobadas en el bucket privado `reports` (`src/lib/informe/archivo.ts`). Va **sin** `NEXT_PUBLIC_` (nunca llega al
+   navegador) y no se carga en Preview. Si falta, la app sigue funcionando y el PDF se genera al vuelo, pero no se archiva.
 4. Deploy. Abra la URL y entre a `/login` con un usuario (p. ej. `TECNICO_A`).
 
 ### 3. Qué probar

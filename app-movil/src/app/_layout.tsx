@@ -3,6 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { AlmacenProvider } from "@/lib/almacen-contexto";
 import { registrarEnvioSegundoPlano } from "@/lib/offline/segundo-plano";
+import { RevisionProvider } from "@/lib/revision-contexto";
 import { SesionProvider, useSesion } from "@/lib/sesion";
 import { TecnicoProvider } from "@/lib/tecnico-contexto";
 import { color } from "@/ui/tema";
@@ -43,6 +44,7 @@ function Navegador() {
     );
   }
   const conSesion = estado === "lista";
+  const esTecnico = perfil?.rol === "technician";
   const pila = (
     <Stack
       screenOptions={{
@@ -53,15 +55,28 @@ function Navegador() {
     >
       <Stack.Protected guard={conSesion}>
         <Stack.Screen name="index" options={{ headerShown: false, animation: "fade" }} />
+      </Stack.Protected>
+      <Stack.Protected guard={conSesion && esTecnico}>
         <Stack.Screen name="nueva" options={{ title: "Nuevo Standard", animation: "slide_from_bottom" }} />
         <Stack.Screen name="inspeccion/[id]" options={{ title: "Inspección", headerBackVisible: false, animation: "fade_from_bottom" }} />
+      </Stack.Protected>
+      {/* Supervisor, programador y administrador: bandeja, revisión y equipos con fallas (consulta sin señal; firmar necesita señal). */}
+      <Stack.Protected guard={conSesion && !esTecnico}>
+        <Stack.Screen name="revision/index" options={{ headerShown: false, animation: "fade" }} />
+        <Stack.Screen name="revision/[id]" options={{ title: "Revisión", animation: "slide_from_right" }} />
+        <Stack.Screen name="revision/fallas" options={{ title: "Equipos con fallas", animation: "slide_from_right" }} />
       </Stack.Protected>
       <Stack.Protected guard={!conSesion}>
         <Stack.Screen name="login" options={{ headerShown: false, animation: "fade" }} />
       </Stack.Protected>
     </Stack>
   );
-  return perfil ? <TecnicoProvider perfil={perfil}>{pila}</TecnicoProvider> : pila;
+  if (!perfil) return pila;
+  return esTecnico ? (
+    <TecnicoProvider perfil={perfil}>{pila}</TecnicoProvider>
+  ) : (
+    <RevisionProvider perfil={perfil}>{pila}</RevisionProvider>
+  );
 }
 
 export default function RootLayout() {

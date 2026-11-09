@@ -24,6 +24,28 @@ export interface Enviada {
   reviewed_at: string | null;
   /** Nombre de quien realizó la inspección (la cuenta del turno la comparten varios técnicos). */
   performed_by?: string;
+  /** Rechazada que esta inspección corrige (migración 0021). */
+  corrects_id?: string | null;
+}
+
+/**
+ * Para cada rechazada, la corrección que ya está en el servidor. Como la cuenta del turno la comparten varios teléfonos, la
+ * corrección puede haberse hecho en otro: así ningún teléfono ofrece corregirla de nuevo.
+ */
+export function correccionesEnServidor(enviadas: Enviada[]): Map<string, Enviada> {
+  const m = new Map<string, Enviada>();
+  for (const e of enviadas) if (e.corrects_id) m.set(e.corrects_id, e);
+  return m;
+}
+
+/** Corrección ya enviada de una rechazada, consultada al servidor justo antes de empezar otra. null si no hay. */
+export async function buscarCorreccion(
+  supabase: SupabaseClient,
+  rechazadaId: string,
+): Promise<{ id: string; folio: string | null } | null> {
+  const { data, error } = await supabase.from("inspections").select("id, folio").eq("corrects_id", rechazadaId).limit(1);
+  if (error) throw error;
+  return (data?.[0] as { id: string; folio: string | null } | undefined) ?? null;
 }
 
 /** Texto y tono del estado desde el punto de vista del técnico (el tono lo traduce a colores la interfaz). */
@@ -41,7 +63,7 @@ export const LIMITE_ENVIADAS = 200;
 
 const KEY = (userId: string) => `enviadas:${userId}`;
 const COLUMNAS =
-  "id, folio, status, equipment_tag, area_id, equipment_type_id, work_mode_id, template_id, submitted_at, review_comment, reviewed_at, performed_by";
+  "id, folio, status, equipment_tag, area_id, equipment_type_id, work_mode_id, template_id, submitted_at, review_comment, reviewed_at, performed_by, corrects_id";
 
 export async function readEnviadasCache(almacen: Almacen, userId: string): Promise<Enviada[] | null> {
   const row = await almacen.leerCatalogo(KEY(userId));

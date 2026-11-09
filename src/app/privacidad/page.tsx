@@ -9,11 +9,13 @@ const ul = "ml-5 list-disc space-y-1";
 /** Política de privacidad y uso de datos. Si cambia en algo de fondo, actualizar `VERSION_AVISO_PRIVACIDAD`. */
 export default function PrivacidadPage() {
   return (
-    <PaginaLegal titulo="Privacidad y uso de datos" actualizado="3 de noviembre de 2026">
+    <PaginaLegal titulo="Privacidad y uso de datos" actualizado="9 de noviembre de 2026">
       <p>
-        Esta aplicación la opera <strong>Bbosch</strong> para registrar las inspecciones y mantenciones de terreno de la
-        infraestructura eléctrica de <strong>Minera Los Pelambres (MLP)</strong>. Es de uso interno: solo la usan personas
-        autorizadas por Bbosch y MLP, con cuentas creadas por el equipo de la aplicación.
+        Esta aplicación fue desarrollada de forma independiente por <strong>Cristóbal Navea y Manuel Aguilar</strong> para
+        que <strong>Bbosch</strong> registre las inspecciones y mantenciones de terreno de la infraestructura eléctrica de{" "}
+        <strong>Minera Los Pelambres (MLP)</strong>. Es de uso interno: solo la usan personas autorizadas por Bbosch y MLP,
+        con cuentas creadas por el equipo desarrollador. Mientras esté en periodo de prueba (piloto), los desarrolladores
+        administran las cuentas y los proveedores de almacenamiento.
       </p>
 
       <h2 className={h2}>Qué datos se guardan</h2>
@@ -40,7 +42,7 @@ export default function PrivacidadPage() {
         <li>Controlar el acceso según el rol de cada persona.</li>
       </ul>
       <p>
-        El tratamiento se basa en la relación laboral o contractual con Bbosch y en el contrato de servicio entre Bbosch y
+        El tratamiento se basa en la relación laboral o contractual de cada persona con Bbosch y en el servicio que Bbosch presta a
         MLP; no se usa para otros fines.
       </p>
 
@@ -52,7 +54,7 @@ export default function PrivacidadPage() {
       </ul>
 
       <h2 className={h2}>Dónde se guardan</h2>
-      <p>La aplicación usa dos proveedores, que tratan los datos solo por cuenta de Bbosch:</p>
+      <p>La aplicación usa dos proveedores, contratados por el equipo desarrollador, que tratan los datos solo para operar la aplicación:</p>
       <ul className={ul}>
         <li>
           <strong>Supabase</strong> (base de datos, fotos, firmas y cuentas), con servidores en São Paulo, Brasil.
@@ -83,7 +85,7 @@ export default function PrivacidadPage() {
       <p>
         Puede pedir acceso a sus datos, su rectificación y, cuando corresponda, su eliminación o bloqueo, según la Ley
         N.º 19.628 sobre protección de la vida privada y, desde su entrada en vigencia, la Ley N.º 21.719. Hágalo a través de
-        su supervisor o del administrador de la aplicación en Bbosch. Una inspección aprobada es un registro de mantenimiento
+        su supervisor o del administrador de la aplicación. Una inspección aprobada es un registro de mantenimiento
         y no se modifica; si contiene un error, avise a su supervisor.
       </p>
     </PaginaLegal>

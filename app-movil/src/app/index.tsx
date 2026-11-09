@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -9,12 +9,13 @@ import { ControlesEnviadas, PieEnviadas } from "@/components/enviadas-controles"
 import { PiePagina } from "@/components/pie-pagina";
 import { SyncIndicador } from "@/components/sync-indicador";
 import { formatFechaHora } from "@/lib/fecha";
-import type { DraftRecord } from "@/lib/offline/db";
+import type { DraftRecord, OutboxRecord } from "@/lib/offline/db";
+import { mensajeEnvioFallido } from "@/lib/offline/errores";
 import { redNativa } from "@/lib/offline/red";
 import { rolConTurno, useSesion } from "@/lib/sesion";
 import type { Catalog } from "@/lib/tecnico/catalog";
 import { useConsulta, useTecnico } from "@/lib/tecnico-contexto";
-import { eliminarBorrador } from "@/lib/tecnico/eliminar";
+import { descartarEnvioFallido, eliminarBorrador } from "@/lib/tecnico/eliminar";
 import {
   POR_PAGINA_ENVIADAS,
   contarPorEstado,
@@ -24,7 +25,9 @@ import {
 import {
   ESTADO_ENVIADA,
   borradorDeCorreccion,
+  buscarCorreccion,
   buscarEnviadasServidor,
+  correccionesEnServidor,
   cargarEnviadas,
   cargarRespuestas,
   fechaEnviadas,
@@ -59,13 +62,18 @@ const claveFila = (f: Fila) =>
 const TarjetaBorrador = memo(function TarjetaBorrador({
   d,
   catalogo,
+  falla,
   onAbrir,
   onEliminar,
+  onDescartar,
 }: {
   d: DraftRecord;
   catalogo: Catalog | null;
+  /** Motivo por el que el servidor rechazó el envío para siempre (la cola la marcó «failed»). */
+  falla?: string;
   onAbrir: (id: string) => void;
   onEliminar: (id: string) => void;
+  onDescartar: (id: string) => void;
 }) {
   const estado = ESTADO_BORRADOR[d.state];
   const equipo = nombreDe(catalogo?.equipmentTypes, d.equipmentTypeId);
@@ -90,6 +98,14 @@ const TarjetaBorrador = memo(function TarjetaBorrador({
           {formatFechaHora(d.updatedAt)}
         </Text>
       </Pressable>
+      {falla ? (
+        <View style={estilos.rechazo}>
+          <Text style={estilos.rechazoError}>{mensajeEnvioFallido(falla)}</Text>
+          <Pressable accessibilityRole="button" onPress={() => onDescartar(d.id)} style={estilos.eliminar}>
+            <Text style={estilos.eliminarTexto}>Eliminar esta copia</Text>
+          </Pressable>
+        </View>
+      ) : null}
       {enCurso ? (
         <Pressable accessibilityRole="button" onPress={() => onEliminar(d.id)} style={estilos.eliminar}>
           <Text style={estilos.eliminarTexto}>Eliminar</Text>
@@ -106,6 +122,7 @@ const TarjetaBorrador = memo(function TarjetaBorrador({
 const TarjetaEnviada = memo(function TarjetaEnviada({
   e,
   correccion,
+  corregidaEn,
   catalogo,
   corrigiendo,
   error,
@@ -113,6 +130,8 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
 }: {
   e: Enviada;
   correccion?: DraftRecord;
+  /** Corrección ya registrada en el servidor (de este u otro teléfono con la misma cuenta). */
+  corregidaEn?: Enviada;
   catalogo: Catalog | null;
   corrigiendo: boolean;
   error?: string;
@@ -122,7 +141,8 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
   const equipo = nombreDe(catalogo?.equipmentTypes, e.equipment_type_id);
   const area = nombreDe(catalogo?.areas, e.area_id);
   const enCurso = correccion?.state === "draft";
-  const yaEnviada = correccion !== undefined && !enCurso;
+  const yaEnviada = corregidaEn !== undefined || (correccion !== undefined && !enCurso);
+  const folioCorreccion = corregidaEn?.folio ?? correccion?.folio;
   return (
     <Tarjeta style={estilos.item}>
       <View style={estilos.filaEntre}>
@@ -144,7 +164,7 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
           <Text style={estilos.rechazoTexto}>{e.review_comment || "Sin comentario."}</Text>
           {yaEnviada ? (
             <Text style={estilos.rechazoOk}>
-              Ya envió su corrección{correccion.folio ? ` (${correccion.folio})` : ""}.
+              Ya se envió su corrección{folioCorreccion ? ` (${folioCorreccion})` : ""}.
             </Text>
           ) : (
             <Boton
@@ -161,13 +181,19 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
 });
 
 /** Inicio del técnico: nuevo Standard, resumen, inspecciones en curso y enviadas (igual que la web). */
-export default function Inicio() {
+function InicioTecnico() {
   const insets = useSafeAreaInsets();
   const { salir } = useSesion();
   const { perfil, almacen, userId, supabase, catalog, sync } = useTecnico();
   const [version, setVersion] = useState(0);
 
   const [borradores, cargados] = useConsulta(() => almacen.listarBorradores(userId), [] as DraftRecord[], `${userId}:${version}`);
+  // Envíos que el servidor rechazó para siempre (p. ej. una corrección que ya hizo otro teléfono de la cuenta).
+  const [salidas] = useConsulta(() => almacen.listarSalidas(), [] as OutboxRecord[], `salidas:${version}`);
+  const fallas = useMemo(
+    () => new Map(salidas.filter((s) => s.status === "failed").map((s) => [s.id, s.lastError ?? ""])),
+    [salidas],
+  );
   const [enviadas, setEnviadas] = useState<Enviada[]>([]);
   // Búsqueda y filtro de «Enviadas». Se muestran las últimas 5; «Ver más» agrega otras 5.
   const [consulta, setConsulta] = useState("");
@@ -201,6 +227,7 @@ export default function Inicio() {
   }, [almacen, supabase, userId, huella]);
 
   const idsEnviadas = useMemo(() => new Set(enviadas.map((e) => e.id)), [enviadas]);
+  const corregidas = useMemo(() => correccionesEnServidor(enviadas), [enviadas]);
   // Una enviada ya confirmada por el servidor se muestra en «Enviadas», no en la lista local.
   const locales = useMemo(() => borradores.filter((d) => !idsEnviadas.has(d.id)), [borradores, idsEnviadas]);
 
@@ -261,6 +288,15 @@ export default function Inicio() {
   const abrir = useCallback((id: string) => router.push({ pathname: "/inspeccion/[id]", params: { id } }), []);
 
   const cerrarSesion = useCallback(() => {
+    // Sin señal no se podría volver a ingresar (el ingreso lo valida el servidor) y el técnico quedaría sin poder inspeccionar.
+    if (!redNativa.enLinea()) {
+      Alert.alert(
+        "Sin señal no se puede cerrar sesión",
+        "Si cierra sesión ahora no podrá volver a ingresar hasta tener señal, y no podrá inspeccionar. Puede seguir trabajando sin señal con la sesión abierta. Para cambiar de usuario, hágalo con señal.",
+        [{ text: "Entendido" }],
+      );
+      return;
+    }
     const porEnviar = sync.getSnapshot().pending + sync.getSnapshot().failed;
     Alert.alert(
       "¿Cerrar sesión?",
@@ -288,6 +324,28 @@ export default function Inicio() {
     [almacen],
   );
 
+  const descartar = useCallback(
+    (id: string) => {
+      Alert.alert(
+        "¿Eliminar esta copia?",
+        "El servidor no la aceptó. Se borran sus datos y fotos de este teléfono. No se puede deshacer.",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Sí, eliminar",
+            style: "destructive",
+            onPress: () =>
+              void descartarEnvioFallido(almacen, id).then(() => {
+                setVersion((v) => v + 1);
+                void sync.notifyQueued(); // recalcula el indicador («requiere atención»)
+              }),
+          },
+        ],
+      );
+    },
+    [almacen, sync],
+  );
+
   const corregir = useCallback(
     async (e: Enviada) => {
       setErrorCorreccion(null);
@@ -302,6 +360,14 @@ export default function Inicio() {
       if (!template) return falla("El formulario de esta inspección ya no está disponible.");
       setCorrigiendo(e.id);
       try {
+        // La cuenta del turno la comparten varios teléfonos: si otro ya la corrigió, no se ofrece una segunda corrección.
+        const yaCorregida = await buscarCorreccion(supabase, e.id);
+        if (yaCorregida) {
+          void actualizar();
+          return falla(
+            `Esta inspección ya fue corregida${yaCorregida.folio ? ` con el folio ${yaCorregida.folio}` : ""} (puede haber sido desde otro teléfono con la misma cuenta).`,
+          );
+        }
         const respuestas = await cargarRespuestas(supabase, e.id);
         const draft = borradorDeCorreccion({ userId, rechazada: e, respuestas, template });
         await almacen.guardarBorrador(draft);
@@ -312,7 +378,7 @@ export default function Inicio() {
         setCorrigiendo(null);
       }
     },
-    [abrir, almacen, borradores, catalog.catalog, supabase, userId],
+    [abrir, actualizar, almacen, borradores, catalog.catalog, supabase, userId],
   );
 
   // Lo que se ve en «Enviadas»: la búsqueda se hace sobre las guardadas en el teléfono (o sobre los resultados del servidor).
@@ -356,7 +422,7 @@ export default function Inicio() {
       const entrada = (contenido: ReactElement) => <Aparecer retraso={Math.min(index, 8) * 60}>{contenido}</Aparecer>;
       switch (item.tipo) {
         case "aviso":
-          return <ErrorCatalogo />;
+          return <AvisosInicio />;
         case "cargando":
           return (
             <View style={{ gap: 12 }}>
@@ -376,7 +442,16 @@ export default function Inicio() {
             </View>,
           );
         case "borrador":
-          return entrada(<TarjetaBorrador d={item.d} catalogo={catalog.catalog} onAbrir={abrir} onEliminar={eliminar} />);
+          return entrada(
+            <TarjetaBorrador
+              d={item.d}
+              catalogo={catalog.catalog}
+              falla={fallas.get(item.d.id)}
+              onAbrir={abrir}
+              onEliminar={eliminar}
+              onDescartar={descartar}
+            />,
+          );
         case "enviadasCab":
           return (
             <ControlesEnviadas
@@ -410,6 +485,7 @@ export default function Inicio() {
             <TarjetaEnviada
               e={item.e}
               correccion={item.correccion}
+              corregidaEn={corregidas.get(item.e.id)}
               catalogo={catalog.catalog}
               corrigiendo={corrigiendo === item.e.id}
               error={errorCorreccion?.id === item.e.id ? errorCorreccion.mensaje : undefined}
@@ -431,10 +507,13 @@ export default function Inicio() {
       catalog.catalog,
       conteos,
       consulta,
+      corregidas,
       corregir,
       corrigiendo,
+      descartar,
       eliminar,
       errorCorreccion,
+      fallas,
       filtradas.length,
       filtroEstado,
       remotas,
@@ -515,13 +594,56 @@ export default function Inicio() {
 const Separador = () => <View style={{ height: 12 }} />;
 
 /** Solo se avisa si el catálogo no se pudo descargar y no hay copia en el teléfono (sin catálogo no se puede empezar). */
-function ErrorCatalogo() {
-  const { catalog } = useTecnico();
-  if (catalog.status !== "error") return null;
-  return <Aviso texto={catalog.error ?? "No se pudo descargar el catálogo. Conéctese a internet una vez."} />;
+/**
+ * Avisos sobre el trabajo sin señal: error del catálogo; formatos incluidos en la app (el teléfono aún no descargó el catálogo);
+ * y, una sola vez por usuario tras la primera descarga, «Listo para trabajar sin señal».
+ */
+function AvisosInicio() {
+  const { catalog, almacen, userId } = useTecnico();
+  const clave = `listo-terreno:${userId}`;
+  const [visto, setVisto] = useState<boolean | null>(null);
+  useEffect(() => {
+    let vivo = true;
+    void almacen.leerCatalogo(clave).then((r) => vivo && setVisto(!!r));
+    return () => {
+      vivo = false;
+    };
+  }, [almacen, clave]);
+
+  if (catalog.status === "error") {
+    return <Aviso texto={catalog.error ?? "No se pudo descargar el catálogo. Conéctese a internet una vez."} />;
+  }
+  if (catalog.incluido) {
+    return (
+      <Aviso
+        tono="cobre"
+        texto="Sin señal: se usan los formatos incluidos en la app. Puede inspeccionar normalmente; se actualizarán solos cuando haya señal."
+      />
+    );
+  }
+  // Recién descargado del servidor (primer ingreso): el teléfono quedó listo para terreno.
+  if (catalog.status !== "ready" || catalog.fromCache || visto !== false) return null;
+  const entendido = () => {
+    setVisto(true);
+    void almacen.guardarCatalogo({ key: clave, value: true, updatedAt: Date.now() });
+  };
+  return (
+    <Tarjeta style={estilos.listo}>
+      <Text style={estilos.listoTitulo}>Listo para trabajar sin señal</Text>
+      <Text style={estilos.listoTexto}>
+        Este teléfono ya tiene su sesión y los formatos. En terreno puede inspeccionar sin cobertura: las inspecciones quedan
+        guardadas y se envían solas cuando vuelve la señal.
+      </Text>
+      <Text style={estilos.listoTexto}>No cierre sesión en terreno: para volver a ingresar se necesita señal.</Text>
+      <Boton texto="Entendido" variante="secundario" onPress={entendido} />
+    </Tarjeta>
+  );
 }
 
 const estilos = StyleSheet.create({
+  listo: { gap: 8, padding: 16, borderColor: color.ok, borderWidth: 2, marginBottom: 8 },
+  listoTitulo: { fontSize: 18, fontWeight: "700", color: color.okTexto },
+  listoTexto: { fontSize: 15, color: color.graf },
   pantalla: { flex: 1, backgroundColor: color.papel },
   cabecera: {
     backgroundColor: color.graf,
@@ -599,3 +721,10 @@ const estilos = StyleSheet.create({
   rechazoOk: { color: color.okTexto, fontSize: 14, fontWeight: "600" },
   rechazoError: { color: color.malo, fontSize: 14, fontWeight: "500" },
 });
+
+/** Punto de entrada: el técnico ve su inicio; supervisor, programador y administrador pasan a la bandeja de revisión. */
+export default function Inicio() {
+  const { perfil } = useSesion();
+  if (perfil && perfil.rol !== "technician") return <Redirect href="/revision" />;
+  return <InicioTecnico />;
+}

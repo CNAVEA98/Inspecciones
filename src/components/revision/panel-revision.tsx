@@ -68,6 +68,11 @@ export function PanelRevision({ inspeccionId, folio, etapa }: { inspeccionId: st
       });
       if (rpcError) throw new Error(rpcError.message);
 
+      // Firma final aprobada: el servidor guarda el PDF oficial en Storage. Si falla, se archiva en la próxima descarga.
+      if (etapa === "planner" && decision === "approved") {
+        await fetch(`/planificador/${inspeccionId}/pdf`, { method: "POST" }).catch(() => undefined);
+      }
+
       router.refresh(); // el servidor ya no mostrará este panel: la inspección cambió de estado
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo registrar la firma.");

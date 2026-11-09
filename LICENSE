@@ -1,0 +1,12 @@
+Copyright (c) 2026 Cristóbal Navea y Manuel Aguilar. Todos los derechos reservados.
+
+Este software ("Inspecciones MLP" / "Inspección Eléctrica Bbosch-MLP", aplicación web y aplicación móvil) fue desarrollado
+de forma independiente por Cristóbal Navea y Manuel Aguilar para su uso por Bbosch. Se publica para trabajo en equipo
+y revisión; NO se concede ninguna licencia de uso, copia, modificación, distribución ni uso comercial sin autorización
+escrita de sus autores.
+
+Los formatos de inspección y mantención (documentos Word y Excel de Bbosch y de Minera Los Pelambres), el Maestro de TAG
+y demás información de los clientes que contenga este repositorio NO forman parte de esta obra: pertenecen a sus
+respectivos titulares y no se otorga derecho alguno sobre ellos.
+
+Los componentes de terceros conservan sus propias licencias (ver docs/guias/LICENCIAS.md).

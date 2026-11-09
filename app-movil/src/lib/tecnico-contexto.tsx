@@ -17,10 +17,14 @@ import { SyncController } from "@/lib/offline/sync";
 import { createSupabaseTransport } from "@/lib/offline/transport";
 import type { Perfil } from "@/lib/sesion";
 import { getSupabase } from "@/lib/supabase";
-import { loadCatalog, readCatalogCache, type Catalog } from "@/lib/tecnico/catalog";
+import { catalogoIncluido, loadCatalog, readCatalogCache, type Catalog, type CatalogoIncluido } from "@/lib/tecnico/catalog";
 import { limpiarFotosEnviadas } from "@/lib/tecnico/eliminar";
 
 const REFRESCO_CATALOGO_MS = 10 * 60_000;
+
+/** Copia del catálogo incluida en la app (se carga solo si hace falta: pesa ~0,5 MB). */
+const deLaApp = (): Catalog | null =>
+  catalogoIncluido(require("@/data/catalogo-incluido.json") as CatalogoIncluido, process.env.EXPO_PUBLIC_SUPABASE_URL);
 
 export interface CatalogState {
   catalog: Catalog | null;
@@ -28,6 +32,8 @@ export interface CatalogState {
   fromCache: boolean;
   /** Se muestra la copia local mientras se intenta descargar la nueva: no hay que avisar todavía. */
   actualizando?: boolean;
+  /** Es la copia incluida en la app: el teléfono todavía no descargó el catálogo (primer uso sin señal). */
+  incluido?: boolean;
   error?: string;
 }
 
@@ -75,10 +81,10 @@ export function TecnicoProvider({ perfil, children }: { perfil: Perfil; children
       const cache = await readCatalogCache(almacen);
       if (vivo && cache) setCatalog({ catalog: cache, status: "ready", fromCache: true, actualizando: true });
       try {
-        const r = await loadCatalog(almacen, core.supabase, redNativa.enLinea());
+        const r = await loadCatalog(almacen, core.supabase, redNativa.enLinea(), deLaApp);
         if (!vivo) return;
         if (!r.fromCache) ultimaDescarga = Date.now();
-        setCatalog({ catalog: r.catalog, status: "ready", fromCache: r.fromCache });
+        setCatalog({ catalog: r.catalog, status: "ready", fromCache: r.fromCache, incluido: r.incluido });
         setCatalogoEn((await almacen.leerCatalogo("catalog"))?.updatedAt ?? null);
       } catch (e) {
         if (vivo && cache) setCatalog({ catalog: cache, status: "ready", fromCache: true });

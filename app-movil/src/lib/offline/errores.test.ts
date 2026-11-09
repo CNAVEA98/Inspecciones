@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { aTransportError, esErrorDeRed } from "./errores";
+import { aTransportError, esErrorDeRed, mensajeEnvioFallido } from "./errores";
 
 describe("clasificación de errores de transporte", () => {
   it("reconoce fallos de conectividad", () => {
@@ -34,5 +34,16 @@ describe("clasificación de errores de transporte", () => {
     const e = aTransportError({ message: "upstream error", code: "XX000" });
     expect(e.retryable).toBe(true);
     expect(e.sinRed).toBe(false);
+  });
+});
+
+describe("mensajeEnvioFallido", () => {
+  it("explica la corrección duplicada (otra copia ya llegó, p. ej. desde otro teléfono)", () => {
+    expect(mensajeEnvioFallido("CORRECCION_DUPLICADA: INS-2026-000034 ya fue corregida con el folio INS-2026-000036")).toBe(
+      "No se envió: INS-2026-000034 ya fue corregida con el folio INS-2026-000036 (puede haber sido desde otro teléfono con la misma cuenta). Puede eliminar esta copia.",
+    );
+    expect(mensajeEnvioFallido('duplicate key value violates unique constraint "inspections_corrects_id_key"')).toMatch(/ya fue corregida/);
+    expect(mensajeEnvioFallido("CORRECCION_INVALIDA: INS-2026-000001 no está rechazada")).toMatch(/no está rechazada/);
+    expect(mensajeEnvioFallido("otro")).toBe("No se pudo enviar: otro");
   });
 });

@@ -35,7 +35,7 @@ hasta medirlos.
    toca; conviene 12–13 px aunque se acorten palabras.
 6. **Estados de carga y placeholders sin «…»**: «Abriendo inspección» (`formulario.tsx:100`), «Cargando el formulario»
    (115), «Cargando equipos» (`selector-tag.tsx:262`), «Guardando» (226) y el placeholder de búsqueda (`selector-tag.tsx:117`).
-   `inicio-tecnico.tsx` sí usa «Cargando…»: unificar. Revisar contra `docs/DESIGN.md` por si hay una norma distinta.
+   `inicio-tecnico.tsx` sí usa «Cargando…»: unificar. Revisar contra `docs/guias/DESIGN.md` por si hay una norma distinta.
 7. **Menores:** sin `touch-action: manipulation` (doble toque puede hacer zoom en botones); campos sin `name`;
    el `alt` de todas las miniaturas es «Foto adjunta» (podría ser «Foto 1 de 3»); `focus:` en lugar de `focus-visible:` en
    `campo`; varios botones del formulario (anterior/siguiente, agregar sección) no tienen estilo `focus-visible` propio

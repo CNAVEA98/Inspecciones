@@ -17,6 +17,22 @@ export async function eliminarBorrador(almacen: Almacen, id: string): Promise<bo
   });
 }
 
+/**
+ * Descarta una inspección en cola que el servidor rechazó sin posibilidad de reintento (p. ej. una corrección duplicada):
+ * borra la entrada de la cola, el borrador y sus fotos del teléfono. Solo si la cola la marcó «failed». -> true si se descartó.
+ */
+export async function descartarEnvioFallido(almacen: Almacen, id: string): Promise<boolean> {
+  return almacen.transaccion(async () => {
+    const salida = await almacen.obtenerSalida(id);
+    if (!salida || salida.status !== "failed") return false;
+    const fotos = await almacen.fotosDeInspeccion(id);
+    await almacen.eliminarFotos(fotos.map((f) => f.id));
+    await almacen.eliminarSalida(id);
+    await almacen.eliminarBorrador(id);
+    return true;
+  });
+}
+
 /** Días que se conservan las fotos y firmas de una inspección ya enviada (para generar su PDF sin señal). */
 export const DIAS_FOTOS_ENVIADAS = 14;
 

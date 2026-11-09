@@ -111,6 +111,7 @@ describe("buildSubmission", () => {
     expect(payload.inspection.id).toBe(d.id);
     expect(payload.inspection.equipment_tag).toBe("740XF001");
     expect(payload.inspection.performed_by).toBe("Pedro Soto");
+    expect(payload.inspection.corrects_id).toBeNull(); // no es una corrección
     expect(payload.answers.find((a) => a.item_key === META.ejecutor)?.value).toBe("Pedro Soto");
     expect(payload.findings).toEqual([
       {
@@ -140,5 +141,15 @@ describe("buildSubmission", () => {
     const { payload } = buildSubmission(d, template, [foto(FOTO), foto(FIRMA, "png")]);
     expect(payload.findings[0].severity).toBe("media");
     expect(payload.findings[0].id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+});
+
+describe("buildSubmission de una corrección", () => {
+  it("envía al servidor qué rechazada corrige (una sola corrección por rechazada, migración 0021)", () => {
+    const d = completo();
+    d.correccion = { de: "99999999-9999-4999-8999-999999999999", folio: "INS-2026-000034", motivo: "x" };
+    expect(buildSubmission(d, template, [foto(FIRMA, "png")]).payload.inspection.corrects_id).toBe(
+      "99999999-9999-4999-8999-999999999999",
+    );
   });
 });

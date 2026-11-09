@@ -9,10 +9,12 @@ const ul = "ml-5 list-disc space-y-2";
 /** Condiciones de uso internas de la aplicación. */
 export default function CondicionesPage() {
   return (
-    <PaginaLegal titulo="Condiciones de uso" actualizado="3 de noviembre de 2026">
+    <PaginaLegal titulo="Condiciones de uso" actualizado="9 de noviembre de 2026">
       <p>
-        La aplicación «Inspección Eléctrica Bbosch-MLP» es una herramienta de trabajo de <strong>Bbosch</strong> para los
-        servicios que presta a <strong>Minera Los Pelambres (MLP)</strong>. Al usarla, usted acepta estas condiciones:
+        La aplicación «Inspección Eléctrica Bbosch-MLP» fue desarrollada de forma independiente por{" "}
+        <strong>Cristóbal Navea y Manuel Aguilar</strong> como herramienta de trabajo para <strong>Bbosch</strong> y los
+        servicios que presta a <strong>Minera Los Pelambres (MLP)</strong>. Los derechos sobre el software pertenecen a sus
+        autores. Al usarla, usted acepta estas condiciones:
       </p>
       <ul className={ul}>
         <li>
@@ -38,7 +40,7 @@ export default function CondicionesPage() {
         </li>
         <li>
           <strong>Problemas.</strong> Si algo falla, avise a su supervisor indicando la versión que aparece al pie de la
-          pantalla (por ejemplo, V1.1.0).
+          pantalla (por ejemplo, V1.1.5).
         </li>
       </ul>
       <p>

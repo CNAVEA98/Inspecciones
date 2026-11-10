@@ -5,7 +5,7 @@ completo **antes de tocar nada**. Dice qué es el proyecto, dónde está cada co
 Si algo de aquí contradice a `docs/bitacora/` o al código, manda el código, luego la bitácora; y este documento
 se corrige en el mismo commit.
 
-> **Instantánea al 2026-11-09 · versión V1.1.7 publicada y app móvil 1.1.7 · `main` = commit 4b7a729 (PR #21 unido el 2026-11-09; incluye el PR #20, V1.1.5 documentación, V1.1.6 PDF archivado en Storage, V1.1.7 corrección única con la migración 0021 —aplicada en el remoto— y la app 1.1.0 a 1.1.7: revisores, trabajo sin señal, envío con la app cerrada y logo de Bbosch; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.7 (verificado el 2026-11-09, región `gru1`).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
+> **Instantánea al 2026-11-10 · versión V1.1.7 publicada y app móvil 1.1.7 · `main` = commit 4b7a729 (PR #21 unido el 2026-11-09; incluye el PR #20, V1.1.5 documentación, V1.1.6 PDF archivado en Storage, V1.1.7 corrección única con la migración 0021 —aplicada en el remoto— y la app 1.1.0 a 1.1.7: revisores, trabajo sin señal, envío con la app cerrada y logo de Bbosch; los identificadores se reescribieron el 2026-11-07 para quitar claves del historial, ver 5.1) · sitio publicado en V1.1.7 (verificado el 2026-11-09, región `gru1`) · PDF archivado en `reports` funcionando en producción (verificado el 2026-11-10).** El estado detallado y los pendientes vigentes viven en `docs/bitacora/ESTADO.md`. Todo lo marcado «no verificado»
 > no se ha probado. Al terminar una mejora, actualice las secciones 4, 5 y 6 (se **reescriben**, no se agrega al final).
 
 ## 1. Cómo empezar una sesión (en este orden)
@@ -89,7 +89,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 
 ## 4. Estado actual (V1.1.7, publicada el 2026-11-09)
 
-- **PR #21 unido el 2026-11-09 (`main` = 4b7a729):** el sitio publicado pasó de V1.1.4 a **V1.1.7** (comprobado con `curl`, región `gru1`). El PDF archivado (V1.1.6) queda inactivo hasta cargar `SUPABASE_SERVICE_ROLE_KEY` en Vercel: mientras tanto el PDF se genera al vuelo, como antes.
+- **PR #21 unido el 2026-11-09 (`main` = 4b7a729):** el sitio publicado pasó de V1.1.4 a **V1.1.7** (comprobado con `curl`, región `gru1`). **El PDF archivado (V1.1.6) funciona en producción (verificado el 2026-11-10):** `SUPABASE_SERVICE_ROLE_KEY` ya estaba en Vercel desde la integración con Supabase; la primera descarga de `INS-2026-000007` (aprobada) dejó `reports/…/INS-2026-000007.pdf` (203 KB) y la de `INS-2026-000006` (rechazada) no se archivó. Desde el 2026-11-10 la clave está solo en Production (se quitó de Preview).
 - `main` incluye además, desde el PR #12: catálogo de formatos en base de datos, pestaña «Formatos» (editor), carpetas por
   turno y área en la bandeja, «Equipos con fallas» y seguimiento de hallazgos SAP, visor de PDF del técnico,
   aviso de privacidad, Privacidad y Condiciones, fotos sin GPS, versión al pie.
@@ -97,16 +97,16 @@ Equipo: 2 personas (Cristóbal y Manuel).
   `supabase test db` 76/76; simulación local 120/120 PDF en `C:\Proyectos\simulacion-formatos\2026-11-06\`.
 - V1.1.1 (PR #13, unido) corrige las 5 fallas altas de PDF y varias medias; su parche de plantillas ya se aplicó en el remoto.
   Quedan abiertas las fallas medias y bajas de PDF (sección 5.3).
-- Remoto (verificado 2026-11-06): migraciones 0001–0020 aplicadas y registradas, plantillas con las correcciones (v2), registro libre
-  cerrado. **El sitio publicado está en V1.1.3** (PR #13, #14, #15 y #16 unidos a `main` el 2026-11-06; Vercel despliega en menos de 1 minuto).
+- Remoto: migraciones 0001–0021 aplicadas y registradas (la 0021 el 2026-11-09), plantillas con las correcciones (v2), registro libre
+  cerrado. **El sitio publicado está en V1.1.7** (PR #21, 2026-11-09; Vercel despliega en menos de 1 minuto).
 - Prueba de carga local del 2026-11-06 (12 técnicos del turno A + supervisor + programador, hasta 36 técnicos): sin errores ni
   operaciones pegadas, 384 formularios enviados y firmados. Lo más lento es generar el PDF (1 s solo; 5 s con 12 a la vez).
   No es prueba del sitio publicado ni de la PWA en navegador.
 - **App móvil (`app-movil/`, PR #18 unido el 2026-11-07):** flujo del técnico probado en un **emulador Android** (API 37, Expo Go): ingreso, inspección con foto y firma, modo avión, cierre y reapertura sin señal,
   envío único con folio, PDF del teléfono y PDF oficial del servidor (V1.1.4 ya está desplegado). 292 pruebas de la app en verde (incluye el recorrido de las 59 plantillas reales). Envío en segundo plano escrito (solo funciona en un APK/TestFlight).
   El primer APK de EAS falló por `npm ci` (corregido con `app-movil/.npmrc`); ver `docs/bitacora/ESTADO.md` para el estado del segundo intento.
-- **V1.1.6 (rama `feat/pdf-archivado-storage`, sin unir):** el PDF de cada inspección aprobada se archiva en el bucket privado `reports` y se entrega desde ahí; lo escribe solo el servidor con `SUPABASE_SERVICE_ROLE_KEY`, que **falta cargar en Vercel** (solo Production). Probado por HTTP contra el Supabase local.
-- **App 1.1.2 (rama `feat/app-movil-revisores`, sin unir):** supervisor, programador y administrador consultan sin señal (copia en el teléfono), «Equipos con fallas» y seguimiento SAP en la app, PDF «Guardar en el teléfono», y el plugin que corrige el cierre al abrir de toda compilación release (R8). Probado con una APK release local en el emulador contra el Supabase local.
+- **V1.1.6 (unida en el PR #21):** el PDF de cada inspección aprobada se archiva en el bucket privado `reports` y se entrega desde ahí; lo escribe solo el servidor con `SUPABASE_SERVICE_ROLE_KEY` (en Vercel, solo Production). Probado por HTTP contra el Supabase local y, el 2026-11-10, en el sitio publicado.
+- **App 1.1.2 (unida en el PR #21):** supervisor, programador y administrador consultan sin señal (copia en el teléfono), «Equipos con fallas» y seguimiento SAP en la app, PDF «Guardar en el teléfono», y el plugin que corrige el cierre al abrir de toda compilación release (R8). Probado con una APK release local en el emulador contra el Supabase local.
 - **App 1.1.3 (misma rama):** prueba sin señal del técnico con la APK release en el emulador: inspección completa en modo avión, cerrar y reabrir, y **envío con la app cerrada al volver la señal** (corregido: la tarea no existía con la app cerrada); el arranque sin señal con la sesión vencida bajó de ~2 min a 4–6 s.
 - **V1.1.7 / app 1.1.5 (misma rama):** prueba con dos teléfonos y la misma cuenta: envíos y firmas simultáneas bien; las correcciones duplicadas se corrigieron con la migración 0021 (una rechazada, una corrección), aplicada en el remoto el 2026-11-09.
 - **App 1.1.6 contra el Supabase real (emulador, `TECNICO_B`):** envío con señal (`INS-2026-000006`), en modo avión con cierre y reapertura, y con la app cerrada al volver la señal (`INS-2026-000007`, una vez); PDF oficial del sitio publicado guardado en el teléfono; `SUPERVISOR_B` y `PROGRAMADOR_B` aprobaron `INS-2026-000007` desde la app (ciclo completo contra el remoto).
@@ -132,8 +132,8 @@ Orden de trabajo: 1 repo → 2 producción → 3 fallas altas de PDF → 4 prueb
   contiene además los formatos Word/Excel de MLP/Bbosch (36 archivos) y el Maestro de TAG (1.073 equipos): información del cliente.
 - Nunca mostrar valores secretos en pantalla ni en la bitácora.
 
-### 5.2 Producción (estado verificado el 2026-11-06 por CLI; el CLI ya tiene sesión en el PC de Cristóbal)
-- **Hecho:** migración 0020 aplicada; parche de plantillas aplicado (10 plantillas en v2); migraciones 0001–0020 registradas
+### 5.2 Producción (estado verificado el 2026-11-06 por CLI; el CLI tiene sesión en el PC de Cristóbal y, desde el 2026-11-10, en su Mac)
+- **Hecho:** migraciones 0020 y 0021 aplicadas; parche de plantillas aplicado (10 plantillas en v2); migraciones 0001–0021 registradas
   (`db push` ya no intenta repetirlas); registro libre **desactivado**; sitio en región `gru1`.
 - **Cómo consultar el remoto sin contraseña:** `corepack pnpm supabase db query --remote=etdeiyjzibgihqtvdrpt --read-only "select …"`
   (escribir exige `--yes`). Nuevas migraciones: `corepack pnpm supabase db push --remote=etdeiyjzibgihqtvdrpt` (hoy «up to date»).
@@ -174,7 +174,7 @@ foto en los 16 formatos «conforme» con ítem de foto; mantenciones con «Resul
 ### 5.6 Pruebas en el sitio publicado (todas sin hacer)
 Recorrido con supervisor, técnico y programador (aprobar, enviar, ver PDF, segunda firma); revisar plantillas;
 región `gru1`; pestaña «Formatos» con clics; firma del planificador y rechazo en navegador;
-comprobar que el PDF de una aprobada quede en `reports` (V1.1.6, tras cargar la clave de servicio en Vercel).
+el PDF archivado en `reports` ya está comprobado (2026-11-10, ver la bitácora).
 
 ### 5.7 Preparación para React Native (solo después de 5.1 a 5.4)
 > **Actualización 2026-11-07:** se decidió **duplicar** la lógica en `app-movil/src/lib/` (`app-movil/DISENO.md`), no separarla dentro de la web; la web no se toca. Una regla que cambie en la web hay que replicarla en la app.

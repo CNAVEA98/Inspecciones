@@ -33,7 +33,7 @@ export default function Login() {
         <Aparecer desde={-24} escalaDesde={0.94} duracion={550}>
           <View style={estilos.marca}>
             <Image source={require("../../assets/bbosch-logo-solo.png")} style={estilos.logo} contentFit="contain" />
-            <Text style={estilos.titulo}>Inspecciones MLP</Text>
+            <Text style={estilos.titulo}>Inspecciones</Text>
             <Text style={estilos.sub}>Ingrese con su usuario para trabajar, incluso sin señal.</Text>
           </View>
         </Aparecer>

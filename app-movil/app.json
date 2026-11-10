@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Inspecciones MLP",
+    "name": "Inspecciones",
     "slug": "inspecciones-mlp",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -32,8 +32,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Inspecciones MLP usa la cámara para tomar las fotos de la inspección.",
-          "photosPermission": "Inspecciones MLP accede a sus fotos solo si usted elige adjuntar una a la inspección."
+          "cameraPermission": "Inspecciones usa la cámara para tomar las fotos de la inspección.",
+          "photosPermission": "Inspecciones accede a sus fotos solo si usted elige adjuntar una a la inspección."
         }
       ],
       "expo-sharing",

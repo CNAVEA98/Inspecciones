@@ -7,6 +7,16 @@ Reglas y formato de las entradas en [`LEEME.md`](LEEME.md); estado, pendientes y
 > `docs/DESIGN.md`, `DEPLOY_VERCEL.md`, `EXPORT_MAESTRO.md`, `LICENCIAS.md` → `docs/guias/`; `docs/MAPEO_ZONA_AREA.md`, `COMPARATIVA_MANUALES_*` y `AUDITORIA_REACT_UI_TECNICO.md` → `docs/referencia/`;
 > `supabase/parche_plantillas_2026-11-06.sql` → `supabase/parches/`; `demo/` y `docs/archivo/` se eliminaron (siguen en el historial de git).
 
+### 2026-11-10 · [APP] APK 1.1.7 de EAS para teléfonos: revisado en el emulador; la 1.1.8 se compila con la próxima mejora
+- **Autor:** Cristóbal (con Claude; el APK lo lanzó Cristóbal desde otra sesión de Claude) · **Rama:** `docs/apk-1-1-7-eas` (solo documentación) · **Versión:** sin cambio (app 1.1.8 en `main`; el APK es 1.1.7)
+- **Qué se hizo:**
+  1. **APK de EAS 1.1.7** (perfil `preview`, distribución interna) desde `main` en `84e5346`, antes del cambio de nombre: build `23650222-dfb7-4938-bfea-acad00dab71b`, terminado el 2026-11-10 08:36 (hora de Chile). Descarga: https://expo.dev/artifacts/eas/DYrUYRsLhF6nuWDQoo8xcqPbx5j7UPn_pd9hius0SG8.apk (el enlace vence el **2026-11-24**; lo instalado sigue funcionando). La otra sesión no lo anotó en la bitácora; se anota aquí.
+  2. **Decisión de Cristóbal:** no compilar todavía el APK 1.1.8; entre la 1.1.7 y la 1.1.8 solo cambian el nombre («Inspecciones MLP» → «Inspecciones»), el título del ingreso, los avisos de permiso de iOS y el número de versión (`git diff 84e5346 main -- app-movil`). La 1.1.8 se compila junto con la próxima mejora de fondo. El APK 1.1.7 sirve para las pruebas en Android físico.
+  3. **Regla para los APK:** lo que se instala en teléfonos de técnicos se compila **siempre en EAS**, que guarda la clave de firma oficial: así cada versión se instala encima de la anterior. Un APK compilado en un PC/Mac lleva otra clave y obligaría a desinstalar (se pierden sesión, borradores y pendientes); las compilaciones locales quedan para pruebas en el emulador.
+- **Verificación (real, 2026-11-10):** APK descargado (93 MB) y revisado con `aapt2`: `cl.bbosch.inspecciones`, versionName 1.1.7, versionCode 1, targetSdk 36, ABIs arm64-v8a, armeabi-v7a, x86 y x86_64; el bundle apunta al Supabase real (sin el aviso «Falta configurar»). Instalado en el emulador Android **arm64** (Medium_Phone_API_37.0, Mac de Cristóbal): **abre en el ingreso sin cerrarse** (sin entradas en `logcat -b crash`; la 1.0.0 de EAS tenía el error de R8, corregido desde la 1.1.2). Cuota de EAS (`eas account:usage cnaveavaldes`): plan Free, **2 de 30** compilaciones usadas en el período 2026-11-01 a 2026-12-01, sin cobros extra.
+- **No verificado:** el APK en un **Android físico**; ingreso, envío y segundo plano con este APK (solo se vio la pantalla de ingreso).
+- **Pendientes:** probar el APK 1.1.7 en un Android físico (sin señal, app cerrada, ahorro de batería); compilar el APK 1.1.8 en EAS con la próxima mejora.
+
 ### 2026-11-10 · [APP] App 1.1.8: nombre «Inspecciones» (sin MLP); primera compilación iOS, simulador e iPhone físico contra el Supabase real
 - **Autor:** Cristóbal (con Claude) · **Rama:** `feat/app-nombre-inspecciones` · **Versión:** app 1.1.7 → 1.1.8 (la web no cambia)
 - **Qué se hizo:**

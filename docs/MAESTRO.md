@@ -112,7 +112,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 - **App 1.1.6 contra el Supabase real (emulador, `TECNICO_B`):** envío con señal (`INS-2026-000006`), en modo avión con cierre y reapertura, y con la app cerrada al volver la señal (`INS-2026-000007`, una vez); PDF oficial del sitio publicado guardado en el teléfono; `SUPERVISOR_B` y `PROGRAMADOR_B` aprobaron `INS-2026-000007` desde la app (ciclo completo contra el remoto).
 - **App 1.1.7 (misma rama):** primer uso en terreno: se ingresa una vez con señal y la sesión queda; sin señal el ingreso lo dice claramente, «Cerrar sesión» queda bloqueado y, si nunca se descargó el catálogo, se usan los formatos incluidos en la APK (reexportar con `app-movil/scripts/exportar-catalogo.mjs` al cambiar formatos). Probado contra el remoto en el emulador.
 - **App 1.1.8 (rama `feat/app-nombre-inspecciones`, 2026-11-10):** la app se llama «Inspecciones» (sin MLP). Primera compilación iOS local (Xcode en el Mac de Cristóbal) probada en el simulador contra el Supabase real (envío `INS-2026-000008`) y **en un iPhone físico por cable**: inspección en modo avión con cámara real, pendiente y enviada sola al volver la señal con la app abierta, sin duplicados; fotos sin GPS.
-- **Sin probar:** en el iPhone, cerrar y reabrir sin señal y el envío con la app cerrada; dispositivo Android físico (ahorro de batería), el APK de EAS y el sitio web con clics.
+- **Sin probar:** en el iPhone, cerrar y reabrir sin señal y el envío con la app cerrada; dispositivo Android físico (ahorro de batería) con el APK 1.1.7 de EAS (compilado el 2026-11-10; abre bien en el emulador arm64; la 1.1.8 se compila con la próxima mejora) y el sitio web con clics.
 
 ## 5. Faltantes y revisiones antes de pasar a React Native
 

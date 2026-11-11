@@ -55,7 +55,7 @@ Equipo: 2 personas (Cristóbal y Manuel).
 
 | Ruta | Contenido |
 |---|---|
-| `supabase/migrations/` | Esquema, RLS y RPC (0001–0022; la 0021, corrección única, aplicada en el remoto el 2026-11-09; la 0022, administración de cuentas, **solo local** al 2026-11-10). Nunca editar una aplicada: crear una nueva |
+| `supabase/migrations/` | Esquema, RLS y RPC (0001–0022; la 0021, corrección única, aplicada en el remoto el 2026-11-09; la 0022, administración de cuentas, aplicada en el remoto el 2026-11-10). Nunca editar una aplicada: crear una nueva |
 | `supabase/seed_catalogo.sql`, `seed_plantillas_*.sql` | Catálogo y plantillas de los 60 formatos (seguros para remoto) |
 | `supabase/seed_usuarios_dev.plantilla.sql` + `scripts/generar-seed-usuarios.mjs` | Cuentas de prueba **solo locales**. `corepack pnpm seed:usuarios` genera `seed_usuarios_dev.sql` y `supabase/.claves-dev.json` con claves aleatorias; ambos archivos están en `.gitignore` (repo público) |
 | `supabase/tests/` | Pruebas pgTAP (`supabase test db`; requiere Docker) |

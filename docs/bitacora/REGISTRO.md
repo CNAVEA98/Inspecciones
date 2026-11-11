@@ -12,6 +12,7 @@ Reglas y formato de las entradas en [`LEEME.md`](LEEME.md); estado, pendientes y
 - **Qué se hizo:** se vinculó el CLI al proyecto `inspecciones-bbosch` (`supabase link`, no cambia nada en el remoto) y se aplicó `0022_administracion_cuentas.sql` con `supabase db push`. No se usó `config push`.
 - **Archivos:** solo documentación (`REGISTRO.md`, `ESTADO.md`, `MAESTRO.md`).
 - **Verificación (real):** la simulación previa (`db push --dry-run`) listó solo la 0022; después de aplicarla, la misma simulación responde «Remote database is up to date».
+  **`build` en verde (2026-11-10, lo corrió Cristóbal en la app Terminal, con las variables del Supabase local):** compiló en 4,7 s, TypeScript sin errores, 34 páginas generadas y las rutas nuevas presentes (`/admin/auditoria`, `/admin/usuarios/[id]`, los tres `/panel` y `/exportar`). Con esto queda verificado el `build` que las dos entradas anteriores de la V1.1.8 dejaron como «no verificado».
 - **Pendiente / riesgos:** **no verificado** en el sitio publicado (sigue en V1.1.7 hasta unir el PR #26): crear una cuenta, cambiar una contraseña y bloquear desde «Usuarios», y que `SUPABASE_SERVICE_ROLE_KEY` siga en Production. Desde hoy, en el remoto nadie salvo el administrador puede cambiar el nombre de su cuenta (la V1.1.7 publicada no lo hace, así que no la afecta).
 
 ### 2026-11-10 · [WEB] V1.1.8 (continuación): el administrador crea cuentas, cambia contraseñas, bloquea accesos y ve la auditoría

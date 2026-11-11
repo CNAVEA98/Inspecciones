@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { leerTodo } from "@/lib/supabase/paginas";
 import { createClient } from "@/lib/supabase/server";
 import { CLAVE_REPETICIONES, expandirPlantilla } from "@/lib/templates/repetir";
 import { templateSchema, type FormTemplateSchema } from "@/lib/templates/schema";
@@ -95,24 +96,36 @@ export async function listarAreas(): Promise<string[]> {
 const ESTADOS_CON_HALLAZGOS = ["submitted", "supervisor_signed", "approved"];
 const LOTE = 100;
 
+const SELECT_FALLAS = `id, item_key, severity, inspection_id,
+       inspections!inner(id, folio, status, equipment_tag, submitted_at, template_id, performed_by, technician_shift,
+         area:areas(name), equipo:equipment_types(name), modo:work_modes(name)),
+       finding_followups(scope, sap_notice, channel_note)`;
+
 /**
  * Todos los hallazgos («Malo») de inspecciones vigentes (enviadas, en firma o aprobadas; las rechazadas se corrigen con
  * una inspección nueva), con su seguimiento. Se agrupan por equipo en la pestaña «Equipos con fallas».
+ * Con `inspeccionIds` devuelve los hallazgos de esas inspecciones, en cualquier estado (lo usa la exportación a Excel).
+ * Se lee por páginas: el servidor corta cada respuesta en 1000 filas y antes lo que sobraba se perdía sin aviso.
  */
-export async function listarFallas(): Promise<HallazgoFalla[]> {
+export async function listarFallas(opciones: { inspeccionIds?: string[] } = {}): Promise<HallazgoFalla[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("findings")
-    .select(
-      `id, item_key, severity, inspection_id,
-       inspections!inner(id, folio, status, equipment_tag, submitted_at, template_id, performed_by, technician_shift,
-         area:areas(name), equipo:equipment_types(name), modo:work_modes(name)),
-       finding_followups(scope, sap_notice, channel_note)`,
-    )
-    .in("inspections.status", ESTADOS_CON_HALLAZGOS)
-    .limit(2000);
-  if (error) throw new Error(`No se pudieron cargar los equipos con fallas: ${error.message}`);
-  const filas = data ?? [];
+  const consulta = () => supabase.from("findings").select(SELECT_FALLAS);
+  type Fila = NonNullable<Awaited<ReturnType<typeof consulta>>["data"]>[number];
+  let filas: Fila[] = [];
+  try {
+    if (opciones.inspeccionIds) {
+      for (let i = 0; i < opciones.inspeccionIds.length; i += LOTE) {
+        const lote = opciones.inspeccionIds.slice(i, i + LOTE);
+        const r = await leerTodo<Fila>((d, h) => consulta().in("inspection_id", lote).order("id").range(d, h));
+        filas.push(...r.filas);
+      }
+    } else {
+      const r = await leerTodo<Fila>((d, h) => consulta().in("inspections.status", ESTADOS_CON_HALLAZGOS).order("id").range(d, h));
+      filas = r.filas;
+    }
+  } catch (e) {
+    throw new Error(`No se pudieron cargar los equipos con fallas: ${e instanceof Error ? e.message : e}`);
+  }
   if (filas.length === 0) return [];
 
   // Respuestas (observación del ítem, N.º de OT y copias de secciones repetibles) y plantillas, en lotes para no

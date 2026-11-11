@@ -1,81 +1,116 @@
-import { createClient } from "@/lib/supabase/server";
-import { getSession } from "@/lib/auth/session";
-import { ROLES, ROLE_LABEL, SHIFTS, roleWithShift, type Role, type Shift } from "@/lib/auth/roles";
-import { actualizarUsuario } from "./actions";
+import Link from "next/link";
+import { FormNuevaCuenta } from "@/components/admin/formularios-cuenta";
+import { listarCuentas } from "@/lib/admin/cuentas-servicio";
+import { ROLES, ROLE_LABEL, roleWithShift } from "@/lib/auth/roles";
+import { requireRole } from "@/lib/auth/session";
+import { formatFechaHora } from "@/lib/fecha";
 
 export const metadata = { title: "Usuarios · Inspección Eléctrica Bbosch-MLP" };
 
-const campo =
-  "rounded-lg border border-hair bg-white px-2 py-1.5 text-sm focus-visible:outline-2 focus-visible:outline-cu";
+const tarjeta = "rounded-2xl border border-hair bg-white";
+const th = "px-5 py-2 font-mono text-[11px] font-medium uppercase tracking-[0.08em] text-sub";
 
 export default async function UsuariosPage() {
-  const session = await getSession();
-  const supabase = await createClient();
-  const { data: perfiles } = await supabase
-    .from("profiles")
-    .select("id, full_name, role, shift, created_at")
-    .order("created_at", { ascending: true });
+  const session = await requireRole("admin");
+  const { cuentas, conServicio } = await listarCuentas();
+  const bloqueadas = cuentas.filter((c) => c.bloqueada).length;
 
   return (
-    <section className="rounded-2xl border border-hair bg-white">
-      <div className="border-b border-hair px-5 py-4">
-        <h1 className="text-xl font-bold tracking-tight">Usuarios, roles y turnos</h1>
-        <p className="text-sm text-sub">
-          Solo un administrador puede asignar roles y turnos. Las cuentas nuevas parten como técnico sin turno.
+    <div className="space-y-5">
+      <header>
+        <h1 className="text-2xl font-bold tracking-tight">Usuarios, roles y turnos</h1>
+        <p className="mt-1 max-w-3xl text-sm text-sub">
+          Solo el administrador crea cuentas, asigna roles y turnos, cambia contraseñas y bloquea accesos. Cada cambio queda en la{" "}
+          <Link href="/admin/auditoria?tipo=cuentas" className="font-semibold text-cu underline-offset-2 hover:underline">
+            auditoría
+          </Link>
+          .
         </p>
-      </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-left font-mono text-xs uppercase tracking-[0.06em] text-sub">
-            <th className="px-5 py-2 font-medium">Nombre</th>
-            <th className="px-5 py-2 font-medium">Actual</th>
-            <th className="px-5 py-2 font-medium">Asignar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(perfiles ?? []).map((p) => {
-            const role = p.role as Role;
-            const shift = (p.shift as Shift | null) ?? null;
-            const propio = p.id === session?.id;
-            return (
-              <tr key={p.id} className="border-t border-hair">
-                <td className="px-5 py-3 font-medium">{p.full_name || "Sin nombre"}</td>
-                <td className="px-5 py-3">{roleWithShift(role, shift)}</td>
+      </header>
+
+      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className={`${tarjeta} px-4 py-3`}>
+          <dt className="text-xs text-sub">Cuentas</dt>
+          <dd className="font-mono text-2xl font-semibold tabular-nums">{cuentas.length}</dd>
+        </div>
+        {ROLES.map((r) => (
+          <div key={r} className={`${tarjeta} px-4 py-3`}>
+            <dt className="text-xs text-sub">{ROLE_LABEL[r]}</dt>
+            <dd className="font-mono text-2xl font-semibold tabular-nums">{cuentas.filter((c) => c.role === r).length}</dd>
+          </div>
+        ))}
+        <div className={`${tarjeta} px-4 py-3`}>
+          <dt className="text-xs text-sub">Bloqueadas</dt>
+          <dd className={`font-mono text-2xl font-semibold tabular-nums ${bloqueadas > 0 ? "text-[#7a0000]" : ""}`}>{conServicio ? bloqueadas : "—"}</dd>
+        </div>
+      </dl>
+
+      {!conServicio && (
+        <p role="status" className="rounded-xl border border-cu/50 bg-cu-soft px-4 py-3 text-sm text-[#7a3d12]">
+          El servidor no tiene la clave de servicio (<span className="font-mono">SUPABASE_SERVICE_ROLE_KEY</span>): se pueden cambiar nombres, roles y
+          turnos, pero no crear cuentas, cambiar contraseñas, bloquear ni ver el usuario y el último ingreso.
+        </p>
+      )}
+
+      <section className={`${tarjeta} overflow-x-auto`}>
+        <table className="w-full min-w-[640px] text-sm">
+          <caption className="sr-only">Cuentas de la plataforma</caption>
+          <thead>
+            <tr className="border-b border-hair bg-paper/70 text-left">
+              <th scope="col" className={th}>Usuario</th>
+              <th scope="col" className={th}>Nombre</th>
+              <th scope="col" className={th}>Rol y turno</th>
+              <th scope="col" className={th}>Último ingreso</th>
+              <th scope="col" className={th}>Estado</th>
+              <th scope="col" className={th}>
+                <span className="sr-only">Acciones</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-hair">
+            {cuentas.map((c) => (
+              <tr key={c.id} className={c.bloqueada ? "bg-paper/60 text-sub" : undefined}>
+                <th scope="row" className="px-5 py-3 text-left font-mono font-semibold">
+                  {c.usuario || "—"}
+                </th>
                 <td className="px-5 py-3">
-                  {propio ? (
-                    <span className="text-sub">Su propia cuenta</span>
+                  {c.fullName}
+                  {c.id === session.id ? <span className="ml-2 rounded-full bg-paper px-2 py-0.5 text-xs text-sub">Usted</span> : null}
+                </td>
+                <td className="px-5 py-3">{roleWithShift(c.role, c.shift)}</td>
+                <td className="px-5 py-3 text-sub">{!conServicio ? "—" : c.ultimoIngreso ? formatFechaHora(c.ultimoIngreso) : "Nunca ha ingresado"}</td>
+                <td className="px-5 py-3">
+                  {c.bloqueada ? (
+                    <span className="rounded-full bg-[#fdecec] px-2.5 py-0.5 text-xs font-semibold text-[#7a0000]">Bloqueada</span>
                   ) : (
-                    <form action={actualizarUsuario} className="flex flex-wrap items-center gap-2">
-                      <input type="hidden" name="userId" value={p.id} />
-                      <select name="role" defaultValue={role} aria-label="Rol" className={campo}>
-                        {ROLES.map((r) => (
-                          <option key={r} value={r}>
-                            {ROLE_LABEL[r]}
-                          </option>
-                        ))}
-                      </select>
-                      <select name="shift" defaultValue={shift ?? ""} aria-label="Turno" className={campo}>
-                        <option value="">Sin turno</option>
-                        {SHIFTS.map((s) => (
-                          <option key={s} value={s}>
-                            Turno {s}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="submit"
-                        className="rounded-lg border border-graf px-3 py-1.5 font-semibold hover:bg-paper focus-visible:outline-2 focus-visible:outline-cu"
-                      >
-                        Guardar
-                      </button>
-                    </form>
+                    <span className="rounded-full bg-[#eaf5ee] px-2.5 py-0.5 text-xs font-semibold text-[#14532d]">Activa</span>
                   )}
                 </td>
+                <td className="px-5 py-3 text-right">
+                  <Link
+                    href={`/admin/usuarios/${c.id}`}
+                    className="inline-flex min-h-9 items-center rounded-lg border border-hair px-3 py-1.5 font-semibold text-graf hover:bg-paper focus-visible:outline-2 focus-visible:outline-cu"
+                  >
+                    Administrar<span className="sr-only"> la cuenta {c.usuario || c.fullName}</span>
+                  </Link>
+                </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </section>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className={tarjeta}>
+        <div className="border-b border-hair px-5 py-3.5">
+          <h2 className="text-[15px] font-bold tracking-tight">Crear una cuenta</h2>
+          <p className="mt-0.5 text-xs text-sub">
+            La persona entra con el usuario y la contraseña que usted defina aquí. No se envía ningún correo: entréguele la contraseña en persona.
+          </p>
+        </div>
+        <div className="p-5">
+          <FormNuevaCuenta habilitado={conServicio} />
+        </div>
+      </section>
+    </div>
   );
 }

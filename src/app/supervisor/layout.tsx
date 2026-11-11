@@ -6,8 +6,10 @@ export default async function SupervisorLayout({ children }: { children: React.R
   const session = await requireRole("supervisor");
   return (
     <StaffShell session={session} nav={[
+        { href: "/supervisor/panel", label: "Inicio" },
         { href: "/supervisor", label: "Bandeja" },
         { href: "/supervisor/fallas", label: "Fallas" },
+        { href: "/supervisor/exportar", label: "Exportar" },
         { href: "/supervisor/formatos", label: "Formatos" },
       ]}>
       {children}

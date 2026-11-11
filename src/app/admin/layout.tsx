@@ -8,10 +8,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <StaffShell
       session={session}
       nav={[
+        { href: "/admin/panel", label: "Inicio" },
         { href: "/admin", label: "Inspecciones" },
         { href: "/admin/fallas", label: "Equipos con fallas" },
+        { href: "/admin/exportar", label: "Exportar" },
         { href: "/admin/formatos", label: "Formatos" },
         { href: "/admin/usuarios", label: "Usuarios" },
+        { href: "/admin/auditoria", label: "Auditoría" },
       ]}
     >
       {children}

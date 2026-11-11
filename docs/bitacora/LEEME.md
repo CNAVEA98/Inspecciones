@@ -41,6 +41,7 @@ en la entrada de la bitácora. Si dos ramas suben al mismo número, la que se un
 
 | Versión | Fecha | Qué incluye |
 |---|---|---|
+| V1.1.8 | 2026-11-10 | Pantalla «Inicio» con indicadores para supervisor, programador y administrador (período de 7, 30 o 90 días, turno y área; gráfico con clic); pestaña «Exportar» (Excel con filtros de fechas, tipo, turno, área, equipo, TAG y estado); pestaña activa marcada en el encabezado; administración de cuentas (crear, contraseña, bloqueo) y pestaña «Auditoría» para el administrador (migración 0022) |
 | V1.1.7 | 2026-11-09 | Una inspección rechazada admite una sola corrección (migración 0021, `corrects_id` único); la web y la app avisan si ya fue corregida, aunque sea desde otro teléfono de la misma cuenta |
 | V1.1.6 | 2026-11-09 | PDF oficial de las inspecciones aprobadas archivado en el bucket privado `reports` (lo escribe solo el servidor con la clave de servicio) y entregado desde ahí en cada descarga |
 | V1.1.5 | 2026-11-09 | Autoría de la aplicación (para Bbosch, no a su nombre), `LICENSE`, pie, Privacidad y Condiciones |

@@ -12,7 +12,11 @@ export const AREA_PATH: Record<Role, string> = {
   technician: "/tecnico",
 };
 
-export const homeFor = (role: Role) => AREA_PATH[role];
+/**
+ * Pantalla a la que llega cada rol al ingresar: el personal de revisión parte por su panel de indicadores («Inicio»);
+ * el técnico, por sus inspecciones.
+ */
+export const homeFor = (role: Role) => (role === "technician" ? AREA_PATH[role] : `${AREA_PATH[role]}/panel`);
 
 /** Rol dueño de la ruta, o null si la ruta no es de un área protegida. */
 export function roleOfPath(pathname: string): Role | null {

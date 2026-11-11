@@ -5,11 +5,8 @@ import { roleWithShift } from "@/lib/auth/roles";
 import { SignOutButton } from "./sign-out-button";
 import { PiePagina } from "./pie-pagina";
 import { AvisoPrivacidad } from "./aviso-privacidad";
-
-interface NavItem {
-  href: string;
-  label: string;
-}
+import type { NavItem } from "@/lib/nav";
+import { NavPrincipal } from "./nav-principal";
 
 /** Marco común del personal de escritorio (administrador, supervisor, planificador). */
 export function StaffShell({
@@ -21,8 +18,6 @@ export function StaffShell({
   nav: NavItem[];
   children: React.ReactNode;
 }) {
-  const link =
-    "rounded-lg px-3 py-2 text-sm font-semibold text-[#c9d0d6] hover:bg-graf-2 hover:text-white focus-visible:outline-2 focus-visible:outline-cu";
   return (
     <div className="flex min-h-[100dvh] flex-col">
       <header className="flex flex-wrap items-center gap-x-6 gap-y-2 bg-graf px-6 py-3 text-white">
@@ -33,13 +28,7 @@ export function StaffShell({
           </span>
           <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#9aa4ad]">Inspección Eléctrica Bbosch-MLP</span>
         </Link>
-        <nav aria-label="Principal" className="flex gap-1">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href} className={link}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <NavPrincipal nav={nav} />
         <span className="ml-auto text-right text-sm text-[#c9d0d6]">
           {session.fullName}
           <span className="block font-mono text-xs uppercase tracking-[0.08em] text-[#9aa4ad]">

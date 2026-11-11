@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { homeFor, roleOfPath, roleWithShift, safeNext } from "./roles";
 
 describe("roles", () => {
-  it("cada rol tiene su área de inicio", () => {
-    expect(homeFor("admin")).toBe("/admin");
-    expect(homeFor("supervisor")).toBe("/supervisor");
-    expect(homeFor("planner")).toBe("/planificador");
+  it("cada rol tiene su pantalla de inicio: el panel para el personal, las inspecciones para el técnico", () => {
+    expect(homeFor("admin")).toBe("/admin/panel");
+    expect(homeFor("supervisor")).toBe("/supervisor/panel");
+    expect(homeFor("planner")).toBe("/planificador/panel");
     expect(homeFor("technician")).toBe("/tecnico");
   });
 

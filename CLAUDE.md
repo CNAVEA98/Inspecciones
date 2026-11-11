@@ -9,7 +9,7 @@ el proyecto documentado y cada cambio debe poder rastrearse en git y en la bitá
 **Antes de hacer cualquier cosa, lea `docs/MAESTRO.md` completo** (se carga abajo) y luego `docs/bitacora/ESTADO.md` (estado, pendientes y decisiones) y las 3 últimas entradas de `docs/bitacora/REGISTRO.md`.
 El Maestro es el directorio de todo el proyecto: dónde está cada documento y cada carpeta, el estado actual, lo que
 falta y las revisiones pendientes. Si no tiene contexto previo (otra cuenta o PC), parta por ahí. Al cerrar una
-mejora, actualice el Maestro (secciones 4, 5 y 6) en el mismo commit que la bitácora.
+mejora, actualice `docs/bitacora/ESTADO.md` (y la sección 6 del Maestro si cambia el contexto de negocio) en el mismo commit que la bitácora.
 
 @docs/MAESTRO.md
 
@@ -74,13 +74,8 @@ corepack pnpm supabase db reset   # aplica migraciones y seed
 
 Un paso se considera terminado solo con lint, tsc, tests y build en verde, y la bitácora actualizada.
 
-## Mapa rápido
+## Datos que no se ven leyendo el código
 
-- `supabase/migrations`, `supabase/seed_catalogo.sql` (catálogo y plantilla; seguro para un Supabase remoto) y `supabase/seed_usuarios_dev.plantilla.sql` (cuentas de prueba, solo local; las contraseñas NO se versionan: ver `seed:usuarios`): esquema, RLS, RPC y seed.
-- `src/lib/templates`: esquema Zod y validación de plantillas y respuestas.
-- `src/lib/offline`: Dexie, cola de envío, sincronización, compresión de fotos.
-- `src/lib/tecnico`, `src/components/tecnico`, `src/app/tecnico`: flujo del técnico.
-- `src/lib/formatos`: tipos y filtros de los formatos (los datos están en la tabla `formatos`, migración 0016; los tests los leen de esa migración con `semilla.ts`), editor de formatos y filtro del selector de TAG.
-- `src/data/maestro-tags.json`: Maestro de TAG, generado con `python scripts/export-maestro.py` (ver `docs/guias/EXPORT_MAESTRO.md`; no editar a mano).
-- `src/app/supervisor`: área del supervisor.
-- `docs/`: `MAESTRO.md` (entrada), `bitacora/` (historial oficial), `guias/` (diseño, despliegue, desarrollo, licencias), `referencia/` (análisis y datos de apoyo), `muestras/` (HTML de referencia del formato y del formulario), `formatos/` (Word de origen).
+- `src/lib/formatos`: los formatos viven en la tabla `formatos` (migración 0016); los tests los leen de esa migración con `semilla.ts`.
+- `src/data/maestro-tags.json` se genera con `python scripts/export-maestro.py` (ver `docs/guias/EXPORT_MAESTRO.md`); no editar a mano.
+- Directorio completo del repositorio: `docs/MAESTRO.md`, sección 3.

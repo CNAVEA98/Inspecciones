@@ -199,11 +199,14 @@ select tap_as('supervisor_a@mlp.local');
 select is((select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'bbosch', ' 4500012345 ', 'x') ->> 'sap_notice'),
           '4500012345', 'el supervisor registra el N.º de aviso aunque la inspección ya esté aprobada');
 select tap_as('tecnico_a@mlp.local');
-select is((select count(*) from public.finding_followups), 1::bigint, 'el técnico dueño ve el seguimiento de su inspección');
+-- Se cuenta solo el hallazgo de esta prueba: la base local puede traer seguimientos de otras inspecciones del mismo técnico.
+select is((select count(*) from public.finding_followups where finding_id = '99999999-9999-4999-8999-999999999991'), 1::bigint,
+          'el técnico dueño ve el seguimiento de su inspección');
 select throws_ok($$insert into public.finding_followups (finding_id, inspection_id, scope) values ('99999999-9999-4999-8999-999999999991', (select a from ids), 'bbosch')$$,
                  '42501', null, 'el técnico no escribe directo en la tabla de seguimiento');
 select tap_as('tecnico_b@mlp.local');
-select is((select count(*) from public.finding_followups), 0::bigint, 'el técnico B no ve el seguimiento ajeno');
+select is((select count(*) from public.finding_followups where finding_id = '99999999-9999-4999-8999-999999999991'), 0::bigint,
+          'el técnico B no ve el seguimiento ajeno');
 select tap_as('supervisor_a@mlp.local');
 select is((select public.set_finding_followup('99999999-9999-4999-8999-999999999991', 'terceros', '4500012345', 'Canalizado con MLP') ->> 'channel_note'),
           'Canalizado con MLP', 'al pasar a terceros se guarda la nota de canalización');

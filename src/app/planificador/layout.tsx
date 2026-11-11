@@ -6,8 +6,10 @@ export default async function PlanificadorLayout({ children }: { children: React
   const session = await requireRole("planner");
   return (
     <StaffShell session={session} nav={[
+        { href: "/planificador/panel", label: "Inicio" },
         { href: "/planificador", label: "Bandeja" },
         { href: "/planificador/fallas", label: "Equipos con fallas" },
+        { href: "/planificador/exportar", label: "Exportar" },
         { href: "/planificador/formatos", label: "Formatos" },
       ]}>
       {children}

@@ -1,5 +1,5 @@
 import { FlashList } from "@shopify/flash-list";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -51,6 +51,7 @@ const TarjetaEquipo = memo(function TarjetaEquipo({
   enLinea: boolean;
   onGuardado: () => void;
 }) {
+  const router = useRouter();
   return (
     <Tarjeta style={estilos.tarjeta}>
       <View style={estilos.filaEntre}>

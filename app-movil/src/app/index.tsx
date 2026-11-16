@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { Redirect, router } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -182,6 +182,7 @@ const TarjetaEnviada = memo(function TarjetaEnviada({
 
 /** Inicio del técnico: nuevo Standard, resumen, inspecciones en curso y enviadas (igual que la web). */
 function InicioTecnico() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { salir } = useSesion();
   const { perfil, almacen, userId, supabase, catalog, sync } = useTecnico();
@@ -285,7 +286,7 @@ function InicioTecnico() {
     setMostrar(POR_PAGINA_ENVIADAS);
   }, []);
 
-  const abrir = useCallback((id: string) => router.push({ pathname: "/inspeccion/[id]", params: { id } }), []);
+  const abrir = useCallback((id: string) => router.push({ pathname: "/inspeccion/[id]", params: { id } }), [router]);
 
   const cerrarSesion = useCallback(() => {
     // Sin señal no se podría volver a ingresar (el ingreso lo valida el servidor) y el técnico quedaría sin poder inspeccionar.

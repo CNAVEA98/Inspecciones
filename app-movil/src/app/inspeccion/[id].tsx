@@ -1,4 +1,4 @@
-import { Stack, router, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
@@ -44,6 +44,7 @@ import { color } from "@/ui/tema";
 
 /** Formulario de inspección: una sección por pantalla, guardado automático en el teléfono. */
 export default function Formulario() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { almacen, userId, catalog, sync } = useTecnico();
@@ -510,6 +511,7 @@ function confirmarQuitar(titulo: string, alConfirmar: () => void) {
  * cola y se envía al reconectar. El PDF se descargará desde «Enviadas» cuando esa función llegue a la app.
  */
 function EnvioListo({ id }: { id: string }) {
+  const router = useRouter();
   const { almacen } = useTecnico();
   const [estado, setEstado] = useState<DraftRecord["state"]>();
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
-import { router, useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, Pressable, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -48,6 +48,7 @@ const Chip = memo(function Chip({ texto, activo, onPress }: { texto: string; act
 });
 
 const TarjetaFila = memo(function TarjetaFila({ f }: { f: FilaBandeja }) {
+  const router = useRouter();
   return (
     <Presionable
       accessibilityRole="button"
@@ -78,6 +79,7 @@ const TarjetaFila = memo(function TarjetaFila({ f }: { f: FilaBandeja }) {
  * Con señal deja guardada una copia (y el detalle de las primeras) para revisar sin señal.
  */
 export default function Bandeja() {
+  const router = useRouter();
   const { supabase, rol, perfil, kv } = useRevision();
   const enLinea = useEnLinea();
   const [copiaDe, setCopiaDe] = useState<number | null>(null);

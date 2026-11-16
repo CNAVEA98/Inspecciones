@@ -1,4 +1,4 @@
-import { Stack, router } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Aparecer, Esqueleto } from "@/ui/animacion";
@@ -31,6 +31,7 @@ const TITULO: Record<Paso, string> = {
 
 /** Flujo de selección en 4 pasos: Área → Trabajo → Familia → Formato. Los formatos llegan con el catálogo local. */
 export default function NuevaInspeccion() {
+  const router = useRouter();
   const { catalog, almacen, userId } = useTecnico();
   const [paso, setPaso] = useState<Paso>("area");
   const [area, setArea] = useState<CatalogEntry | null>(null);

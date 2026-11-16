@@ -54,7 +54,8 @@ function Navegador() {
       }}
     >
       <Stack.Protected guard={conSesion}>
-        <Stack.Screen name="index" options={{ headerShown: false, animation: "fade" }} />
+        {/* `title` aunque el encabezado esté oculto: iOS lo usa como texto del botón «volver» de la pantalla siguiente (sin él mostraba «index» o «revision/index»). */}
+        <Stack.Screen name="index" options={{ headerShown: false, title: "Inicio", animation: "fade" }} />
       </Stack.Protected>
       <Stack.Protected guard={conSesion && esTecnico}>
         <Stack.Screen name="nueva" options={{ title: "Nuevo Standard", animation: "slide_from_bottom" }} />
@@ -62,7 +63,7 @@ function Navegador() {
       </Stack.Protected>
       {/* Supervisor, programador y administrador: bandeja, revisión y equipos con fallas (consulta sin señal; firmar necesita señal). */}
       <Stack.Protected guard={conSesion && !esTecnico}>
-        <Stack.Screen name="revision/index" options={{ headerShown: false, animation: "fade" }} />
+        <Stack.Screen name="revision/index" options={{ headerShown: false, title: "Bandeja", animation: "fade" }} />
         <Stack.Screen name="revision/[id]" options={{ title: "Revisión", animation: "slide_from_right" }} />
         <Stack.Screen name="revision/fallas" options={{ title: "Equipos con fallas", animation: "slide_from_right" }} />
       </Stack.Protected>
